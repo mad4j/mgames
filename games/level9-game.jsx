@@ -305,9 +305,9 @@ function drawHUD(ctx, { score, wave, lives, phazors }, dpr, cssW, cssH) {
 
 /* ═══════════════════════ COMPONENT ════════════════ */
 export const meta = {
-  path:        "/round42",
+  path:        "/level9",
   symbol:      "9",
-  name:        "round42",
+  name:        "level9",
   description: "defend against the alien fleet",
 };
 
@@ -747,7 +747,7 @@ export default function Level9Game() {
             <div style={{
               color: C_MAIN, fontSize: 36, letterSpacing: 9, lineHeight: 1,
               textShadow: `0 0 28px ${C_MAIN}`, fontFamily: mono, marginBottom: 8,
-            }}>ROUND42</div>
+            }}>LEVEL9</div>
             <Label style={{ fontSize: 10, marginBottom: 40 }}>alien fleet incoming</Label>
 
             <div style={{ display: "flex", gap: 24, marginTop: 4 }}>
