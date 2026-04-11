@@ -7,8 +7,8 @@ const MIN_SPEED     = 55;
 const GAME_H        = 760;
 const SPEED_TICK_MS = 3000;  // interval between time-based speed bumps
 const SPEED_TICK_DEC = 4;    // ms removed from interval each bump
-const FOOD_MIN_MS   = 3000;  // min food lifetime before reposition
-const FOOD_MAX_MS   = 9000;  // max food lifetime before reposition
+const FOOD_MIN_MS   = 1500;  // min food lifetime before reposition
+const FOOD_MAX_MS   = 4500;  // max food lifetime before reposition
 
 // ── audio ─────────────────────────────────────────────────────────────────────
 function useSound() {
@@ -117,6 +117,7 @@ export default function SnakeGame() {
 
   const [phase,       setPhase]       = useState("idle");
   const [score,       setScore]       = useState(0);
+  const [streak,      setStreak]      = useState(1);
   const [best,        setBest]        = useState(0);
   const [flash,       setFlash]       = useState(false);
   const [renderSnake, setRenderSnake] = useState([]);
@@ -131,6 +132,7 @@ export default function SnakeGame() {
   const phaseRef       = useRef("idle");
   const speedRef       = useRef(MAX_SPEED);
   const scoreRef       = useRef(0);
+  const streakRef      = useRef(1);
   const bestRef        = useRef(0);
   const loopId         = useRef(null);
   const touchStart     = useRef(null);
@@ -201,9 +203,11 @@ export default function SnakeGame() {
     const newSnake = [head, ...snakeRef.current];
 
     if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
-      // Ate the food
-      scoreRef.current++;
+      // Ate the food — score increases by current streak, then streak grows
+      scoreRef.current += streakRef.current;
+      streakRef.current++;
       setScore(scoreRef.current);
+      setStreak(streakRef.current);
       soundRef.current.playEat();
       const newFood = placeFood(newSnake);
       foodRef.current = newFood;
@@ -211,8 +215,10 @@ export default function SnakeGame() {
       setFoodKey(k => k + 1);
       speedRef.current = Math.max(MIN_SPEED, speedRef.current - 5);
     } else {
-      // Check if food lifetime expired → reposition without scoring
+      // Check if food lifetime expired → reposition without scoring, reset streak
       if (Date.now() >= foodExpiresAt.current) {
+        streakRef.current = 1;
+        setStreak(1);
         const newFood = placeFood(newSnake);
         foodRef.current = newFood;
         setRenderFood(newFood);
@@ -251,6 +257,7 @@ export default function SnakeGame() {
     dirRef.current     = initDir;
     nextDirRef.current = initDir;
     scoreRef.current   = 0;
+    streakRef.current  = 1;
     speedRef.current   = MAX_SPEED;
     phaseRef.current   = "playing";
 
@@ -258,6 +265,7 @@ export default function SnakeGame() {
     setRenderFood(initFood);
     setFoodKey(k => k + 1);
     setScore(0);
+    setStreak(1);
     setFlash(false);
     setPhase("playing");
 
@@ -468,7 +476,15 @@ export default function SnakeGame() {
             zIndex:        10,
             pointerEvents: "none",
             textShadow:    "0 0 6px rgba(255,255,255,0.55)",
-          }}>{score}</div>
+            display:       "flex",
+            alignItems:    "baseline",
+            gap:           6,
+          }}>
+            <span>{score}</span>
+            {streak > 1 && (
+              <span style={{ fontSize: 11, opacity: 0.55, letterSpacing: 1 }}>×{streak}</span>
+            )}
+          </div>
 
           {/* Food — diamond */}
           {renderFood && (
