@@ -5,8 +5,6 @@ import { useNavigate } from "react-router-dom";
 const GRAV   = 0.30;
 const BALL_R = 9;
 const FLIP_R = 5;
-const SHAKE_IMPULSE_FACTOR = 0.18; // horizontal delta multiplier for nudge
-const SHAKE_SOUND_THRESHOLD = 15;  // min swipe px to trigger shake sound
 
 // ── Math helpers ──────────────────────────────────────────────
 function lerp(a, b, t) { return a + (b - a) * t; }
@@ -140,9 +138,8 @@ function useSound() {
   const playKicker   = useCallback(() => playTone(330, 0.10, "sawtooth", 0.10), [playTone]);
   const playStar     = useCallback(() => playTone(880, 0.20, "sine",     0.18), [playTone]);
   const playDrain    = useCallback(() => playTone(110, 0.40, "sine",     0.20), [playTone]);
-  const playShake    = useCallback(() => playTone(200, 0.14, "sawtooth", 0.07), [playTone]);
 
-  return { soundOn, setSoundOn, playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain, playShake };
+  return { soundOn, setSoundOn, playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain };
 }
 
 // ── Icon components ───────────────────────────────────────────
@@ -193,18 +190,15 @@ export default function Pinball() {
   const gsRef  = useRef(null);
   const rafRef = useRef(null);
   const keys   = useRef({ l: false, r: false });
-  const phase  = useRef("idle");
-  const shakeImpulseRef = useRef(0);
-  const shakeTouchRef   = useRef({ active: false, startX: 0, lastX: 0 });
-  const [ui, setUi] = useState({ p: "idle", score: 0, lives: 3, best: 0, newBest: false });
+  const phase  = useRef("idle");  const [ui, setUi] = useState({ p: "idle", score: 0, lives: 3, best: 0, newBest: false });
 
-  const { soundOn, setSoundOn, playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain, playShake } = useSound();
+  const { soundOn, setSoundOn, playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain } = useSound();
 
   // Keep sound callbacks accessible inside the rAF loop without stale closures
   const sndRef = useRef({});
   useEffect(() => {
-    sndRef.current = { playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain, playShake };
-  }, [playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain, playShake]);
+    sndRef.current = { playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain };
+  }, [playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain]);
 
   const loop = useCallback(() => {
     const cv = cvRef.current;
@@ -230,13 +224,6 @@ export default function Pinball() {
     ball.y  += ball.vy;
     const spd = Math.hypot(ball.vx, ball.vy);
     if (spd > 22) { ball.vx *= 22 / spd; ball.vy *= 22 / spd; }
-
-    // Shake/nudge impulse
-    if (shakeImpulseRef.current !== 0) {
-      ball.vx += shakeImpulseRef.current;
-      ball.vy -= Math.abs(shakeImpulseRef.current) * 0.18;
-      shakeImpulseRef.current = 0;
-    }
 
     // Side walls + ceiling
     if (ball.x < BALL_R)     { ball.x = BALL_R;     ball.vx =  Math.abs(ball.vx) * 0.72; }
@@ -546,25 +533,6 @@ export default function Pinball() {
   };
   const onPU = () => { keys.current.l = false; keys.current.r = false; };
 
-  // Shake bar handlers
-  const onShakeStart = e => {
-    if (phase.current !== "playing") return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    shakeTouchRef.current = { active: true, startX: e.clientX, lastX: e.clientX };
-  };
-  const onShakeMove = e => {
-    if (!shakeTouchRef.current.active || phase.current !== "playing") return;
-    const delta = e.clientX - shakeTouchRef.current.lastX;
-    shakeTouchRef.current.lastX = e.clientX;
-    shakeImpulseRef.current += delta * SHAKE_IMPULSE_FACTOR;
-  };
-  const onShakeEnd = e => {
-    if (!shakeTouchRef.current.active) return;
-    const totalDelta = e.clientX - shakeTouchRef.current.startX;
-    if (Math.abs(totalDelta) > SHAKE_SOUND_THRESHOLD) sndRef.current.playShake?.();
-    shakeTouchRef.current.active = false;
-  };
-
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
   const { p, score, lives, best, newBest } = ui;
@@ -600,10 +568,10 @@ export default function Pinball() {
     }}>
       <div style={{
         position: "relative",
-        width: 430,
+        width: 380,
         height: 760,
-        maxWidth: "100%",
-        maxHeight: "100%",
+        maxWidth: "calc(100vw - 32px)",
+        maxHeight: "calc(100dvh - 32px)",
         overflow: "hidden",
         userSelect: "none",
         fontFamily: "'DM Mono', 'Courier New', monospace",
@@ -663,86 +631,6 @@ export default function Pinball() {
             color: "#fff", fontSize: 12, letterSpacing: 4, opacity: 0.5,
             pointerEvents: "none",
           }}>{"●".repeat(Math.max(0, lives))}</div>
-
-          <div style={{
-            position: "absolute", bottom: 80, right: 16, zIndex: 10,
-            color: "#fff", fontSize: 8, letterSpacing: 3, opacity: 0.13,
-            pointerEvents: "none", textAlign: "right", lineHeight: 2.2,
-            textTransform: "uppercase",
-          }}>○ 100<br />◇ &nbsp;75<br />△ 150<br />— &nbsp;50<br />★ 200</div>
-
-          <div style={{
-            position: "absolute", bottom: 80, left: "50%",
-            transform: "translateX(-50%)",
-            color: "#fff", fontSize: 9, letterSpacing: 5, opacity: 0.11,
-            pointerEvents: "none", whiteSpace: "nowrap",
-          }}>Z · · · X &nbsp;&nbsp;&nbsp; ← · · · →</div>
-
-          {/* ── Left flipper button ── */}
-          <button
-            aria-label="left flipper"
-            onPointerDown={e => { e.stopPropagation(); keys.current.l = true; }}
-            onPointerUp={() => keys.current.l = false}
-            onPointerLeave={() => keys.current.l = false}
-            onPointerCancel={() => keys.current.l = false}
-            style={{
-              position: "absolute", bottom: 10, left: 10, zIndex: 20,
-              width: 100, height: 52,
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.16)",
-              borderRadius: 6,
-              color: "rgba(255,255,255,0.40)", fontSize: 22,
-              cursor: "pointer", touchAction: "none",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontFamily: "'DM Mono', monospace",
-            }}
-          >←</button>
-
-          {/* ── Shake bar ── */}
-          <div
-            aria-label="shake to nudge ball"
-            onPointerDown={onShakeStart}
-            onPointerMove={onShakeMove}
-            onPointerUp={onShakeEnd}
-            onPointerLeave={onShakeEnd}
-            onPointerCancel={() => { shakeTouchRef.current.active = false; }}
-            style={{
-              position: "absolute", bottom: 10, left: "50%",
-              transform: "translateX(-50%)",
-              width: 90, height: 52, zIndex: 20,
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              borderRadius: 6,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "grab", touchAction: "pan-x",
-              userSelect: "none",
-            }}
-          >
-            <div style={{
-              color: "rgba(255,255,255,0.25)", fontSize: 9,
-              letterSpacing: 3, textTransform: "uppercase", pointerEvents: "none",
-            }}>⇄ shake</div>
-          </div>
-
-          {/* ── Right flipper button ── */}
-          <button
-            aria-label="right flipper"
-            onPointerDown={e => { e.stopPropagation(); keys.current.r = true; }}
-            onPointerUp={() => keys.current.r = false}
-            onPointerLeave={() => keys.current.r = false}
-            onPointerCancel={() => keys.current.r = false}
-            style={{
-              position: "absolute", bottom: 10, right: 10, zIndex: 20,
-              width: 100, height: 52,
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.16)",
-              borderRadius: 6,
-              color: "rgba(255,255,255,0.40)", fontSize: 22,
-              cursor: "pointer", touchAction: "none",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontFamily: "'DM Mono', monospace",
-            }}
-          >→</button>
         </>}
 
         {/* ── Idle screen ── */}
