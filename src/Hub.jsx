@@ -20,8 +20,6 @@ export default function Hub({ games }) {
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&display=swap');
-
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -60,6 +58,7 @@ export default function Hub({ games }) {
           textTransform: "uppercase",
           marginBottom: 56,
           animation: "fadeIn 0.5s ease",
+          animationFillMode: "backwards",
         }}
       >
         mgames
@@ -132,6 +131,7 @@ export default function Hub({ games }) {
           textDecoration: "none",
           fontFamily: "'DM Mono', 'Courier New', monospace",
           animation: "fadeIn 0.8s ease",
+          animationFillMode: "backwards",
         }}
       >
         daniele.olmisani@gmail.com
