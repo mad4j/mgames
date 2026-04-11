@@ -715,9 +715,9 @@ export default function Level9Game() {
     }}>
       <div style={{
         position: "relative", width: 430, height: 760,
-        maxWidth: "100%", maxHeight: "100%",
+        maxWidth: "calc(100vw - 32px)", maxHeight: "calc(100dvh - 32px)",
         overflow: "hidden", userSelect: "none", touchAction: "none",
-        outline: "1px solid rgba(255,255,255,0.07)",
+        outline: "1px dashed rgba(255,255,255,0.12)",
       }}>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');

@@ -361,13 +361,13 @@ export default function SnakeGame() {
         position:   "relative",
         width:      MAX_WIDTH,
         height:     GAME_H,
-        maxWidth:   "100%",
-        maxHeight:  "100%",
+        maxWidth:   "calc(100vw - 32px)",
+        maxHeight:  "calc(100dvh - 32px)",
         overflow:   "hidden",
         userSelect: "none",
         fontFamily: "'DM Mono', 'Courier New', monospace",
         touchAction:"none",
-        outline:    "1px solid rgba(255,255,255,0.07)",
+        outline:    "1px dashed rgba(255,255,255,0.12)",
       }}
     >
       <style>{`
