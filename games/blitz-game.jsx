@@ -16,6 +16,8 @@ const SCORE_PER_FLOOR   = 10;
 const SCORE_PER_PASS    = 5;
 
 const CELL_W_HALF = Math.round(CELL_W / 2); // pre-computed column half-width
+// Leave a small gap so the CSS transition always completes before the next step
+const TRANSITION_OFFSET_MS = 12;
 
 function generateBuildings() {
   return Array.from({ length: COLS }, () =>
@@ -161,6 +163,7 @@ function IconHub() {
 // ── meta ──────────────────────────────────────────────────────────────────────
 export const meta = {
   path: "/blitz",
+  // JSX element – Hub renders {g.symbol} directly so React elements are valid
   symbol: <BombSVG width={28} height={46} />,
   name: "blitz",
   description: "drop bombs, clear the runway",
@@ -518,7 +521,7 @@ export default function BlitzGame() {
                 alignItems: "center",
                 justifyContent: "center",
                 zIndex: 5,
-                transition: `left ${Math.max(PLANE_SPEED_MIN, PLANE_SPEED_START - passRef.current * PLANE_ACCEL) - 12}ms linear`,
+                transition: `left ${Math.max(PLANE_SPEED_MIN, PLANE_SPEED_START - passRef.current * PLANE_ACCEL) - TRANSITION_OFFSET_MS}ms linear`,
                 animation: "planeSlide 0.12s ease",
               }}
             ><Biplane /></div>
