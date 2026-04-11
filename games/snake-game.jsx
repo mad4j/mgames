@@ -235,6 +235,7 @@ export default function SnakeGame() {
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(8px); }
@@ -309,12 +310,11 @@ export default function SnakeGame() {
             position:      "absolute",
             top:           18, left: 24,
             color:         "rgba(255,255,255,0.88)",
-            fontSize:      32,
-            fontWeight:    300,
-            letterSpacing: -1,
+            fontFamily:    "'Share Tech Mono', monospace",
+            fontSize:      16,
             zIndex:        10,
             pointerEvents: "none",
-            textShadow:    "0 0 12px rgba(255,255,255,0.55)",
+            textShadow:    "0 0 6px rgba(255,255,255,0.55)",
           }}>{score}</div>
 
           {/* Food — diamond */}
