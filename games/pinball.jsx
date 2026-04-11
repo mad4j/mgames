@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const GRAV               = 0.30;
 const BALL_R             = 9;
 const FLIP_R             = 5;
-const LANE_W             = 50;   // right launch-lane width (px)
+const LANE_W             = 36;   // right launch-lane width (px)
 const LANE_GAP           = 0.08; // separator starts at this fraction of H from the top
 const LANE_BOTTOM        = 0.87; // separator ends at this fraction of H
 const STAR_COLL_PAD      = 3;    // extra radius for star collision detection
@@ -671,7 +671,7 @@ export default function Pinball() {
   };
 
   const iconBtnStyle = {
-    position: "absolute", top: 14, zIndex: 20,
+    position: "absolute", top: 14, zIndex: 30,
     background: "transparent", border: "none",
     color: "rgba(255,255,255,0.38)",
     cursor: "pointer", padding: 6,
