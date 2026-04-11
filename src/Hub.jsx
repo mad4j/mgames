@@ -65,7 +65,7 @@ export default function Hub({ games }) {
         style={{
           marginBottom: 56,
           animation: "fadeInDim 0.5s ease forwards",
-          maxWidth: "90vw",
+          maxWidth: "min(40vw, 320px)",
         }}
       />
 
