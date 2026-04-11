@@ -310,6 +310,17 @@ export default function TrisGame() {
       fontFamily: mono,
       userSelect: "none",
     }}>
+      <div style={{
+        position: "relative",
+        width: 430,
+        height: 760,
+        maxWidth: "calc(100vw - 32px)",
+        maxHeight: "calc(100dvh - 32px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        outline: "1px dashed rgba(255,255,255,0.12)",
+      }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
@@ -415,6 +426,7 @@ export default function TrisGame() {
           <Btn onClick={start}>again</Btn>
         </div>
       )}
+      </div>
     </div>
   );
 }
