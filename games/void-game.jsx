@@ -199,6 +199,13 @@ function drawHUD(ctx, score, isNear, dpr) {
 }
 
 /* ═══════════════════════ COMPONENT ═════════════════ */
+export const meta = {
+  path: "/void",
+  symbol: "△",
+  name: "void",
+  description: "navigate the asteroid field",
+};
+
 export default function VoidGame() {
   const cvs    = useRef(null);
   const raf    = useRef(null);
@@ -612,7 +619,13 @@ export default function VoidGame() {
   return (
     <div style={{
       width:"100vw", height:"100dvh", background:C_BG,
-      overflow:"hidden", position:"relative",
+      display:"flex", alignItems:"stretch", justifyContent:"center",
+    }}>
+    <div style={{
+      position:"relative",
+      width:"100%",
+      maxWidth:430,
+      overflow:"hidden",
       userSelect:"none", touchAction:"none",
     }}>
       <style>{`
@@ -706,6 +719,7 @@ export default function VoidGame() {
           >again</button>
         </div>
       )}
+    </div>
     </div>
   );
 }

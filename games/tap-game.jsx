@@ -37,6 +37,13 @@ function Ripple({ x, y, onDone }) {
   );
 }
 
+export const meta = {
+  path: "/tap",
+  symbol: "●",
+  name: "tap",
+  description: "pop the dots before they vanish",
+};
+
 export default function TapGame() {
   const [phase,   setPhase]   = useState("idle");
   const [dots,    setDots]    = useState([]);
@@ -166,7 +173,15 @@ export default function TapGame() {
     <div style={{
       width: "100vw", height: "100dvh",
       background: "#0a0a0a",
-      overflow: "hidden", position: "relative",
+      display: "flex",
+      alignItems: "stretch",
+      justifyContent: "center",
+    }}>
+    <div style={{
+      position: "relative",
+      width: "100%",
+      maxWidth: 430,
+      overflow: "hidden",
       userSelect: "none",
       fontFamily: "'DM Mono', 'Courier New', monospace",
       touchAction: "none",
@@ -321,6 +336,7 @@ export default function TapGame() {
           >again</button>
         </div>
       )}
+    </div>
     </div>
   );
 }
