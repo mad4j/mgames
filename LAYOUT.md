@@ -1,8 +1,8 @@
 # mgames — Visual Layout Specification
 
-> Questo documento descrive il sistema visivo usato nel gioco **Void** e nell'intera
-> piattaforma **mgames**, al fine di fornire una guida di riferimento per implementare
-> altri giochi con lo stesso *look and feel*.
+> Questo documento descrive il **sistema visivo della piattaforma mgames**.
+> È una guida di riferimento indipendente dal gioco: ogni nuovo gioco che segue
+> queste specifiche otterrà automaticamente lo stesso *look and feel* degli altri.
 
 ---
 
@@ -78,7 +78,7 @@ Import Google Fonts da inserire nel componente tramite `<style>`:
 | Score finale             | 80–88px   | 300–400     | -2 / -4         | 1.0       |
 | Hint / descrizione       | 9–10px    | 300–400     | 1–3             | 0.14–0.22 |
 | Simbolo card hub         | 32px      | 300         | —               | 0.85      |
-| Titolo VOID              | 40px      | 400         | 12              | 1.0       |
+| Titolo schermata IDLE  | 28–40px   | 400         | 8–12            | 1.0       |
 
 Tutto il testo UI è `textTransform: "uppercase"` salvo i valori numerici
 (score) e le descrizioni secondarie.
@@ -189,7 +189,7 @@ Overlay centrato che fluttua con l'animazione `fadeIn`.
 ```
 
 Regole:
-- Sfondo trasparente (il canvas con stelle è visibile sotto).
+- Sfondo dell'overlay trasparente (il layer di gioco o il canvas è visibile sotto).
 - Tutti gli elementi centrati in colonna (`flexDirection: "column"`, `alignItems: "center"`).
 - `animation: "fadeIn 0.55s ease"` sull'intera overlay.
 
@@ -232,7 +232,7 @@ Elementi fissi durante il gioco:
 
 Regole:
 - `animation: "fadeIn 0.5s ease"` sull'intera schermata.
-- Le linee decorative (`width: 48, height: 1, background: C_MAIN, opacity: 0.4`) sono opzionali ma caratterizzano il look Void.
+- Le linee decorative (`width: 48, height: 1, background: C_MAIN, opacity: 0.4`) sono opzionali e aggiungono un tocco di rigore tecnico.
 - Se `score >= best`: enfasi con `textShadow` e opacità piena; altrimenti opacità dimezzata.
 
 ---
@@ -259,7 +259,7 @@ onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.6)"}
 onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)"}
 ```
 
-Variante Void (con glow):
+Variante con glow (opzionale, adatta a giochi con atmosfera più intensa):
 
 ```jsx
 onMouseEnter={e => {
@@ -363,7 +363,7 @@ Esempi:
 | Snake  | `◈`         | div quadrato `26×26`, ruotato 45°, bordo 1.5px   |
 | Tap    | `●`         | `fontSize: 72`, carattere `●` inline             |
 
-Schema SVG triangolo Void:
+Esempio SVG (forma triangolare — adattare la forma al simbolo del gioco):
 
 ```jsx
 <svg width="40" height="56" viewBox="0 0 40 56" fill="none"
@@ -396,7 +396,7 @@ Tutte le animazioni sono definite in un blocco `<style>` dentro il componente.
   100% { opacity: 0;    }
 }
 
-/* Sfarfallio CRT sul canvas (Void) */
+/* Sfarfallio CRT sul canvas (opzionale, per giochi con estetica retro) */
 @keyframes flicker {
   0%,100% { opacity: 1;    }
   92%     { opacity: 0.95; }
@@ -442,106 +442,129 @@ Tutte le animazioni sono definite in un blocco `<style>` dentro il componente.
 
 ---
 
-## 8. Effetti visivi Canvas (gioco Void)
+## 8. Effetti visivi Canvas
 
-Il gioco Void usa un `<canvas>` come layer di rendering principale.
-Gli overlay UI (idle, done) sono layer DOM sovrapposti al canvas.
+I giochi basati su canvas (`<canvas>`) seguono questi pattern di rendering.
+Gli overlay UI (idle, done) sono layer DOM sovrapposti al canvas con
+`position: absolute; inset: 0`.
 
 ### 8.1 Sfondo e scanlines
+
+Ogni frame il canvas va ripulito con il colore di sfondo e opzionalmente
+arricchito con scanlines CRT e particelle ambientali (stelle, polvere, ecc.).
 
 ```js
 // Pulisci con sfondo nero
 ctx.fillStyle = "#0a0a0a";
 ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-// Stelle statiche (90 punti, opacità 0.07–0.35, dimensione 0.5–1.8 px)
-for (const star of stars) {
-  ctx.globalAlpha = star.a;
-  ctx.fillStyle   = C_MAIN;
-  ctx.fillRect(star.x * dpr, star.y * dpr, star.sz * dpr, star.sz * dpr);
+// (Opzionale) Particelle ambientali — stelle, polvere, ecc.
+// N punti con opacità 0.07–0.35 e dimensione 0.5–1.8 px
+for (const particle of ambientParticles) {
+  ctx.globalAlpha = particle.alpha;
+  ctx.fillStyle   = "rgba(255,255,255,0.88)";
+  ctx.fillRect(particle.x * dpr, particle.y * dpr, particle.size * dpr, particle.size * dpr);
 }
 ctx.globalAlpha = 1;
 
-// Scanlines CRT: una riga di riempimento ogni 4px
-for (let y = 0; y < H; y += 4) {
+// (Opzionale) Scanlines CRT: riga semitrasparente ogni 4 px
+for (let y = 0; y < canvasHeight; y += 4) {
   ctx.fillStyle = "rgba(255,255,255,0.018)";
-  ctx.fillRect(0, y, W, 1);
+  ctx.fillRect(0, y, canvasWidth, 1);
 }
 ```
 
-### 8.2 Nave del giocatore
+Per il flicker CRT applicare `animation: "flicker 7s infinite"` al tag `<canvas>`.
 
-Triangolo isoscele con stroke bianco, glow leggero e inclinazione proporzionale
-alla velocità laterale (tilt):
+### 8.2 Entità controllata dal giocatore
+
+Disegnare con stroke bianco e leggero glow. Il tilt o la deformazione
+devono essere proporzionali al movimento laterale per dare senso di fisica.
 
 ```js
 ctx.shadowColor = "rgba(255,255,255,0.3)";
 ctx.shadowBlur  = 6 * dpr;
-ctx.strokeStyle = C_MAIN;
+ctx.strokeStyle = "rgba(255,255,255,0.88)";
 ctx.lineWidth   = 1.6 * dpr;
 ctx.lineJoin    = "round";
+// disegna la forma dell'entità (triangolo, cerchio, poligono…)
 ctx.beginPath();
-ctx.moveTo(0,       -s * 1.6);   // punta
-ctx.lineTo( s * 1.0, s * 1.0);  // basso destra
-ctx.lineTo(-s * 1.0, s * 1.0);  // basso sinistra
-ctx.closePath();
+/* … ctx.moveTo / lineTo / arc … */
 ctx.stroke();
 ```
 
-### 8.3 Asteroidi
+### 8.3 Ostacoli / elementi di gioco
 
-Poligoni irregolari (8–12 lati) con vertici distorti casualmente.
-Il glow aumenta quando l'asteroide è in "near-miss" (`nearFrac > 0`):
+Gli oggetti ostacolo usano stroke bianco a bassa opacità a riposo.
+Quando si trovano in una zona di "pericolo ravvicinato", il glow e
+lo spessore del tratto aumentano per comunicare tensione:
 
 ```js
-ctx.shadowColor = nearFrac > 0 ? C_NEAR : C_MAIN;
-ctx.shadowBlur  = (6 + nearFrac * 18) * dpr;
-ctx.strokeStyle = nearFrac > 0
+const isHighlight = /* condizione di pericolo / vicinanza */ false;
+ctx.shadowColor = isHighlight ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.88)";
+ctx.shadowBlur  = (6 + (isHighlight ? 18 : 0)) * dpr;
+ctx.strokeStyle = isHighlight
   ? "rgba(255,255,255,1)"
   : "rgba(255,255,255,0.72)";
-ctx.lineWidth   = (1.4 + nearFrac) * dpr;
+ctx.lineWidth   = (1.4 + (isHighlight ? 1 : 0)) * dpr;
 ```
 
 ### 8.4 Particelle e scintille
 
-Le particelle sono segmenti brevi con glow:
+Le particelle sono segmenti brevi che si dissolvono progressivamente.
+L'opacità scala col quadrato della vita residua per un fade più morbido:
 
 ```js
 ctx.globalAlpha = particle.life * particle.life;
-ctx.strokeStyle = particle.color;
+ctx.strokeStyle = particle.color;   // solitamente C_MAIN o C_NEAR
 ctx.shadowColor = particle.color;
 ctx.shadowBlur  = 5 * dpr;
+ctx.lineWidth   = particle.width * dpr;
 ctx.beginPath();
-ctx.moveTo(p.x * dpr, p.y * dpr);
-ctx.lineTo((p.x - p.vx * 4) * dpr, (p.y - p.vy * 4) * dpr);
+ctx.moveTo(particle.x * dpr, particle.y * dpr);
+ctx.lineTo((particle.x - particle.vx * 4) * dpr,
+           (particle.y - particle.vy * 4) * dpr);
 ctx.stroke();
+ctx.globalAlpha = 1;
+ctx.shadowBlur  = 0;
 ```
 
-### 8.5 Onde d'urto (shockwave rings)
+### 8.5 Feedback d'impatto (onde d'urto / shockwave rings)
 
-Cerchi che si espandono con opacità decrescente:
+Cerchi che si espandono con opacità decrescente — usabili per collisioni,
+esplosioni o qualsiasi evento di impatto significativo:
 
 ```js
-const prog = ring.t / ring.duration;  // 0 → 1
+const prog = ring.elapsed / ring.duration;   // 0 → 1
 const r    = prog * ring.maxRadius * dpr;
 const op   = Math.pow(1 - prog, 1.4) * 0.92;
-ctx.arc(cx * dpr, cy * dpr, r, 0, Math.PI * 2);
-ctx.strokeStyle = ring.color;
-ctx.globalAlpha = op;
-ctx.lineWidth   = (2.4 - prog * 1.8) * dpr;
-ctx.shadowBlur  = 14 * dpr;
-ctx.stroke();
+if (op > 0) {
+  ctx.beginPath();
+  ctx.arc(ring.cx * dpr, ring.cy * dpr, r, 0, Math.PI * 2);
+  ctx.strokeStyle = ring.color;            // "#ffffff" o C_MAIN
+  ctx.globalAlpha = op;
+  ctx.lineWidth   = (2.4 - prog * 1.8) * dpr;
+  ctx.shadowColor = ring.color;
+  ctx.shadowBlur  = 14 * dpr;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur  = 0;
+}
 ```
+
+Lanciare più anelli con ritardi scaglionati (0, 4, 10 frame) per un effetto
+a cascata più credibile.
 
 ### 8.6 HUD score su canvas
 
 ```js
-ctx.fillStyle   = C_MAIN;
-ctx.shadowColor = C_MAIN;
+ctx.fillStyle   = "rgba(255,255,255,0.88)";
+ctx.shadowColor = "rgba(255,255,255,0.88)";
 ctx.shadowBlur  = 6 * dpr;
 ctx.font        = `${16 * dpr}px 'Share Tech Mono', monospace`;
 ctx.textAlign   = "left";
 ctx.fillText(String(score), 14 * dpr, 28 * dpr);
+ctx.shadowBlur  = 0;
 ```
 
 ---
@@ -592,10 +615,10 @@ Ogni file gioco deve esportare:
 
 ```js
 export const meta = {
-  path:        "/nome-gioco",   // route React Router
-  symbol:      "△",            // carattere unicode per la card hub
-  name:        "void",          // nome in minuscolo
-  description: "breve frase",   // ≤ 40 caratteri, minuscolo
+  path:        "/nome-gioco",      // route React Router
+  symbol:      "◯",               // carattere unicode per la card hub
+  name:        "nome",             // nome in minuscolo
+  description: "breve frase",      // ≤ 40 caratteri, minuscolo
 };
 
 export default function NomeGame() { /* ... */ }
