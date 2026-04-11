@@ -25,6 +25,16 @@ export default function Hub({ games }) {
           to   { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes fadeInDim {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 0.22; transform: translateY(0); }
+        }
+
+        @keyframes fadeInEmail {
+          from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+          to   { opacity: 0.22; transform: translateX(-50%) translateY(0); }
+        }
+
         .game-card {
           background: transparent;
           border: 1px solid rgba(255,255,255,0.12);
@@ -57,8 +67,7 @@ export default function Hub({ games }) {
           opacity: 0.22,
           textTransform: "uppercase",
           marginBottom: 56,
-          animation: "fadeIn 0.5s ease",
-          animationFillMode: "backwards",
+          animation: "fadeInDim 0.5s ease forwards",
         }}
       >
         mgames
@@ -130,8 +139,7 @@ export default function Hub({ games }) {
           opacity: 0.22,
           textDecoration: "none",
           fontFamily: "'DM Mono', 'Courier New', monospace",
-          animation: "fadeIn 0.8s ease",
-          animationFillMode: "backwards",
+          animation: "fadeInEmail 0.8s ease forwards",
         }}
       >
         daniele.olmisani@gmail.com
