@@ -85,6 +85,8 @@ function makeState(W, H) {
     guides: [
       [0,   H * 0.58, fLx, fy],
       [PW,  H * 0.58, fRx, fy],
+      // Right-lane exit ramp: deflects the ball leftward toward the centre
+      [W - 3, BALL_R * 2.5, PW, H * LANE_GAP],
     ],
     targets: [
       // ── Top bumpers ─────────────────────────────────────────────
@@ -434,12 +436,12 @@ export default function Pinball() {
     ctx.lineTo(PW, H * LANE_BOTTOM);
     ctx.stroke();
 
-    // Top arc of lane (visual guide from separator top to right wall)
-    ctx.strokeStyle = "rgba(255,255,255,0.07)";
+    // Top ramp of lane (physical deflector that guides the ball toward the centre)
+    ctx.strokeStyle = "rgba(255,255,255,0.14)";
     ctx.lineWidth   = 1;
     ctx.beginPath();
     ctx.moveTo(W - 3, BALL_R * 2.5);
-    ctx.quadraticCurveTo(W - LANE_W * 0.3, BALL_R, PW, H * LANE_GAP);
+    ctx.lineTo(PW, H * LANE_GAP);
     ctx.stroke();
 
     // Guide rails
