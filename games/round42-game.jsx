@@ -24,7 +24,9 @@ const BULLET_SPD  = 8;
 const E_BULLET_SPD = 3.2;
 const SHOOT_INT   = 20;    // frames between player auto-shots (max 3 bullets)
 const ROW_PTS     = [30, 20, 15, 10]; // score per enemy by row
-const LASER_BONUS_WAVE = 3; // earn +1 laser every N waves
+const LASER_BONUS_WAVE  = 3;  // earn +1 laser every N waves
+const MAX_WAVES         = 42; // total waves (matches the original game's title)
+const MAX_WAVE_Y_OFFSET = 6;  // cap on extra starting-row depth per wave
 
 /* ═══════════════════════ HELPERS ════════════════════ */
 function mkEnemies(wave, W) {
@@ -38,7 +40,7 @@ function mkEnemies(wave, W) {
         id: id++,
         col: c, row: r,
         x: startX + c * COL_GAP,
-        y: FORM_TOP + r * ROW_GAP + Math.min(wave - 1, 6) * 8,
+        y: FORM_TOP + r * ROW_GAP + Math.min(wave - 1, MAX_WAVE_Y_OFFSET) * 8,
         type: r === 0 ? 0 : r <= 2 ? 1 : 2,
         alive: true,
       });
@@ -304,6 +306,7 @@ export default function Round42Game() {
   const [phase, setPhase] = useState("idle");
   const [score, setScore] = useState(0);
   const [best,  setBest]  = useState(0);
+  const [won,   setWon]   = useState(false);
 
   // ── star field ──────────────────────────────────────
   useEffect(() => {
@@ -451,9 +454,19 @@ export default function Round42Game() {
       s.wave++;
       s.score += 200 + s.wave * 20;
       if (s.wave % LASER_BONUS_WAVE === 0) s.lasers = Math.min(s.lasers + 1, 5);
+      if (s.wave > MAX_WAVES) {
+        // all 42 waves cleared – victory!
+        s.on = false;
+        setScore(s.score);
+        setBest(b => Math.max(b, s.score));
+        setWon(true);
+        setPhase("done");
+        render();
+        return;
+      }
       s.enemies      = mkEnemies(s.wave, cssW);
       s.formDirX     = 1;
-      s.formSpeed    = 0.9 + s.wave * 0.10;
+      s.formSpeed    = 0.9 + Math.min(s.wave * 0.10, 1.5);
       s.bullets      = [];
       s.enemyBullets = [];
       s.nextShoot    = SHOOT_INT;
@@ -589,6 +602,7 @@ export default function Round42Game() {
     };
     setPhase("playing");
     setScore(0);
+    setWon(false);
     raf.current = requestAnimationFrame(loop);
   }, [loop]);
 
@@ -707,7 +721,7 @@ export default function Round42Game() {
         {/* IDLE */}
         {phase === "idle" && (
           <Overlay>
-            <Label style={{ fontSize: 10, letterSpacing: 8, marginBottom: 18 }}>— wave 1 of 42 —</Label>
+            <Label style={{ fontSize: 10, letterSpacing: 8, marginBottom: 18 }}>— 42 waves —</Label>
             <div style={{
               color: C_MAIN, fontSize: 36, letterSpacing: 9, lineHeight: 1,
               textShadow: `0 0 28px ${C_MAIN}`, fontFamily: mono, marginBottom: 8,
@@ -745,7 +759,7 @@ export default function Round42Game() {
           }}>
             <div style={{ width: 48, height: 1, background: C_MAIN, opacity: 0.4, marginBottom: 28 }} />
             <div style={{ color: C_MAIN, fontSize: 11, letterSpacing: 6, textTransform: "uppercase", opacity: 0.55, marginBottom: 18 }}>
-              game over
+              {won ? "sector cleared" : "game over"}
             </div>
             <div style={{
               color: C_MAIN, fontSize: 80, fontWeight: 400, letterSpacing: -2, lineHeight: 1,
