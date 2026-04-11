@@ -1,21 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-const GAMES = [
-  {
-    path: "/tap",
-    symbol: "●",
-    name: "tap",
-    description: "pop the dots before they vanish",
-  },
-  {
-    path: "/void",
-    symbol: "△",
-    name: "void",
-    description: "navigate the asteroid field",
-  },
-];
-
-export default function Hub() {
+export default function Hub({ games }) {
   const navigate = useNavigate();
 
   return (
@@ -89,7 +74,7 @@ export default function Hub() {
           justifyContent: "center",
         }}
       >
-        {GAMES.map((g, i) => (
+        {games.map((g, i) => (
           <button
             key={g.path}
             className="game-card"

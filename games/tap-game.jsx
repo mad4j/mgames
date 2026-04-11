@@ -37,6 +37,13 @@ function Ripple({ x, y, onDone }) {
   );
 }
 
+export const meta = {
+  path: "/tap",
+  symbol: "●",
+  name: "tap",
+  description: "pop the dots before they vanish",
+};
+
 export default function TapGame() {
   const [phase,   setPhase]   = useState("idle");
   const [dots,    setDots]    = useState([]);
