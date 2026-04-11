@@ -612,7 +612,13 @@ export default function VoidGame() {
   return (
     <div style={{
       width:"100vw", height:"100dvh", background:C_BG,
-      overflow:"hidden", position:"relative",
+      display:"flex", alignItems:"stretch", justifyContent:"center",
+    }}>
+    <div style={{
+      position:"relative",
+      width:"100%",
+      maxWidth:430,
+      overflow:"hidden",
       userSelect:"none", touchAction:"none",
     }}>
       <style>{`
@@ -706,6 +712,7 @@ export default function VoidGame() {
           >again</button>
         </div>
       )}
+    </div>
     </div>
   );
 }
