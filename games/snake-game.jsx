@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CELL          = 20;
 const MAX_SPEED     = 160;
@@ -11,7 +12,14 @@ const FOOD_MAX_MS   = 9000;  // max food lifetime before reposition
 
 // ── audio ─────────────────────────────────────────────────────────────────────
 function useSound() {
-  const ctxRef = useRef(null);
+  const ctxRef     = useRef(null);
+  const enabledRef = useRef(true);
+  const [soundOn, _setSoundOn] = useState(true);
+
+  const setSoundOn = (v) => {
+    enabledRef.current = v;
+    _setSoundOn(v);
+  };
 
   const getCtx = useCallback(() => {
     if (!ctxRef.current) {
@@ -22,6 +30,7 @@ function useSound() {
   }, []);
 
   const playTone = useCallback((freq, duration, type = "sine", gainVal = 0.15) => {
+    if (!enabledRef.current) return;
     try {
       const ctx  = getCtx();
       const osc  = ctx.createOscillator();
@@ -37,10 +46,6 @@ function useSound() {
     } catch (_) { /* ignore AudioContext errors */ }
   }, [getCtx]);
 
-  const playTick = useCallback((alt) => {
-    playTone(alt ? 1760 : 1320, 0.04, "square", 0.07);
-  }, [playTone]);
-
   const playEat = useCallback(() => {
     playTone(880,    0.12, "sine", 0.18);
     setTimeout(() => playTone(1046.5, 0.18, "sine", 0.14), 80);
@@ -51,7 +56,38 @@ function useSound() {
     setTimeout(() => playTone(60, 0.5, "triangle", 0.18), 120);
   }, [playTone]);
 
-  return { playTick, playEat, playDie };
+  return { soundOn, setSoundOn, playEat, playDie };
+}
+
+// ── icon components ───────────────────────────────────────────────────────────
+function IconSound({ on }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="2,6 6,6 10,2 10,16 6,12 2,12" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" fill="none"/>
+      {on ? (
+        <>
+          <path d="M12.5 6.5 C13.8 7.3 13.8 10.7 12.5 11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+          <path d="M14.5 4.5 C17 6 17 12 14.5 13.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+        </>
+      ) : (
+        <>
+          <line x1="12" y1="6" x2="17" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+          <line x1="17" y1="6" x2="12" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+        </>
+      )}
+    </svg>
+  );
+}
+
+function IconHub() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="10" y="2" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="2" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="10" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+    </svg>
+  );
 }
 
 function useWindowSize() {
@@ -75,13 +111,13 @@ const MAX_WIDTH = 430;
 
 export default function SnakeGame() {
   const { w, h } = useWindowSize();
+  const navigate = useNavigate();
   const cols = Math.floor(Math.min(w, MAX_WIDTH) / CELL);
   const rows = Math.floor(Math.min(h, GAME_H) / CELL);
 
   const [phase,       setPhase]       = useState("idle");
   const [score,       setScore]       = useState(0);
   const [best,        setBest]        = useState(0);
-  const [speed,       setSpeed]       = useState(MAX_SPEED);
   const [flash,       setFlash]       = useState(false);
   const [renderSnake, setRenderSnake] = useState([]);
   const [renderFood,  setRenderFood]  = useState(null);
@@ -100,17 +136,16 @@ export default function SnakeGame() {
   const touchStart     = useRef(null);
   const colsRef        = useRef(cols);
   const rowsRef        = useRef(rows);
-  const tickAltRef     = useRef(false);
   const foodExpiresAt  = useRef(0);
 
   useEffect(() => { colsRef.current = cols; }, [cols]);
   useEffect(() => { rowsRef.current = rows; }, [rows]);
 
   // ── sound ────────────────────────────────────────────────────────────────
-  const { playTick, playEat, playDie } = useSound();
+  const { soundOn, setSoundOn, playEat, playDie } = useSound();
   // Keep latest sound fns in a ref so tick closure doesn't need them as deps
-  const soundRef = useRef({ playTick, playEat, playDie });
-  useEffect(() => { soundRef.current = { playTick, playEat, playDie }; }, [playTick, playEat, playDie]);
+  const soundRef = useRef({ playEat, playDie });
+  useEffect(() => { soundRef.current = { playEat, playDie }; }, [playEat, playDie]);
 
   // ── helpers ──────────────────────────────────────────────────────────────
   const randFood = useCallback((sn) => {
@@ -135,10 +170,6 @@ export default function SnakeGame() {
   // ── game loop ─────────────────────────────────────────────────────────────
   const tick = useCallback(() => {
     if (phaseRef.current !== "playing") return;
-
-    // Alternating tick sound on each snake step
-    tickAltRef.current = !tickAltRef.current;
-    soundRef.current.playTick(tickAltRef.current);
 
     dirRef.current = { ...nextDirRef.current };
     const head = {
@@ -179,7 +210,6 @@ export default function SnakeGame() {
       setRenderFood(newFood);
       setFoodKey(k => k + 1);
       speedRef.current = Math.max(MIN_SPEED, speedRef.current - 5);
-      setSpeed(speedRef.current);
     } else {
       // Check if food lifetime expired → reposition without scoring
       if (Date.now() >= foodExpiresAt.current) {
@@ -202,7 +232,6 @@ export default function SnakeGame() {
     if (phase !== "playing") return;
     const iv = setInterval(() => {
       speedRef.current = Math.max(MIN_SPEED, speedRef.current - SPEED_TICK_DEC);
-      setSpeed(speedRef.current);
     }, SPEED_TICK_MS);
     return () => clearInterval(iv);
   }, [phase]);
@@ -223,14 +252,12 @@ export default function SnakeGame() {
     nextDirRef.current = initDir;
     scoreRef.current   = 0;
     speedRef.current   = MAX_SPEED;
-    tickAltRef.current = false;
     phaseRef.current   = "playing";
 
     setRenderSnake([...initSnake]);
     setRenderFood(initFood);
     setFoodKey(k => k + 1);
     setScore(0);
-    setSpeed(MAX_SPEED);
     setFlash(false);
     setPhase("playing");
 
@@ -288,11 +315,6 @@ export default function SnakeGame() {
   };
 
   // ── derived visual values ──────────────────────────────────────────────────
-  const speedFrac = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED); // 1=slow 0=fast
-  const barColor  = speedFrac < 0.25
-    ? "rgba(255,65,65,0.65)"
-    : "rgba(255,255,255,0.45)";
-
   const BtnStyle = {
     background:    "transparent",
     border:        "1px solid rgba(255,255,255,0.22)",
@@ -303,6 +325,15 @@ export default function SnakeGame() {
     padding:       "14px 36px",
     cursor:        "pointer",
     textTransform: "uppercase",
+  };
+
+  const iconBtnStyle = {
+    position: "absolute", top: 14, zIndex: 20,
+    background: "transparent", border: "none",
+    color: "rgba(255,255,255,0.38)",
+    cursor: "pointer", padding: 6,
+    lineHeight: 0,
+    transition: "color 0.2s",
   };
 
   // ── render ─────────────────────────────────────────────────────────────────
@@ -349,6 +380,30 @@ export default function SnakeGame() {
           to   { opacity: 1; transform: translate(-50%,-50%) rotate(45deg) scale(1);   }
         }
       `}</style>
+
+      {/* ── SOUND TOGGLE + HUB (always visible) ── */}
+      <button
+        aria-label={soundOn ? "mute" : "unmute"}
+        onClick={() => setSoundOn(!soundOn)}
+        onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+        onMouseLeave={e => e.currentTarget.style.color = soundOn ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.18)"}
+        style={{
+          ...iconBtnStyle,
+          right: 52,
+          color: `rgba(255,255,255,${soundOn ? 0.38 : 0.18})`,
+        }}
+      >
+        <IconSound on={soundOn} />
+      </button>
+      <button
+        aria-label="back to hub"
+        onClick={() => navigate("/")}
+        onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+        onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.38)"}
+        style={{ ...iconBtnStyle, right: 12 }}
+      >
+        <IconHub />
+      </button>
 
       {/* Death flash */}
       {flash && (
@@ -460,24 +515,6 @@ export default function SnakeGame() {
               />
             );
           })}
-
-          {/* Speed bar (mirrors timer bar in tap game) */}
-          <div style={{
-            position:      "absolute",
-            bottom:        0, left: 0, right: 0,
-            height:        5,
-            background:    "rgba(255,255,255,0.06)",
-            zIndex:        10,
-            pointerEvents: "none",
-          }}>
-            <div style={{
-              height:     "100%",
-              width:      `${(1 - speedFrac) * 100}%`,
-              background: barColor,
-              transition: "width 0.28s ease, background 0.4s",
-              boxShadow:  speedFrac < 0.25 ? "0 0 10px rgba(255,65,65,0.4)" : "none",
-            }} />
-          </div>
         </>
       )}
 
