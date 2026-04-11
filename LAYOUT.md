@@ -197,7 +197,7 @@ Regole:
 
 ```
 ┌──────────────────────────────┐
-│ SCORE                        │  ← top-left, fontSize 32, fontWeight 300
+│ 42                           │  ← score top-left, solo numero, glow bianco
 │                              │
 │   [area di gioco]            │
 │   (canvas o elementi DOM)    │
@@ -208,8 +208,23 @@ Regole:
 ```
 
 Elementi fissi durante il gioco:
-- **Score HUD**: `position: absolute, top: 18, left: 24` — solo numero, nessuna label.
+- **Score HUD**: posizionato in alto a sinistra (`top: 18, left: 24` per DOM; `x: 14, y: 28` per canvas) — solo il valore numerico, nessuna label.
 - **Barra di stato** (timer o velocità): `position: absolute, bottom: 0, height: 5px`.
+
+#### Score HUD — comportamento visivo (derivato da Void)
+
+Il punteggio cambia aspetto in tempo reale per rispecchiare il livello di rischio/eccitazione:
+
+| Stato          | Colore testo | `shadowBlur` | Significato                          |
+|----------------|-------------|-------------|--------------------------------------|
+| Normale        | `C_MAIN` (`rgba(255,255,255,0.88)`) | `6 × dpr`  | Navigazione ordinaria               |
+| Near-miss      | `C_NEAR` (`rgba(255,255,255,1.0)`)  | `10 × dpr` | Giocatore ha sfiorato un ostacolo   |
+
+- In stato **near-miss** il testo è pienamente bianco (opacità 1.0) e il glow è più intenso:
+  il punteggio "pulsa" visivamente ogni volta che il giocatore guadagna punti bonus per vicinanza.
+- `shadowColor` coincide sempre con `fillStyle` / `color`.
+- La transizione avviene frame per frame (nessuna CSS transition): il cambio è immediato e brusco,
+  coerente con l'estetica da terminale.
 
 ### 5.3 Fase DONE (schermata risultati)
 
@@ -557,15 +572,34 @@ a cascata più credibile.
 
 ### 8.6 HUD score su canvas
 
+Il punteggio viene disegnato direttamente sul canvas ogni frame, **in alto a sinistra**,
+con glow che varia in base allo stato di gioco (derivato da Void).
+
 ```js
-ctx.fillStyle   = "rgba(255,255,255,0.88)";
-ctx.shadowColor = "rgba(255,255,255,0.88)";
-ctx.shadowBlur  = 6 * dpr;
-ctx.font        = `${16 * dpr}px 'Share Tech Mono', monospace`;
-ctx.textAlign   = "left";
-ctx.fillText(String(score), 14 * dpr, 28 * dpr);
-ctx.shadowBlur  = 0;
+function drawHUD(ctx, score, isNear, dpr) {
+  const col = isNear
+    ? "rgba(255,255,255,1.0)"    // C_NEAR: near-miss attivo
+    : "rgba(255,255,255,0.88)";  // C_MAIN: navigazione ordinaria
+
+  ctx.fillStyle   = col;
+  ctx.shadowColor = col;
+  ctx.shadowBlur  = (isNear ? 10 : 6) * dpr;   // glow più intenso in near-miss
+  ctx.font        = `${16 * dpr}px 'Share Tech Mono', monospace`;
+  ctx.textAlign   = "left";
+  ctx.fillText(String(score), 14 * dpr, 28 * dpr);
+  ctx.shadowBlur  = 0;   // reset per non influenzare il disegno successivo
+}
 ```
+
+**Regole**:
+- Posizione fissa: `x = 14 × dpr`, `y = 28 × dpr` (angolo top-left del canvas).
+- Font: `'Share Tech Mono', monospace` — il carattere più "grezzo" rispetto a DM Mono,
+  adatto all'estetica da cockpit di Void.
+- Solo il valore numerico: nessuna label "SCORE", nessuna unità.
+- `shadowColor` = `fillStyle`: il glow coincide sempre con il colore del testo.
+- Dopo ogni chiamata, azzerare `ctx.shadowBlur = 0` per non contaminare il rendering successivo.
+- Il cambio di stato (normale ↔ near-miss) è immediato (nessuna transizione graduale):
+  la brusca variazione di luminosità è voluta e coerente con l'estetica da terminale.
 
 ---
 
