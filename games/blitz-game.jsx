@@ -112,18 +112,13 @@ function Biplane() {
 // card symbol (large). The viewBox is always "0 0 11 18" so the aspect ratio
 // stays consistent regardless of the rendered width/height.
 function BombSVG({ width = 11, height = 18 }) {
-  const c = "rgba(255,255,255,0.92)";
+  const c = "#3366cc";
   return (
     <svg width={width} height={height} viewBox="0 0 11 18" fill="none" role="img" aria-label="bomb">
-      {/* Flat tail – wide rectangular base */}
-      <rect x="1.5" y="0" width="8" height="3" fill={c} />
-      {/* Small side fins */}
-      <polygon points="1.5,0 0,3.5 2.5,3" fill={c} opacity="0.85" />
-      <polygon points="9.5,0 11,3.5 8.5,3" fill={c} opacity="0.85" />
-      {/* Cylindrical body – rectangular, no rounding */}
-      <rect x="2.5" y="3" width="6" height="10" fill={c} />
-      {/* Nose cone – triangular point at bottom */}
-      <polygon points="2.5,13 8.5,13 5.5,18" fill={c} />
+      {/* Detonator cap – small narrow rectangle at top */}
+      <rect x="3.5" y="0" width="4" height="4" fill={c} />
+      {/* Body – wider rectangle */}
+      <rect x="1.5" y="4" width="8" height="14" fill={c} />
     </svg>
   );
 }
