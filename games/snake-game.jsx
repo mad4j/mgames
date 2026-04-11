@@ -14,6 +14,13 @@ function useWindowSize() {
   return size;
 }
 
+export const meta = {
+  path: "/snake",
+  symbol: "◈",
+  name: "snake",
+  description: "eat the diamond, don't hit the walls",
+};
+
 export default function SnakeGame() {
   const { w, h } = useWindowSize();
   const cols = Math.floor(w / CELL);
