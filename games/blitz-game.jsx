@@ -2,18 +2,20 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 const COLS              = 20;
-const ROWS              = 16;
+const ROWS              = 32;
 const CELL_W            = 430 / COLS;   // 21.5 px
-const CELL_H            = 40;           // px
+const CELL_H            = 20;           // px
 const GRID_H            = ROWS * CELL_H; // 640 px
 
 const PLANE_SPEED_START = 210;  // ms / column at pass 0
 const PLANE_SPEED_MIN   = 70;   // ms / column floor
-const PLANE_ACCEL       = 10;   // ms shaved off per completed pass
-const BOMB_SPEED        = 60;   // ms / row
-const MAX_BUILD_HEIGHT  = 7;    // floors
+const PLANE_ACCEL       = 5;    // ms shaved off per completed pass
+const BOMB_SPEED        = 40;   // ms / row
+const MAX_BUILD_HEIGHT  = 14;   // floors
 const SCORE_PER_FLOOR   = 10;
 const SCORE_PER_PASS    = 5;
+
+const CELL_W_HALF = Math.round(CELL_W / 2); // pre-computed column half-width
 
 function generateBuildings() {
   return Array.from({ length: COLS }, () =>
@@ -72,6 +74,45 @@ function useSound() {
   }, [playTone]);
 
   return { soundOn, setSoundOn, playDrop, playBlast, playCrash };
+}
+
+// ── game sprites ─────────────────────────────────────────────────────────────
+function Biplane() {
+  const c = "rgba(255,255,255,0.95)";
+  return (
+    <svg width="28" height="16" viewBox="0 0 28 16" fill="none" role="img" aria-label="Player aircraft">
+      {/* Upper wing */}
+      <rect x="6" y="0" width="12" height="3" rx="1" fill={c} />
+      {/* Fuselage */}
+      <rect x="3" y="6" width="18" height="4" rx="2" fill={c} />
+      {/* Nose */}
+      <polygon points="21,6 28,8 21,10" fill={c} />
+      {/* Tail fins */}
+      <polygon points="3,6 0,3 5,6" fill={c} opacity="0.85" />
+      <polygon points="3,10 0,13 5,10" fill={c} opacity="0.85" />
+      {/* Lower wing */}
+      <rect x="6" y="13" width="12" height="3" rx="1" fill={c} />
+      {/* Wing struts */}
+      <line x1="9"  y1="3" x2="9"  y2="13" stroke={c} strokeWidth="0.9" opacity="0.6" />
+      <line x1="15" y1="3" x2="15" y2="13" stroke={c} strokeWidth="0.9" opacity="0.6" />
+      {/* Cockpit */}
+      <ellipse cx="15" cy="8" rx="2.8" ry="2" fill="rgba(20,20,20,0.75)" />
+    </svg>
+  );
+}
+
+function Bomb() {
+  const c = "rgba(255,255,255,0.92)";
+  return (
+    <svg width="11" height="15" viewBox="0 0 11 15" fill="none" role="img" aria-label="Dropped bomb">
+      {/* Fuse */}
+      <path d="M5.5 3 C7.5 1 9 0 7 2" stroke="rgba(255,255,255,0.75)" strokeWidth="1.3" strokeLinecap="round" fill="none" />
+      {/* Body */}
+      <circle cx="5.5" cy="9.5" r="5" fill={c} />
+      {/* Shine */}
+      <ellipse cx="4" cy="8" rx="1.3" ry="1.8" fill="rgba(255,255,255,0.45)" />
+    </svg>
+  );
 }
 
 // ── icon components ───────────────────────────────────────────────────────────
@@ -325,12 +366,12 @@ export default function BlitzGame() {
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes bombDrop {
-          from { transform: translate(-50%,-50%) scale(0.6); opacity: 0.5; }
-          to   { transform: translate(-50%,-50%) scale(1);   opacity: 1; }
+          from { transform: translate(-50%,-50%) scale(0.4) rotate(-20deg); opacity: 0.4; }
+          to   { transform: translate(-50%,-50%) scale(1)   rotate(0deg);   opacity: 1; }
         }
         @keyframes planeSlide {
-          from { opacity: 0.6; }
-          to   { opacity: 1; }
+          from { opacity: 0.4; transform: translateX(-6px); }
+          to   { opacity: 1;   transform: translateX(0); }
         }
       `}</style>
 
@@ -425,14 +466,27 @@ export default function BlitzGame() {
                     bottom: 0,
                     width: CELL_W - 1,
                     height: height * CELL_H,
-                    background: "rgba(255,255,255,0.72)",
-                    backgroundImage: `repeating-linear-gradient(
-                      to bottom,
-                      transparent 0px,
-                      transparent ${CELL_H - 1}px,
-                      rgba(10,10,10,0.35) ${CELL_H - 1}px,
-                      rgba(10,10,10,0.35) ${CELL_H}px
-                    )`,
+                    background: "rgba(255,255,255,0.70)",
+                    backgroundImage: `
+                      repeating-linear-gradient(
+                        to bottom,
+                        transparent 0px,
+                        transparent ${CELL_H - 2}px,
+                        rgba(10,10,10,0.32) ${CELL_H - 2}px,
+                        rgba(10,10,10,0.32) ${CELL_H}px
+                      ),
+                      repeating-linear-gradient(
+                        to right,
+                        rgba(10,10,10,0.10) 0px,
+                        rgba(10,10,10,0.10) 1px,
+                        transparent 1px,
+                        transparent ${CELL_W_HALF}px,
+                        rgba(10,10,10,0.10) ${CELL_W_HALF}px,
+                        rgba(10,10,10,0.10) ${CELL_W_HALF + 1}px,
+                        transparent ${CELL_W_HALF + 1}px,
+                        transparent ${Math.round(CELL_W)}px
+                      )
+                    `,
                     boxSizing: "border-box",
                   }}
                 />
@@ -440,20 +494,22 @@ export default function BlitzGame() {
             )}
 
             {/* Plane */}
-            <div style={{
-              position: "absolute",
-              left: planeCol * CELL_W,
-              top: planeRow * CELL_H,
-              width: CELL_W,
-              height: CELL_H,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontSize: 13,
-              zIndex: 5,
-              animation: "planeSlide 0.08s ease",
-            }}>▶</div>
+            <div
+              key={planeRow}
+              style={{
+                position: "absolute",
+                left: planeCol * CELL_W,
+                top: planeRow * CELL_H,
+                width: CELL_W,
+                height: CELL_H,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 5,
+                transition: "left 65ms linear",
+                animation: "planeSlide 0.12s ease",
+              }}
+            ><Biplane /></div>
 
             {/* Bomb */}
             {bomb && (
@@ -462,13 +518,12 @@ export default function BlitzGame() {
                 left: bomb.col * CELL_W + CELL_W / 2,
                 top: bomb.row * CELL_H + CELL_H / 2,
                 transform: "translate(-50%,-50%)",
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.9)",
                 zIndex: 6,
-                animation: "bombDrop 0.06s ease",
-              }} />
+                animation: "bombDrop 0.08s ease",
+                lineHeight: 0,
+              }}>
+                <Bomb />
+              </div>
             )}
           </div>
 
