@@ -1,8 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const C_BG   = "#0a0a0a";
-const C_MAIN = "rgba(255,255,255,0.88)";
-
 const CELL      = 20;
 const MAX_SPEED = 160;
 const MIN_SPEED = 55;
@@ -201,15 +198,13 @@ export default function SnakeGame() {
   const BtnStyle = {
     background:    "transparent",
     border:        "1px solid rgba(255,255,255,0.22)",
-    color:         C_MAIN,
+    color:         "#fff",
     fontFamily:    "'DM Mono', monospace",
     fontSize:      11,
     letterSpacing: 5,
     padding:       "14px 36px",
     cursor:        "pointer",
     textTransform: "uppercase",
-    textShadow:    `0 0 8px ${C_MAIN}`,
-    transition:    "border-color 0.2s, box-shadow 0.2s",
   };
 
   // ── render ─────────────────────────────────────────────────────────────────
@@ -217,12 +212,10 @@ export default function SnakeGame() {
     <div style={{
       width:           "100vw",
       height:          "100dvh",
-      background:      C_BG,
+      background:      "#0a0a0a",
       display:         "flex",
       alignItems:      "center",
       justifyContent:  "center",
-      overflow:        "hidden",
-      userSelect:      "none",
     }}>
     <div
       onTouchStart={handleTouchStart}
@@ -276,10 +269,9 @@ export default function SnakeGame() {
           position:       "absolute", inset: 0,
           display:        "flex",     flexDirection: "column",
           alignItems:     "center",   justifyContent: "center",
-          animation:      "fadeIn 0.55s ease",
-          zIndex:         20,
+          animation:      "fadeIn 0.6s ease",
         }}>
-          <div style={{ color:C_MAIN, fontSize:10, letterSpacing:8, opacity:0.5, textTransform:"uppercase", marginBottom:18 }}>— snake —</div>
+          <div style={{ color:"#fff", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase" }}>snake</div>
 
           {/* Diamond icon */}
           <div style={{
@@ -287,44 +279,23 @@ export default function SnakeGame() {
             border:     "1.5px solid rgba(255,255,255,0.55)",
             background: "rgba(255,255,255,0.04)",
             transform:  "rotate(45deg)",
-            marginBottom: 24,
-            filter:     `drop-shadow(0 0 10px ${C_MAIN})`,
+            margin:     "36px 0",
           }} />
 
-          <div style={{
-            color:C_MAIN, fontSize:36, letterSpacing:10, lineHeight:1,
-            textShadow:`0 0 28px ${C_MAIN}`, marginBottom:6,
-          }}>SNAKE</div>
-          <div style={{ color:C_MAIN, fontSize:10, letterSpacing:2, opacity:0.22, marginBottom:32 }}>
-            eat the diamond, don't hit the walls
-          </div>
-
-          <div style={{ display:"flex", gap:28, marginTop:4 }}>
-            {[
-              ["MOVE",  "swipe · arrows · wasd"],
-              ["SPEED", "increases each diamond"],
-            ].map(([k, v]) => (
-              <div key={k} style={{ textAlign:"center" }}>
-                <div style={{ color:C_MAIN, fontSize:9, letterSpacing:3, opacity:0.55 }}>{k}</div>
-                <div style={{ color:C_MAIN, fontSize:9, letterSpacing:1, opacity:0.2, marginTop:3 }}>{v}</div>
-              </div>
-            ))}
-          </div>
-
           {best > 0 && (
-            <div style={{ color:C_MAIN, fontSize:10, letterSpacing:4, opacity:0.22, marginTop:34 }}>
-              best &nbsp; {best}
+            <div style={{ color:"#fff", fontSize:11, letterSpacing:3, opacity:0.18, marginBottom: 8 }}>
+              best {best}
             </div>
           )}
 
           <button
-            style={{ ...BtnStyle, marginTop: 52 }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = C_MAIN; e.currentTarget.style.boxShadow = `0 0 18px ${C_MAIN}44`; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)"; e.currentTarget.style.boxShadow = "none"; }}
+            style={{ ...BtnStyle, marginTop: 48 }}
+            onMouseEnter={e => e.target.style.borderColor = "rgba(255,255,255,0.6)"}
+            onMouseLeave={e => e.target.style.borderColor = "rgba(255,255,255,0.22)"}
             onClick={startGame}
           >start</button>
 
-          <div style={{ color:C_MAIN, fontSize:10, letterSpacing:3, opacity:0.14, textTransform:"uppercase", marginTop:48 }}>
+          <div style={{ color:"#fff", fontSize:10, letterSpacing:3, opacity:0.14, textTransform:"uppercase", marginTop:48 }}>
             swipe · arrows
           </div>
         </div>
@@ -337,13 +308,12 @@ export default function SnakeGame() {
           <div style={{
             position:      "absolute",
             top:           18, left: 24,
-            color:         C_MAIN,
+            color:         "#fff",
             fontSize:      32,
             fontWeight:    300,
             letterSpacing: -1,
             zIndex:        10,
             pointerEvents: "none",
-            textShadow:    `0 0 12px ${C_MAIN}88`,
           }}>{score}</div>
 
           {/* Food — diamond */}
@@ -419,22 +389,17 @@ export default function SnakeGame() {
           display:        "flex",     flexDirection: "column",
           alignItems:     "center",   justifyContent: "center",
           animation:      "fadeIn 0.5s ease",
-          zIndex:         20,
         }}>
-          <div style={{ width:48, height:1, background:C_MAIN, opacity:0.4, marginBottom:28 }} />
-          <div style={{ color:C_MAIN, fontSize:11, letterSpacing:6, textTransform:"uppercase", opacity:0.55, marginBottom:18 }}>
-            game over
-          </div>
-          <div style={{ color:C_MAIN, fontSize:88, fontWeight:300, letterSpacing:-4, lineHeight:1, textShadow:`0 0 40px ${C_MAIN}88` }}>{score}</div>
+          <div style={{ color:"#fff", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase", marginBottom:16 }}>score</div>
+          <div style={{ color:"#fff", fontSize:88, fontWeight:300, letterSpacing:-4, lineHeight:1 }}>{score}</div>
           {score > 0 && score >= best
-            ? <div style={{ color:C_MAIN, fontSize:10, letterSpacing:5, opacity:0.9, marginTop:12, textTransform:"uppercase", textShadow:`0 0 12px ${C_MAIN}` }}>★ new best</div>
-            : <div style={{ color:C_MAIN, fontSize:10, letterSpacing:4, opacity:0.35, marginTop:12 }}>best &nbsp; {best}</div>
+            ? <div style={{ color:"#fff", fontSize:10, letterSpacing:5, opacity:0.32, marginTop:12, textTransform:"uppercase" }}>new best</div>
+            : <div style={{ color:"#fff", fontSize:10, letterSpacing:4, opacity:0.20, marginTop:12 }}>best {best}</div>
           }
-          <div style={{ width:48, height:1, background:C_MAIN, opacity:0.4, marginTop:32 }} />
           <button
-            style={{ ...BtnStyle, marginTop: 40 }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = C_MAIN; e.currentTarget.style.boxShadow = `0 0 18px ${C_MAIN}44`; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)"; e.currentTarget.style.boxShadow = "none"; }}
+            style={{ ...BtnStyle, marginTop: 56 }}
+            onMouseEnter={e => e.target.style.borderColor = "rgba(255,255,255,0.6)"}
+            onMouseLeave={e => e.target.style.borderColor = "rgba(255,255,255,0.22)"}
             onClick={startGame}
           >again</button>
         </div>
