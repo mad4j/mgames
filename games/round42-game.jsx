@@ -306,12 +306,12 @@ function drawHUD(ctx, { score, wave, lives, phazors }, dpr, cssW, cssH) {
 /* ═══════════════════════ COMPONENT ════════════════ */
 export const meta = {
   path:        "/round42",
-  symbol:      "◉",
-  name:        "round42",
+  symbol:      "9",
+  name:        "level9",
   description: "defend against the alien fleet",
 };
 
-export default function Round42Game() {
+export default function Level9Game() {
   const cvs    = useRef(null);
   const raf    = useRef(null);
   const g      = useRef(null);
