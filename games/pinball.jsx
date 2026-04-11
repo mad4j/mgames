@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
-// ─── Math helpers ─────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────
+const GRAV   = 0.30;
+const BALL_R = 9;
+const FLIP_R = 5;
+
+// ── Math helpers ──────────────────────────────────────────────
 function lerp(a, b, t) { return a + (b - a) * t; }
 
 function closestPt(ax, ay, bx, by, px, py) {
@@ -27,43 +33,7 @@ function reflectSeg(ball, ax, ay, bx, by, rest = 0.70) {
   return { hit: false, nx: 0, ny: 0 };
 }
 
-const GRAV   = 0.30;
-const BALL_R = 9;
-const FLIP_R = 5;
-
-function makeState(W, H) {
-  const fy  = H * 0.84;
-  const fl  = W * 0.22;
-  const fLx = W * 0.28, fRx = W * 0.72;
-
-  return {
-    W, H,
-    ball: { x: W * 0.5, y: H * 0.28, vx: (Math.random() - .5) * 1.2, vy: 1.8 },
-    fL: { px: fLx, py: fy, len: fl, a: 0.35, up: -0.46, dn: 0.35 },
-    fR: { px: fRx, py: fy, len: fl, a: Math.PI - 0.35, up: Math.PI + 0.46, dn: Math.PI - 0.35 },
-    guides: [
-      [0, H * 0.58, fLx, fy],
-      [W, H * 0.58, fRx, fy],
-    ],
-    targets: [
-      // Pop bumpers – circle, explosive, +100
-      { type: 'bumper',  x: W*.50, y: H*.10, r: 24, pts: 100, fl: 0 },
-      { type: 'bumper',  x: W*.27, y: H*.21, r: 18, pts: 100, fl: 0 },
-      { type: 'bumper',  x: W*.73, y: H*.21, r: 18, pts: 100, fl: 0 },
-      // Diamond targets – angular, soft bounce, +75
-      { type: 'diamond', x: W*.25, y: H*.38, r: 14, pts: 75, fl: 0 },
-      { type: 'diamond', x: W*.75, y: H*.38, r: 14, pts: 75, fl: 0 },
-      // Slingshot kickers – line segment with boost, +50
-      { type: 'kicker', x1: W*.05, y1: H*.52, x2: W*.20, y2: H*.42, pts: 50, fl: 0 },
-      { type: 'kicker', x1: W*.95, y1: H*.52, x2: W*.80, y2: H*.42, pts: 50, fl: 0 },
-      // Star – disappears on hit, respawns after 3s, +200
-      { type: 'star', x: W*.50, y: H*.34, r: 11, pts: 200, fl: 0, hidden: false, respawnAt: 0 },
-    ],
-    score: 0,
-    lives: 3,
-  };
-}
-
+// ── Drawing helpers ───────────────────────────────────────────
 function pathDiamond(ctx, x, y, r) {
   ctx.beginPath();
   ctx.moveTo(x,          y - r);
@@ -85,6 +55,124 @@ function pathStar(ctx, x, y, R, n = 5) {
   ctx.closePath();
 }
 
+function pathTriangle(ctx, x, y, r) {
+  ctx.beginPath();
+  ctx.moveTo(x,              y - r);
+  ctx.lineTo(x + r * 0.866,  y + r * 0.5);
+  ctx.lineTo(x - r * 0.866,  y + r * 0.5);
+  ctx.closePath();
+}
+
+// ── Game state factory ────────────────────────────────────────
+function makeState(W, H) {
+  const fy  = H * 0.84;
+  const fl  = W * 0.22;
+  const fLx = W * 0.28, fRx = W * 0.72;
+
+  return {
+    W, H,
+    ball: { x: W * 0.5, y: H * 0.28, vx: (Math.random() - .5) * 1.2, vy: 1.8 },
+    fL: { px: fLx, py: fy, len: fl, a: 0.35, up: -0.46, dn: 0.35 },
+    fR: { px: fRx, py: fy, len: fl, a: Math.PI - 0.35, up: Math.PI + 0.46, dn: Math.PI - 0.35 },
+    guides: [
+      [0,   H * 0.58, fLx, fy],
+      [W,   H * 0.58, fRx, fy],
+    ],
+    targets: [
+      // Pop bumpers – circle, explosive repulsion, +100
+      { type: 'bumper',   x: W*.50, y: H*.10, r: 24, pts: 100, fl: 0 },
+      { type: 'bumper',   x: W*.27, y: H*.21, r: 18, pts: 100, fl: 0 },
+      { type: 'bumper',   x: W*.73, y: H*.21, r: 18, pts: 100, fl: 0 },
+      // Diamond targets – angular, soft bounce, +75
+      { type: 'diamond',  x: W*.25, y: H*.38, r: 14, pts: 75,  fl: 0 },
+      { type: 'diamond',  x: W*.75, y: H*.38, r: 14, pts: 75,  fl: 0 },
+      // Triangle obstacles – deflect at sharp angles, +150
+      { type: 'triangle', x: W*.50, y: H*.26, r: 13, pts: 150, fl: 0 },
+      // Slingshot kickers – line segment with speed boost, +50
+      { type: 'kicker', x1: W*.05, y1: H*.52, x2: W*.20, y2: H*.42, pts: 50, fl: 0 },
+      { type: 'kicker', x1: W*.95, y1: H*.52, x2: W*.80, y2: H*.42, pts: 50, fl: 0 },
+      // Star – disappears on hit, respawns after 3 s, +200
+      { type: 'star',    x: W*.50, y: H*.36, r: 11, pts: 200, fl: 0, hidden: false, respawnAt: 0 },
+    ],
+    score: 0,
+    lives: 3,
+  };
+}
+
+// ── Audio hook ────────────────────────────────────────────────
+function useSound() {
+  const ctxRef     = useRef(null);
+  const enabledRef = useRef(true);
+  const [soundOn, _setSoundOn] = useState(true);
+
+  const setSoundOn = (v) => { enabledRef.current = v; _setSoundOn(v); };
+
+  const getCtx = () => {
+    if (!ctxRef.current) {
+      ctxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (ctxRef.current.state === "suspended") ctxRef.current.resume();
+    return ctxRef.current;
+  };
+
+  const playTone = useCallback((freq, duration, type = "sine", gainVal = 0.15) => {
+    if (!enabledRef.current) return;
+    try {
+      const ctx  = getCtx();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type            = type;
+      gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + duration);
+    } catch (_) { /* ignore AudioContext errors */ }
+  }, []);
+
+  const playBumper   = useCallback(() => playTone(440, 0.08, "square",   0.10), [playTone]);
+  const playDiamond  = useCallback(() => playTone(660, 0.07, "square",   0.09), [playTone]);
+  const playTriangle = useCallback(() => playTone(550, 0.09, "square",   0.10), [playTone]);
+  const playKicker   = useCallback(() => playTone(330, 0.10, "sawtooth", 0.10), [playTone]);
+  const playStar     = useCallback(() => playTone(880, 0.20, "sine",     0.18), [playTone]);
+  const playDrain    = useCallback(() => playTone(110, 0.40, "sine",     0.20), [playTone]);
+
+  return { soundOn, setSoundOn, playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain };
+}
+
+// ── Icon components ───────────────────────────────────────────
+function IconSound({ on }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="2,6 6,6 10,2 10,16 6,12 2,12" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" fill="none"/>
+      {on ? (
+        <>
+          <path d="M12.5 6.5 C13.8 7.3 13.8 10.7 12.5 11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+          <path d="M14.5 4.5 C17 6 17 12 14.5 13.5"          stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+        </>
+      ) : (
+        <>
+          <line x1="12" y1="6" x2="17" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+          <line x1="17" y1="6" x2="12" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+        </>
+      )}
+    </svg>
+  );
+}
+
+function IconHub() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2"  y="2"  width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="10" y="2"  width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="2"  y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="10" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+    </svg>
+  );
+}
+
 export const meta = {
   path:        "/pinball",
   symbol:      "◉",
@@ -93,12 +181,21 @@ export const meta = {
 };
 
 export default function Pinball() {
+  const navigate = useNavigate();
   const cvRef  = useRef(null);
   const gsRef  = useRef(null);
   const rafRef = useRef(null);
   const keys   = useRef({ l: false, r: false });
   const phase  = useRef("idle");
   const [ui, setUi] = useState({ p: "idle", score: 0, lives: 3, best: 0, newBest: false });
+
+  const { soundOn, setSoundOn, playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain } = useSound();
+
+  // Keep sound callbacks accessible inside the rAF loop without stale closures
+  const sndRef = useRef({});
+  useEffect(() => {
+    sndRef.current = { playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain };
+  }, [playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain]);
 
   const loop = useCallback(() => {
     const cv = cvRef.current;
@@ -107,6 +204,7 @@ export default function Pinball() {
     const g   = gsRef.current;
     const { W, H, ball, fL, fR, guides, targets } = g;
     const now = Date.now();
+    const snd = sndRef.current;
 
     // Star respawn
     targets.forEach(t => {
@@ -154,8 +252,9 @@ export default function Pinball() {
     doFlip(fL, true);
     doFlip(fR, false);
 
-    // Targets
+    // Targets collision
     targets.forEach(t => {
+      // ○ Bumper – explosive circular repulsion
       if (t.type === 'bumper') {
         const dx = ball.x - t.x, dy = ball.y - t.y;
         const d  = Math.hypot(dx, dy);
@@ -165,9 +264,11 @@ export default function Pinball() {
           ball.x = t.x + nx * md; ball.y = t.y + ny * md;
           const s = Math.max(Math.hypot(ball.vx, ball.vy), 10);
           ball.vx = nx * s * 1.45; ball.vy = ny * s * 1.45;
-          if (now - t.fl > 180) { t.fl = now; g.score += t.pts; setUi(u => ({ ...u, score: g.score })); }
+          if (now - t.fl > 180) { t.fl = now; g.score += t.pts; snd.playBumper(); setUi(u => ({ ...u, score: g.score })); }
         }
       }
+
+      // ◇ Diamond – soft angled bounce
       if (t.type === 'diamond') {
         const dx = ball.x - t.x, dy = ball.y - t.y;
         const d  = Math.hypot(dx, dy);
@@ -177,18 +278,37 @@ export default function Pinball() {
           ball.x = t.x + nx * md; ball.y = t.y + ny * md;
           const dot = ball.vx * nx + ball.vy * ny;
           if (dot < 0) { ball.vx -= 2 * dot * nx * 0.78; ball.vy -= 2 * dot * ny * 0.78; }
-          if (now - t.fl > 200) { t.fl = now; g.score += t.pts; setUi(u => ({ ...u, score: g.score })); }
+          if (now - t.fl > 200) { t.fl = now; g.score += t.pts; snd.playDiamond(); setUi(u => ({ ...u, score: g.score })); }
         }
       }
+
+      // △ Triangle – sharp deflection
+      if (t.type === 'triangle') {
+        const dx = ball.x - t.x, dy = ball.y - t.y;
+        const d  = Math.hypot(dx, dy);
+        const md = BALL_R + t.r;
+        if (d < md && d > 0.001) {
+          const nx = dx / d, ny = dy / d;
+          ball.x = t.x + nx * md; ball.y = t.y + ny * md;
+          const dot = ball.vx * nx + ball.vy * ny;
+          if (dot < 0) { ball.vx -= 2 * dot * nx * 0.85; ball.vy -= 2 * dot * ny * 0.85; }
+          if (now - t.fl > 200) { t.fl = now; g.score += t.pts; snd.playTriangle(); setUi(u => ({ ...u, score: g.score })); }
+        }
+      }
+
+      // — Kicker – slingshot speed boost
       if (t.type === 'kicker') {
         const { hit, nx, ny } = reflectSeg(ball, t.x1, t.y1, t.x2, t.y2, 0.82);
         if (hit && now - t.fl > 260) {
           t.fl = now;
           ball.vx += nx * 5.5; ball.vy += ny * 5.5;
           g.score += t.pts;
+          snd.playKicker();
           setUi(u => ({ ...u, score: g.score }));
         }
       }
+
+      // ★ Star – vanishes on hit, respawns after 3 s
       if (t.type === 'star' && !t.hidden) {
         const dx = ball.x - t.x, dy = ball.y - t.y;
         const d  = Math.hypot(dx, dy);
@@ -200,6 +320,7 @@ export default function Pinball() {
           ball.vx = nx * s * 1.3; ball.vy = ny * s * 1.3;
           t.fl = now; t.hidden = true; t.respawnAt = now + 3000;
           g.score += t.pts;
+          snd.playStar();
           setUi(u => ({ ...u, score: g.score }));
         }
       }
@@ -208,6 +329,7 @@ export default function Pinball() {
     // Drain
     if (ball.y > H + 30) {
       g.lives--;
+      snd.playDrain();
       if (g.lives <= 0) {
         phase.current = "done";
         setUi(u => {
@@ -221,7 +343,7 @@ export default function Pinball() {
       setUi(u => ({ ...u, lives: g.lives }));
     }
 
-    // ── DRAW ──────────────────────────────────────────────────
+    // ── Draw ───────────────────────────────────────────────────
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = "#0a0a0a";
     ctx.fillRect(0, 0, W, H);
@@ -234,11 +356,11 @@ export default function Pinball() {
       ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
     });
 
-    // Central drain hint
+    // Drain gap hint (dashed)
     const tipLx = fL.px + Math.cos(fL.dn) * fL.len;
     const tipRx = fR.px + Math.cos(fR.dn) * fR.len;
     ctx.strokeStyle = "rgba(255,255,255,0.04)";
-    ctx.lineWidth = 1;
+    ctx.lineWidth   = 1;
     ctx.setLineDash([3, 8]);
     ctx.beginPath();
     ctx.moveTo(tipLx, fL.py + Math.sin(fL.dn) * fL.len + 6);
@@ -283,6 +405,17 @@ export default function Pinball() {
         ctx.stroke();
       }
 
+      if (t.type === 'triangle') {
+        ctx.shadowBlur  = fa > 0 ? 12 * fa : 0;
+        ctx.shadowColor = "rgba(255,255,255,0.8)";
+        pathTriangle(ctx, t.x, t.y, t.r);
+        ctx.strokeStyle = `rgba(255,255,255,${0.32 + fa * 0.56})`;
+        ctx.lineWidth   = 1.5;
+        ctx.stroke();
+        if (fa > 0) { ctx.fillStyle = `rgba(255,255,255,${fa * 0.12})`; ctx.fill(); }
+        ctx.shadowBlur = 0;
+      }
+
       if (t.type === 'kicker') {
         ctx.shadowBlur  = fa > 0 ? 10 * fa : 0;
         ctx.shadowColor = "rgba(255,255,255,0.8)";
@@ -320,11 +453,11 @@ export default function Pinball() {
           if (fa > 0) { ctx.fillStyle = `rgba(255,255,255,${fa * 0.18})`; ctx.fill(); }
           ctx.shadowBlur = 0;
         } else {
-          // Countdown ghost
+          // Ghost countdown
           const elapsed = now - t.fl;
           const wait    = t.respawnAt - t.fl;
           const prog    = Math.min(1, elapsed / wait);
-          ctx.shadowBlur = 0;
+          ctx.shadowBlur  = 0;
           ctx.strokeStyle = `rgba(255,255,255,${0.03 + prog * 0.09})`;
           ctx.lineWidth   = 1;
           ctx.setLineDash([2, 6]);
@@ -372,6 +505,7 @@ export default function Pinball() {
     rafRef.current = requestAnimationFrame(loop);
   }, [loop]);
 
+  // Keyboard controls
   useEffect(() => {
     const kd = e => {
       if (["ArrowLeft",  "z","Z","a","A"].includes(e.key)) keys.current.l = true;
@@ -386,6 +520,7 @@ export default function Pinball() {
     return () => { window.removeEventListener("keydown", kd); window.removeEventListener("keyup", ku); };
   }, []);
 
+  // Touch / pointer controls
   const onPD = e => {
     if (phase.current !== "playing") return;
     const r = cvRef.current?.getBoundingClientRect();
@@ -398,97 +533,161 @@ export default function Pinball() {
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
   const { p, score, lives, best, newBest } = ui;
-  const btn = {
+
+  const BtnStyle = {
     background: "transparent",
     border: "1px solid rgba(255,255,255,0.22)",
-    color: "#fff", fontFamily: "'DM Mono',monospace",
-    fontSize: 11, letterSpacing: 5,
-    padding: "14px 36px", cursor: "pointer", textTransform: "uppercase",
+    color: "#fff",
+    fontFamily: "'DM Mono', monospace",
+    fontSize: 11,
+    letterSpacing: 5,
+    padding: "14px 36px",
+    cursor: "pointer",
+    textTransform: "uppercase",
+  };
+
+  const iconBtnStyle = {
+    position: "absolute", top: 14, zIndex: 20,
+    background: "transparent", border: "none",
+    color: "rgba(255,255,255,0.38)",
+    cursor: "pointer", padding: 6,
+    lineHeight: 0,
+    transition: "color 0.2s",
   };
 
   return (
     <div style={{
-      width: "100vw", height: "100dvh", background: "#0a0a0a",
-      overflow: "hidden", position: "relative",
-      fontFamily: "'DM Mono','Courier New',monospace",
-      userSelect: "none", touchAction: "none",
+      width: "100vw", height: "100dvh",
+      background: "#0a0a0a",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
     }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&display=swap');
-        @keyframes fadeIn {
-          from { opacity:0; transform:translateY(8px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        button:hover { border-color: rgba(255,255,255,0.6) !important; }
-      `}</style>
-
-      <canvas
-        ref={cvRef}
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-        onPointerDown={onPD}
-        onPointerUp={onPU}
-        onPointerLeave={onPU}
-      />
-
-      {p === "playing" && <>
-        <div style={{
-          position: "absolute", top: 18, left: 24, zIndex: 10,
-          color: "#fff", fontSize: 32, fontWeight: 300, letterSpacing: -1,
-          pointerEvents: "none",
-        }}>{score}</div>
-
-        <div style={{
-          position: "absolute", top: 22, right: 24, zIndex: 10,
-          color: "#fff", fontSize: 12, letterSpacing: 4, opacity: 0.5,
-          pointerEvents: "none",
-        }}>{"●".repeat(Math.max(0, lives))}</div>
-
-        <div style={{
-          position: "absolute", bottom: 42, right: 16, zIndex: 10,
-          color: "#fff", fontSize: 8, letterSpacing: 3, opacity: 0.13,
-          pointerEvents: "none", textAlign: "right", lineHeight: 2.2,
-          textTransform: "uppercase",
-        }}>○ 100<br />◇ &nbsp;75<br />— &nbsp;50<br />★ 200</div>
-
-        <div style={{
-          position: "absolute", bottom: 18, left: "50%",
-          transform: "translateX(-50%)",
-          color: "#fff", fontSize: 9, letterSpacing: 5, opacity: 0.11,
-          pointerEvents: "none", whiteSpace: "nowrap",
-        }}>Z · · · X &nbsp;&nbsp;&nbsp; ← · · · →</div>
-      </>}
-
-      {p === "idle" && (
-        <div style={{
-          position: "absolute", inset: 0, zIndex: 20,
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          animation: "fadeIn 0.6s ease",
-        }}>
-          <div style={{ color:"#fff", fontSize:11, letterSpacing:6, marginBottom:32, opacity:0.28, textTransform:"uppercase" }}>flipper</div>
-          <div style={{ color:"#fff", fontSize:72, fontWeight:300, lineHeight:1 }}>◉</div>
-          <div style={{ color:"#fff", fontSize:10, letterSpacing:4, marginTop:20, opacity:0.18 }}>3 balls</div>
-          {best > 0 && <div style={{ color:"#fff", fontSize:11, letterSpacing:3, marginTop:36, opacity:0.18 }}>best {best}</div>}
-          <button style={{ ...btn, marginTop: 52 }} onClick={start}>start</button>
-        </div>
-      )}
-
-      {p === "done" && (
-        <div style={{
-          position: "absolute", inset: 0, zIndex: 20,
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          animation: "fadeIn 0.5s ease",
-        }}>
-          <div style={{ color:"#fff", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase", marginBottom:16 }}>score</div>
-          <div style={{ color:"#fff", fontSize:88, fontWeight:300, letterSpacing:-4, lineHeight:1 }}>{score}</div>
-          {newBest && score > 0
-            ? <div style={{ color:"#fff", fontSize:10, letterSpacing:5, opacity:0.32, marginTop:12, textTransform:"uppercase" }}>new best</div>
-            : <div style={{ color:"#fff", fontSize:10, letterSpacing:4, opacity:0.2,  marginTop:12 }}>best {best}</div>
+      <div style={{
+        position: "relative",
+        width: 430,
+        height: 760,
+        maxWidth: "100%",
+        maxHeight: "100%",
+        overflow: "hidden",
+        userSelect: "none",
+        fontFamily: "'DM Mono', 'Courier New', monospace",
+        touchAction: "none",
+        outline: "1px solid rgba(255,255,255,0.07)",
+      }}>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&display=swap');
+          * { -webkit-tap-highlight-color: transparent; }
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
           }
-          <button style={{ ...btn, marginTop: 56 }} onClick={start}>again</button>
-        </div>
-      )}
+        `}</style>
+
+        {/* ── Sound toggle ── */}
+        <button
+          aria-label={soundOn ? "mute" : "unmute"}
+          onClick={() => setSoundOn(!soundOn)}
+          onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+          onMouseLeave={e => e.currentTarget.style.color = soundOn ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.18)"}
+          style={{ ...iconBtnStyle, right: 52, color: `rgba(255,255,255,${soundOn ? 0.38 : 0.18})` }}
+        >
+          <IconSound on={soundOn} />
+        </button>
+
+        {/* ── Hub button ── */}
+        <button
+          aria-label="back to hub"
+          onClick={() => navigate("/")}
+          onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+          onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.38)"}
+          style={{ ...iconBtnStyle, right: 12 }}
+        >
+          <IconHub />
+        </button>
+
+        {/* ── Canvas ── */}
+        <canvas
+          ref={cvRef}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+          onPointerDown={onPD}
+          onPointerUp={onPU}
+          onPointerLeave={onPU}
+        />
+
+        {/* ── Playing HUD ── */}
+        {p === "playing" && <>
+          <div style={{
+            position: "absolute", top: 18, left: 24, zIndex: 10,
+            color: "#fff", fontSize: 32, fontWeight: 300, letterSpacing: -1,
+            pointerEvents: "none",
+          }}>{score}</div>
+
+          <div style={{
+            position: "absolute", top: 22, right: 64, zIndex: 10,
+            color: "#fff", fontSize: 12, letterSpacing: 4, opacity: 0.5,
+            pointerEvents: "none",
+          }}>{"●".repeat(Math.max(0, lives))}</div>
+
+          <div style={{
+            position: "absolute", bottom: 42, right: 16, zIndex: 10,
+            color: "#fff", fontSize: 8, letterSpacing: 3, opacity: 0.13,
+            pointerEvents: "none", textAlign: "right", lineHeight: 2.2,
+            textTransform: "uppercase",
+          }}>○ 100<br />◇ &nbsp;75<br />△ 150<br />— &nbsp;50<br />★ 200</div>
+
+          <div style={{
+            position: "absolute", bottom: 18, left: "50%",
+            transform: "translateX(-50%)",
+            color: "#fff", fontSize: 9, letterSpacing: 5, opacity: 0.11,
+            pointerEvents: "none", whiteSpace: "nowrap",
+          }}>Z · · · X &nbsp;&nbsp;&nbsp; ← · · · →</div>
+        </>}
+
+        {/* ── Idle screen ── */}
+        {p === "idle" && (
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 20,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            animation: "fadeIn 0.6s ease",
+          }}>
+            <div style={{ color:"#fff", fontSize:11, letterSpacing:6, marginBottom:32, opacity:0.28, textTransform:"uppercase" }}>pinball</div>
+            <div style={{ color:"#fff", fontSize:72, fontWeight:300, lineHeight:1 }}>◉</div>
+            <div style={{ color:"#fff", fontSize:10, letterSpacing:4, marginTop:20, opacity:0.18 }}>3 balls</div>
+            {best > 0 && <div style={{ color:"#fff", fontSize:11, letterSpacing:3, marginTop:36, opacity:0.18 }}>best {best}</div>}
+            <button
+              style={{ ...BtnStyle, marginTop: 52 }}
+              onMouseEnter={e => e.target.style.borderColor="rgba(255,255,255,0.6)"}
+              onMouseLeave={e => e.target.style.borderColor="rgba(255,255,255,0.22)"}
+              onClick={start}
+            >start</button>
+          </div>
+        )}
+
+        {/* ── Done screen ── */}
+        {p === "done" && (
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 20,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            animation: "fadeIn 0.5s ease",
+          }}>
+            <div style={{ color:"#fff", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase", marginBottom:16 }}>score</div>
+            <div style={{ color:"#fff", fontSize:88, fontWeight:300, letterSpacing:-4, lineHeight:1 }}>{score}</div>
+            {newBest && score > 0
+              ? <div style={{ color:"#fff", fontSize:10, letterSpacing:5, opacity:0.32, marginTop:12, textTransform:"uppercase" }}>new best</div>
+              : <div style={{ color:"#fff", fontSize:10, letterSpacing:4, opacity:0.2,  marginTop:12 }}>best {best}</div>
+            }
+            <button
+              style={{ ...BtnStyle, marginTop: 56 }}
+              onMouseEnter={e => e.target.style.borderColor="rgba(255,255,255,0.6)"}
+              onMouseLeave={e => e.target.style.borderColor="rgba(255,255,255,0.22)"}
+              onClick={start}
+            >again</button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
