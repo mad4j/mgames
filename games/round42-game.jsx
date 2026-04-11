@@ -307,7 +307,7 @@ function drawHUD(ctx, { score, wave, lives, phazors }, dpr, cssW, cssH) {
 export const meta = {
   path:        "/round42",
   symbol:      "9",
-  name:        "level9",
+  name:        "round42",
   description: "defend against the alien fleet",
 };
 
