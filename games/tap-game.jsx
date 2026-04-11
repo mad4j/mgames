@@ -347,6 +347,8 @@ export default function TapGame() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&display=swap');
 
+        * { -webkit-tap-highlight-color: transparent; }
+
         @keyframes ripple {
           from { transform: translate(-50%,-50%) scale(0.4); opacity: 1; }
           to   { transform: translate(-50%,-50%) scale(2.6); opacity: 0; }
