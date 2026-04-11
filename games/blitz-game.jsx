@@ -109,22 +109,25 @@ function Biplane() {
 }
 
 // Shared bomb drawing – used as the in-game projectile (small) and as the hub
-// card symbol (large). The viewBox is always "0 0 11 18" so the aspect ratio
+// card symbol (large). The viewBox is always "0 0 22 58" so the aspect ratio
 // stays consistent regardless of the rendered width/height.
-function BombSVG({ width = 11, height = 18 }) {
-  const c = "#3366cc";
+// Shape: two rectangular tail fins with a V-notch between them, tapering into
+// a long cylindrical body with a rounded nose at the bottom.
+function BombSVG({ width = 11, height = 29 }) {
+  const c = "rgba(255,255,255,0.92)";
   return (
-    <svg width={width} height={height} viewBox="0 0 11 18" fill="none" role="img" aria-label="bomb">
-      {/* Detonator cap – small narrow rectangle at top */}
-      <rect x="3.5" y="0" width="4" height="4" fill={c} />
-      {/* Body – wider rectangle */}
-      <rect x="1.5" y="4" width="8" height="14" fill={c} />
+    <svg width={width} height={height} viewBox="0 0 22 58" fill="none" role="img" aria-label="bomb">
+      {/* Single path: tail fins (with V-notch) → tapered shoulders → body → rounded nose */}
+      <path
+        fill={c}
+        d="M0,14 L0,0 L9,0 L11,7 L13,0 L22,0 L22,14 L16,16 L16,52 Q16,58 11,58 Q6,58 6,52 L6,16 Z"
+      />
     </svg>
   );
 }
 
 function Bomb() {
-  return <BombSVG width={11} height={18} />;
+  return <BombSVG width={11} height={29} />;
 }
 
 // Scalloped cap drawn as an SVG positioned above each building div.
@@ -182,7 +185,7 @@ function IconHub() {
 export const meta = {
   path: "/blitz",
   // JSX element – Hub renders {g.symbol} directly so React elements are valid
-  symbol: <BombSVG width={28} height={46} />,
+  symbol: <BombSVG width={17} height={44} />,
   name: "blitz",
   description: "drop bombs, clear the runway",
 };
@@ -443,7 +446,9 @@ export default function BlitzGame() {
           animation: "fadeIn 0.6s ease",
         }}>
           <div style={{ color:"#fff", fontSize:11, letterSpacing:6, marginBottom:32, opacity:0.28, textTransform:"uppercase" }}>blitz</div>
-          <div style={{ color:"#fff", fontSize:64, fontWeight:300, lineHeight:1 }}>▶</div>
+          <div style={{ lineHeight:0, marginBottom:8, opacity:0.85 }}>
+            <BombSVG width={38} height={100} />
+          </div>
           <div style={{ color:"#fff", fontSize:9, letterSpacing:3, marginTop:32, opacity:0.28, textAlign:"center", lineHeight:2.2, textTransform:"uppercase" }}>
             drop bombs<br/>clear the runway
           </div>
