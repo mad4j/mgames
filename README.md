@@ -1,0 +1,2 @@
+# mgames
+Minimal games
