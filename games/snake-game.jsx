@@ -1,9 +1,58 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const CELL      = 20;
-const MAX_SPEED = 160;
-const MIN_SPEED = 55;
-const GAME_H    = 760;
+const CELL          = 20;
+const MAX_SPEED     = 160;
+const MIN_SPEED     = 55;
+const GAME_H        = 760;
+const SPEED_TICK_MS = 3000;  // interval between time-based speed bumps
+const SPEED_TICK_DEC = 4;    // ms removed from interval each bump
+const FOOD_MIN_MS   = 3000;  // min food lifetime before reposition
+const FOOD_MAX_MS   = 9000;  // max food lifetime before reposition
+
+// ── audio ─────────────────────────────────────────────────────────────────────
+function useSound() {
+  const ctxRef = useRef(null);
+
+  const getCtx = useCallback(() => {
+    if (!ctxRef.current) {
+      ctxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (ctxRef.current.state === "suspended") ctxRef.current.resume();
+    return ctxRef.current;
+  }, []);
+
+  const playTone = useCallback((freq, duration, type = "sine", gainVal = 0.15) => {
+    try {
+      const ctx  = getCtx();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type            = type;
+      gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + duration);
+    } catch (_) { /* ignore AudioContext errors */ }
+  }, [getCtx]);
+
+  const playTick = useCallback((alt) => {
+    playTone(alt ? 1760 : 1320, 0.04, "square", 0.07);
+  }, [playTone]);
+
+  const playEat = useCallback(() => {
+    playTone(880,    0.12, "sine", 0.18);
+    setTimeout(() => playTone(1046.5, 0.18, "sine", 0.14), 80);
+  }, [playTone]);
+
+  const playDie = useCallback(() => {
+    playTone(90, 0.7, "sine",     0.28);
+    setTimeout(() => playTone(60, 0.5, "triangle", 0.18), 120);
+  }, [playTone]);
+
+  return { playTick, playEat, playDie };
+}
 
 function useWindowSize() {
   const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight });
@@ -39,21 +88,29 @@ export default function SnakeGame() {
   const [foodKey,     setFoodKey]     = useState(0);
 
   // All mutable game state lives in refs so the loop closure stays stable
-  const snakeRef   = useRef([]);
-  const foodRef    = useRef(null);
-  const dirRef     = useRef({ x: 1, y: 0 });
-  const nextDirRef = useRef({ x: 1, y: 0 });
-  const phaseRef   = useRef("idle");
-  const speedRef   = useRef(MAX_SPEED);
-  const scoreRef   = useRef(0);
-  const bestRef    = useRef(0);
-  const loopId     = useRef(null);
-  const touchStart = useRef(null);
-  const colsRef    = useRef(cols);
-  const rowsRef    = useRef(rows);
+  const snakeRef       = useRef([]);
+  const foodRef        = useRef(null);
+  const dirRef         = useRef({ x: 1, y: 0 });
+  const nextDirRef     = useRef({ x: 1, y: 0 });
+  const phaseRef       = useRef("idle");
+  const speedRef       = useRef(MAX_SPEED);
+  const scoreRef       = useRef(0);
+  const bestRef        = useRef(0);
+  const loopId         = useRef(null);
+  const touchStart     = useRef(null);
+  const colsRef        = useRef(cols);
+  const rowsRef        = useRef(rows);
+  const tickAltRef     = useRef(false);
+  const foodExpiresAt  = useRef(0);
 
   useEffect(() => { colsRef.current = cols; }, [cols]);
   useEffect(() => { rowsRef.current = rows; }, [rows]);
+
+  // ── sound ────────────────────────────────────────────────────────────────
+  const { playTick, playEat, playDie } = useSound();
+  // Keep latest sound fns in a ref so tick closure doesn't need them as deps
+  const soundRef = useRef({ playTick, playEat, playDie });
+  useEffect(() => { soundRef.current = { playTick, playEat, playDie }; }, [playTick, playEat, playDie]);
 
   // ── helpers ──────────────────────────────────────────────────────────────
   const randFood = useCallback((sn) => {
@@ -68,9 +125,20 @@ export default function SnakeGame() {
     return f;
   }, []);
 
+  // Place food and set a random expiry time
+  const placeFood = useCallback((sn) => {
+    const f = randFood(sn);
+    foodExpiresAt.current = Date.now() + FOOD_MIN_MS + Math.random() * (FOOD_MAX_MS - FOOD_MIN_MS);
+    return f;
+  }, [randFood]);
+
   // ── game loop ─────────────────────────────────────────────────────────────
   const tick = useCallback(() => {
     if (phaseRef.current !== "playing") return;
+
+    // Alternating tick sound on each snake step
+    tickAltRef.current = !tickAltRef.current;
+    soundRef.current.playTick(tickAltRef.current);
 
     dirRef.current = { ...nextDirRef.current };
     const head = {
@@ -84,6 +152,7 @@ export default function SnakeGame() {
       head.y < 0 || head.y >= rowsRef.current ||
       snakeRef.current.some(s => s.x === head.x && s.y === head.y)
     ) {
+      soundRef.current.playDie();
       phaseRef.current = "dying";
       setFlash(true);
       setTimeout(() => {
@@ -101,15 +170,24 @@ export default function SnakeGame() {
     const newSnake = [head, ...snakeRef.current];
 
     if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
+      // Ate the food
       scoreRef.current++;
       setScore(scoreRef.current);
-      const newFood = randFood(newSnake);
+      soundRef.current.playEat();
+      const newFood = placeFood(newSnake);
       foodRef.current = newFood;
       setRenderFood(newFood);
       setFoodKey(k => k + 1);
       speedRef.current = Math.max(MIN_SPEED, speedRef.current - 5);
       setSpeed(speedRef.current);
     } else {
+      // Check if food lifetime expired → reposition without scoring
+      if (Date.now() >= foodExpiresAt.current) {
+        const newFood = placeFood(newSnake);
+        foodRef.current = newFood;
+        setRenderFood(newFood);
+        setFoodKey(k => k + 1);
+      }
       newSnake.pop();
     }
 
@@ -117,7 +195,17 @@ export default function SnakeGame() {
     setRenderSnake([...newSnake]);
 
     loopId.current = setTimeout(tick, speedRef.current);
-  }, [randFood]);
+  }, [placeFood]);
+
+  // ── time-based speed increase ─────────────────────────────────────────────
+  useEffect(() => {
+    if (phase !== "playing") return;
+    const iv = setInterval(() => {
+      speedRef.current = Math.max(MIN_SPEED, speedRef.current - SPEED_TICK_DEC);
+      setSpeed(speedRef.current);
+    }, SPEED_TICK_MS);
+    return () => clearInterval(iv);
+  }, [phase]);
 
   // ── start ─────────────────────────────────────────────────────────────────
   const startGame = useCallback(() => {
@@ -126,7 +214,7 @@ export default function SnakeGame() {
     const mx = Math.floor(colsRef.current / 2);
     const my = Math.floor(rowsRef.current / 2);
     const initSnake = [{ x: mx, y: my }, { x: mx - 1, y: my }, { x: mx - 2, y: my }];
-    const initFood  = randFood(initSnake);
+    const initFood  = placeFood(initSnake);
     const initDir   = { x: 1, y: 0 };
 
     snakeRef.current   = initSnake;
@@ -135,6 +223,7 @@ export default function SnakeGame() {
     nextDirRef.current = initDir;
     scoreRef.current   = 0;
     speedRef.current   = MAX_SPEED;
+    tickAltRef.current = false;
     phaseRef.current   = "playing";
 
     setRenderSnake([...initSnake]);
@@ -146,7 +235,7 @@ export default function SnakeGame() {
     setPhase("playing");
 
     loopId.current = setTimeout(tick, MAX_SPEED);
-  }, [randFood, tick]);
+  }, [placeFood, tick]);
 
   useEffect(() => () => { if (loopId.current) clearTimeout(loopId.current); }, []);
 
