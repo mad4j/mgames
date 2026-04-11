@@ -15,7 +15,6 @@ const MAX_BUILD_HEIGHT  = 14;   // floors
 const SCORE_PER_FLOOR   = 10;
 const SCORE_PER_PASS    = 5;
 
-const CELL_W_HALF = Math.round(CELL_W / 2); // pre-computed column half-width
 // Leave a small gap so the CSS transition always completes before the next step
 const TRANSITION_OFFSET_MS = 12;
 
@@ -109,25 +108,25 @@ function Biplane() {
 }
 
 // Shared bomb drawing – used as the in-game projectile (small) and as the hub
-// card symbol (large). The viewBox is always "0 0 22 58" so the aspect ratio
+// card symbol (large). The viewBox is always "0 0 22 42" so the aspect ratio
 // stays consistent regardless of the rendered width/height.
 // Shape: two rectangular tail fins with a V-notch between them, tapering into
-// a long cylindrical body with a rounded nose at the bottom.
-function BombSVG({ width = 11, height = 29 }) {
+// a wide cylindrical body with a rounded nose at the bottom.
+function BombSVG({ width = 14, height = 24 }) {
   const c = "rgba(255,255,255,0.92)";
   return (
-    <svg width={width} height={height} viewBox="0 0 22 58" fill="none" role="img" aria-label="bomb">
-      {/* Single path: tail fins (with V-notch) → tapered shoulders → body → rounded nose */}
+    <svg width={width} height={height} viewBox="0 0 22 42" fill="none" role="img" aria-label="bomb">
+      {/* Single path: tail fins (with V-notch) → wide shoulders → body → rounded nose */}
       <path
         fill={c}
-        d="M0,14 L0,0 L9,0 L11,7 L13,0 L22,0 L22,14 L16,16 L16,52 Q16,58 11,58 Q6,58 6,52 L6,16 Z"
+        d="M0,10 L0,0 L9,0 L11,5 L13,0 L22,0 L22,10 L18,11 L18,35 Q18,42 11,42 Q4,42 4,35 L4,11 Z"
       />
     </svg>
   );
 }
 
 function Bomb() {
-  return <BombSVG width={11} height={29} />;
+  return <BombSVG width={15} height={22} />;
 }
 
 // Scalloped cap drawn as an SVG positioned above each building div.
@@ -185,7 +184,7 @@ function IconHub() {
 export const meta = {
   path: "/blitz",
   // JSX element – Hub renders {g.symbol} directly so React elements are valid
-  symbol: <BombSVG width={17} height={44} />,
+  symbol: <BombSVG width={20} height={29} />,
   name: "blitz",
   description: "drop bombs, clear the runway",
 };
@@ -299,12 +298,13 @@ export default function BlitzGame() {
       const buildTop     = ROWS - bh;
 
       if (bh > 0 && nextRow >= buildTop) {
-        // Hit building – remove top floor
+        // Hit building – remove 1–3 top floors
+        const floorsDestroyed = 1 + Math.floor(Math.random() * 3);
         const nb = [...buildRef.current];
-        nb[col]  = Math.max(0, nb[col] - 1);
+        nb[col]  = Math.max(0, nb[col] - floorsDestroyed);
         buildRef.current = nb;
         setBuildings([...nb]);
-        setScore(s => s + SCORE_PER_FLOOR);
+        setScore(s => s + SCORE_PER_FLOOR * floorsDestroyed);
         playBlast();
         bombRef.current = null;
         setBomb(null);
@@ -385,7 +385,7 @@ export default function BlitzGame() {
     <div style={{
       position: "relative",
       width: 430,
-      height: 760,
+      height: GRID_H,
       maxWidth: "calc(100vw - 32px)",
       maxHeight: "calc(100dvh - 32px)",
       overflow: "hidden",
@@ -447,7 +447,7 @@ export default function BlitzGame() {
         }}>
           <div style={{ color:"#fff", fontSize:11, letterSpacing:6, marginBottom:32, opacity:0.28, textTransform:"uppercase" }}>blitz</div>
           <div style={{ lineHeight:0, marginBottom:8, opacity:0.85 }}>
-            <BombSVG width={38} height={100} />
+            <BombSVG width={50} height={66} />
           </div>
           <div style={{ color:"#fff", fontSize:9, letterSpacing:3, marginTop:32, opacity:0.28, textAlign:"center", lineHeight:2.2, textTransform:"uppercase" }}>
             drop bombs<br/>clear the runway
@@ -478,7 +478,7 @@ export default function BlitzGame() {
             onPointerDown={dropBomb}
             style={{
               position: "absolute",
-              top: (760 - GRID_H) / 2,
+              top: 0,
               left: 0,
               width: 430,
               height: GRID_H,
@@ -493,7 +493,7 @@ export default function BlitzGame() {
               background: "rgba(255,255,255,0.15)",
             }} />
 
-            {/* Buildings */}
+            {/* Buildings – each floor drawn as an individual square (Snake-style) */}
             {buildings.map((height, col) =>
               height > 0 && (
                 <div
@@ -504,32 +504,24 @@ export default function BlitzGame() {
                     bottom: 0,
                     width: CELL_W - 1,
                     height: height * CELL_H,
-                    background: "rgba(255,255,255,0.70)",
-                    backgroundImage: `
-                      repeating-linear-gradient(
-                        to bottom,
-                        transparent 0px,
-                        transparent ${CELL_H - 2}px,
-                        rgba(10,10,10,0.32) ${CELL_H - 2}px,
-                        rgba(10,10,10,0.32) ${CELL_H}px
-                      ),
-                      repeating-linear-gradient(
-                        to right,
-                        rgba(10,10,10,0.10) 0px,
-                        rgba(10,10,10,0.10) 1px,
-                        transparent 1px,
-                        transparent ${CELL_W_HALF}px,
-                        rgba(10,10,10,0.10) ${CELL_W_HALF}px,
-                        rgba(10,10,10,0.10) ${CELL_W_HALF + 1}px,
-                        transparent ${CELL_W_HALF + 1}px,
-                        transparent ${Math.round(CELL_W)}px
-                      )
-                    `,
-                    boxSizing: "border-box",
                     overflow: "visible",
                   }}
                 >
                   <BuildingCap width={CELL_W - 1} />
+                  {Array.from({ length: height }, (_, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        position: "absolute",
+                        bottom: i * CELL_H,
+                        left: 0,
+                        width: CELL_W - 1,
+                        height: CELL_H - 1,
+                        background: "rgba(255,255,255,0.70)",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  ))}
                 </div>
               )
             )}
