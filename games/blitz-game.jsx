@@ -108,25 +108,23 @@ function Biplane() {
 }
 
 // Shared bomb drawing – used as the in-game projectile (small) and as the hub
-// card symbol (large). The viewBox is always "0 0 22 42" so the aspect ratio
-// stays consistent regardless of the rendered width/height.
-// Shape: two rectangular tail fins with a V-notch between them, tapering into
-// a wide cylindrical body with a rounded nose at the bottom.
-function BombSVG({ width = 14, height = 24 }) {
+// card symbol (large). The viewBox is "0 0 18 22" – shorter and squatter than
+// the classic design. Two small tail fins, a compact body, rounded nose.
+function BombSVG({ width = 12, height = 15 }) {
   const c = "rgba(255,255,255,0.92)";
   return (
-    <svg width={width} height={height} viewBox="0 0 22 42" fill="none" role="img" aria-label="bomb">
-      {/* Single path: tail fins (with V-notch) → wide shoulders → body → rounded nose */}
+    <svg width={width} height={height} viewBox="0 0 18 22" fill="none" role="img" aria-label="bomb">
+      {/* Single path: small tail fins (with V-notch) → short body → rounded nose */}
       <path
         fill={c}
-        d="M0,10 L0,0 L9,0 L11,5 L13,0 L22,0 L22,10 L18,11 L18,35 Q18,42 11,42 Q4,42 4,35 L4,11 Z"
+        d="M0,6 L0,0 L7,0 L9,3 L11,0 L18,0 L18,6 L14,7 L14,17 Q14,22 9,22 Q4,22 4,17 L4,7 Z"
       />
     </svg>
   );
 }
 
 function Bomb() {
-  return <BombSVG width={15} height={22} />;
+  return <BombSVG width={11} height={14} />;
 }
 
 // Scalloped cap drawn as an SVG positioned above each building div.
@@ -184,7 +182,7 @@ function IconHub() {
 export const meta = {
   path: "/blitz",
   // JSX element – Hub renders {g.symbol} directly so React elements are valid
-  symbol: <BombSVG width={20} height={29} />,
+  symbol: <BombSVG width={18} height={22} />,
   name: "blitz",
   description: "drop bombs, clear the runway",
 };
@@ -199,6 +197,7 @@ export default function BlitzGame() {
   const [buildings, setBuildings] = useState(() => generateBuildings());
   const [score,     setScore]     = useState(0);
   const [best,      setBest]      = useState(0);
+  const [explosions, setExplosions] = useState([]);   // [{ id, x, y }]
 
   // Mutable refs – read/written inside setTimeout / setInterval callbacks
   const phaseRef    = useRef("idle");
@@ -208,6 +207,7 @@ export default function BlitzGame() {
   const bombRef     = useRef(null);
   const buildRef    = useRef(null);
   const planeTimer  = useRef(null);
+  const explosionId = useRef(0);
 
   const { soundOn, setSoundOn, playDrop, playBlast, playCrash } = useSound();
 
@@ -226,6 +226,7 @@ export default function BlitzGame() {
     setPlaneRow(0);
     setBomb(null);
     setScore(0);
+    setExplosions([]);
     setPhase("playing");
   }, []);
 
@@ -308,6 +309,12 @@ export default function BlitzGame() {
         playBlast();
         bombRef.current = null;
         setBomb(null);
+        // Spawn explosion at the top of the hit building
+        const expX = col * CELL_W + CELL_W / 2;
+        const expY = buildTop * CELL_H + CELL_H / 2;
+        const eid  = ++explosionId.current;
+        setExplosions(prev => [...prev, { id: eid, x: expX, y: expY }]);
+        setTimeout(() => setExplosions(prev => prev.filter(e => e.id !== eid)), 500);
       } else if (nextRow >= ROWS) {
         // Hit ground
         bombRef.current = null;
@@ -409,6 +416,14 @@ export default function BlitzGame() {
           from { opacity: 0.5; }
           to   { opacity: 1; }
         }
+        @keyframes expPart0 { from{opacity:1} to{transform:translate(0,-22px) scale(0); opacity:0} }
+        @keyframes expPart1 { from{opacity:1} to{transform:translate(16px,-16px) scale(0); opacity:0} }
+        @keyframes expPart2 { from{opacity:1} to{transform:translate(22px,0) scale(0); opacity:0} }
+        @keyframes expPart3 { from{opacity:1} to{transform:translate(16px,16px) scale(0); opacity:0} }
+        @keyframes expPart4 { from{opacity:1} to{transform:translate(0,22px) scale(0); opacity:0} }
+        @keyframes expPart5 { from{opacity:1} to{transform:translate(-16px,16px) scale(0); opacity:0} }
+        @keyframes expPart6 { from{opacity:1} to{transform:translate(-22px,0) scale(0); opacity:0} }
+        @keyframes expPart7 { from{opacity:1} to{transform:translate(-16px,-16px) scale(0); opacity:0} }
       `}</style>
 
       {/* ── SOUND TOGGLE ── */}
@@ -447,7 +462,7 @@ export default function BlitzGame() {
         }}>
           <div style={{ color:"#fff", fontSize:11, letterSpacing:6, marginBottom:32, opacity:0.28, textTransform:"uppercase" }}>blitz</div>
           <div style={{ lineHeight:0, marginBottom:8, opacity:0.85 }}>
-            <BombSVG width={50} height={66} />
+            <BombSVG width={50} height={61} />
           </div>
           <div style={{ color:"#fff", fontSize:9, letterSpacing:3, marginTop:32, opacity:0.28, textAlign:"center", lineHeight:2.2, textTransform:"uppercase" }}>
             drop bombs<br/>clear the runway
@@ -493,7 +508,7 @@ export default function BlitzGame() {
               background: "rgba(255,255,255,0.15)",
             }} />
 
-            {/* Buildings – each floor drawn as an individual square (Snake-style) */}
+            {/* Buildings – each floor drawn as an individual square (Snake body-style) */}
             {buildings.map((height, col) =>
               height > 0 && (
                 <div
@@ -507,21 +522,29 @@ export default function BlitzGame() {
                     overflow: "visible",
                   }}
                 >
-                  <BuildingCap width={CELL_W - 1} />
-                  {Array.from({ length: height }, (_, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        position: "absolute",
-                        bottom: i * CELL_H,
-                        left: 0,
-                        width: CELL_W - 1,
-                        height: CELL_H - 1,
-                        background: "rgba(255,255,255,0.70)",
-                        boxSizing: "border-box",
-                      }}
-                    />
-                  ))}
+                  {Array.from({ length: height }, (_, i) => {
+                    const isTop = i === height - 1;
+                    const alpha = isTop ? 0.80 : 0.35 + 0.25 * (i / height);
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          position: "absolute",
+                          bottom: i * CELL_H + 1,
+                          left: 1,
+                          width: CELL_W - 3,
+                          height: CELL_H - 3,
+                          background: isTop
+                            ? `rgba(255,255,255,${alpha})`
+                            : `rgba(255,255,255,0.04)`,
+                          border: isTop
+                            ? "none"
+                            : `1.5px solid rgba(255,255,255,${alpha})`,
+                          boxSizing: "border-box",
+                        }}
+                      />
+                    );
+                  })}
                 </div>
               )
             )}
@@ -558,6 +581,27 @@ export default function BlitzGame() {
                 <Bomb />
               </div>
             )}
+
+            {/* Explosions – 8 particle squares flying outward */}
+            {explosions.map(({ id, x, y }) => (
+              <div key={id} style={{
+                position: "absolute",
+                left: x, top: y,
+                zIndex: 8,
+                pointerEvents: "none",
+              }}>
+                {[0,1,2,3,4,5,6,7].map(i => (
+                  <div key={i} style={{
+                    position: "absolute",
+                    left: -2.5, top: -2.5,
+                    width: 5, height: 5,
+                    background: "rgba(255,255,255,0.92)",
+                    animation: `expPart${i} 0.45s ease-out forwards`,
+                    animationDelay: `${i * 12}ms`,
+                  }} />
+                ))}
+              </div>
+            ))}
           </div>
 
           {/* Hint */}
