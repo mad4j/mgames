@@ -82,25 +82,28 @@ function useSound() {
 function Biplane() {
   const c = "rgba(255,255,255,0.95)";
   return (
-    <svg width="28" height="16" viewBox="0 0 28 16" fill="none" role="img" aria-label="Player aircraft">
-      {/* Upper wing */}
-      <rect x="8" y="1" width="12" height="2.5" rx="1" fill={c} />
-      {/* Fuselage body – tapered nose pointing right, tapered tail on the left */}
-      <polygon points="2,8 4,6.5 22,6.5 27,8 22,9.5 4,9.5" fill={c} />
+    <svg width="32" height="16" viewBox="0 0 32 16" fill="none" role="img" aria-label="Player aircraft">
+      {/* Upper wing – flat rectangle, no rounding */}
+      <rect x="7" y="0" width="14" height="3" fill={c} />
+      {/* Fuselage – boxy rectangular body */}
+      <rect x="3" y="5" width="23" height="6" fill={c} />
+      {/* Nose step */}
+      <rect x="26" y="6" width="4" height="4" fill={c} />
       {/* Vertical tail fin */}
-      <polygon points="3,6.5 0.5,3 5.5,6.5" fill={c} opacity="0.88" />
+      <polygon points="3,5 3,1 7,5" fill={c} />
       {/* Horizontal stabilizer */}
-      <rect x="1" y="9.5" width="6" height="1.8" rx="0.5" fill={c} opacity="0.88" />
-      {/* Lower wing */}
-      <rect x="8" y="12.5" width="12" height="2.5" rx="1" fill={c} />
-      {/* Wing struts */}
-      <line x1="10.5" y1="3.5" x2="10.5" y2="12.5" stroke={c} strokeWidth="0.9" opacity="0.6" />
-      <line x1="17"   y1="3.5" x2="17"   y2="12.5" stroke={c} strokeWidth="0.9" opacity="0.6" />
-      {/* Cockpit */}
-      <ellipse cx="16.5" cy="7.8" rx="2.4" ry="1.7" fill="rgba(20,20,20,0.82)" />
-      {/* Propeller blade + hub */}
-      <line x1="27.5" y1="4" x2="27.5" y2="12" stroke={c} strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="27" cy="8" r="1" fill="#0a0a0a" stroke={c} strokeWidth="0.6" />
+      <rect x="0" y="11" width="7" height="2" fill={c} />
+      {/* Lower wing – flat rectangle, no rounding */}
+      <rect x="7" y="13" width="14" height="3" fill={c} />
+      {/* Wing struts – thin vertical bars */}
+      <rect x="10" y="3" width="1" height="10" fill={c} opacity="0.55" />
+      <rect x="18" y="3" width="1" height="10" fill={c} opacity="0.55" />
+      {/* Cockpit – dark square window */}
+      <rect x="14" y="6" width="5" height="4" fill="rgba(10,10,10,0.90)" />
+      {/* Propeller disc */}
+      <rect x="29" y="2" width="2" height="12" rx="1" fill={c} opacity="0.80" />
+      {/* Propeller hub */}
+      <circle cx="30" cy="8" r="1.4" fill="rgba(10,10,10,0.85)" stroke={c} strokeWidth="0.7" />
     </svg>
   );
 }
@@ -112,21 +115,41 @@ function BombSVG({ width = 11, height = 18 }) {
   const c = "rgba(255,255,255,0.92)";
   return (
     <svg width={width} height={height} viewBox="0 0 11 18" fill="none" role="img" aria-label="bomb">
-      {/* Cruciform tail fins */}
-      <polygon points="5.5,4 2,0.5 3.5,4.5" fill={c} opacity="0.82" />
-      <polygon points="5.5,4 9,0.5 7.5,4.5" fill={c} opacity="0.82" />
-      {/* Cylindrical body */}
-      <rect x="2.5" y="4" width="6" height="9.5" rx="1.2" fill={c} />
-      {/* Nose cone – pointing down (direction of fall) */}
-      <polygon points="2.5,13.5 8.5,13.5 5.5,17.5" fill={c} />
-      {/* Highlight */}
-      <rect x="3.6" y="5.5" width="1.2" height="5" rx="0.6" fill="rgba(255,255,255,0.38)" />
+      {/* Flat tail – wide rectangular base */}
+      <rect x="1.5" y="0" width="8" height="3" fill={c} />
+      {/* Small side fins */}
+      <polygon points="1.5,0 0,3.5 2.5,3" fill={c} opacity="0.85" />
+      <polygon points="9.5,0 11,3.5 8.5,3" fill={c} opacity="0.85" />
+      {/* Cylindrical body – rectangular, no rounding */}
+      <rect x="2.5" y="3" width="6" height="10" fill={c} />
+      {/* Nose cone – triangular point at bottom */}
+      <polygon points="2.5,13 8.5,13 5.5,18" fill={c} />
     </svg>
   );
 }
 
 function Bomb() {
   return <BombSVG width={11} height={18} />;
+}
+
+// Scalloped cap drawn as an SVG positioned above each building div.
+// Two upward-arching semicircles give the classic Blitz battlement silhouette.
+function BuildingCap({ width }) {
+  const w = width;
+  const sw = w / 2;          // two scallops
+  const r  = sw / 2;         // radius of each arc
+  const h  = r;              // SVG height equals radius → arcs reach y = 0
+  // sweep-flag=1 (CW in SVG) traces the upper arc from left to right
+  const d = `M 0 ${h} A ${r} ${r} 0 0 1 ${sw} ${h} A ${r} ${r} 0 0 1 ${w} ${h} Z`;
+  return (
+    <svg
+      width={w} height={h}
+      viewBox={`0 0 ${w} ${h}`}
+      style={{ position: "absolute", top: -h, left: 0, display: "block" }}
+    >
+      <path d={d} fill="rgba(255,255,255,0.70)" />
+    </svg>
+  );
 }
 
 // ── icon components ───────────────────────────────────────────────────────────
@@ -503,8 +526,11 @@ export default function BlitzGame() {
                       )
                     `,
                     boxSizing: "border-box",
+                    overflow: "visible",
                   }}
-                />
+                >
+                  <BuildingCap width={CELL_W - 1} />
+                </div>
               )
             )}
 
