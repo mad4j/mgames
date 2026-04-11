@@ -308,12 +308,13 @@ export default function SnakeGame() {
           <div style={{
             position:      "absolute",
             top:           18, left: 24,
-            color:         "#fff",
+            color:         "rgba(255,255,255,0.88)",
             fontSize:      32,
             fontWeight:    300,
             letterSpacing: -1,
             zIndex:        10,
             pointerEvents: "none",
+            textShadow:    "0 0 12px rgba(255,255,255,0.55)",
           }}>{score}</div>
 
           {/* Food — diamond */}
