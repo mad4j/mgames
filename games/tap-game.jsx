@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 const GAME_DURATION = 20;
 const DOT_LIFETIME  = 1400;  // ms before a dot expires
@@ -99,8 +100,44 @@ export const meta = {
   description: "pop the dots before they vanish",
 };
 
+// ── icon components ───────────────────────────────────────────
+function IconSound({ on }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* speaker body */}
+      <polygon points="2,6 6,6 10,2 10,16 6,12 2,12" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" fill="none"/>
+      {on ? (
+        <>
+          {/* wave 1 */}
+          <path d="M12.5 6.5 C13.8 7.3 13.8 10.7 12.5 11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+          {/* wave 2 */}
+          <path d="M14.5 4.5 C17 6 17 12 14.5 13.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+        </>
+      ) : (
+        <>
+          {/* mute X */}
+          <line x1="12" y1="6" x2="17" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+          <line x1="17" y1="6" x2="12" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+        </>
+      )}
+    </svg>
+  );
+}
+
+function IconHub() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="10" y="2" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="2" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="10" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+    </svg>
+  );
+}
+
 export default function TapGame() {
   const [phase,   setPhase]   = useState("idle");
+  const navigate = useNavigate();
   const [dots,    setDots]    = useState([]);
   const [score,   setScore]   = useState(0);
   const [timeLeft,setTimeLeft]= useState(GAME_DURATION);
@@ -250,19 +287,40 @@ export default function TapGame() {
     textTransform: "uppercase",
   };
 
+  const iconBtnStyle = {
+    position: "absolute", top: 14, zIndex: 20,
+    background: "transparent", border: "none",
+    color: "rgba(255,255,255,0.38)",
+    cursor: "pointer", padding: 6,
+    lineHeight: 0,
+    transition: "color 0.2s",
+  };
+
   const SoundBtn = (
     <button
       aria-label={soundOn ? "mute" : "unmute"}
       onClick={() => setSoundOn(!soundOn)}
+      onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+      onMouseLeave={e => e.currentTarget.style.color = soundOn ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.18)"}
       style={{
-        position: "absolute", top: 14, right: 16, zIndex: 20,
-        background: "transparent", border: "none",
-        color: `rgba(255,255,255,${soundOn ? 0.45 : 0.2})`,
-        fontSize: 18, cursor: "pointer", padding: 4,
-        lineHeight: 1,
+        ...iconBtnStyle,
+        right: 52,
+        color: `rgba(255,255,255,${soundOn ? 0.38 : 0.18})`,
       }}
     >
-      {soundOn ? "🔊" : "🔇"}
+      <IconSound on={soundOn} />
+    </button>
+  );
+
+  const HubBtn = (
+    <button
+      aria-label="back to hub"
+      onClick={() => navigate("/")}
+      onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+      onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.38)"}
+      style={{ ...iconBtnStyle, right: 12 }}
+    >
+      <IconHub />
     </button>
   );
 
@@ -319,8 +377,9 @@ export default function TapGame() {
         }
       `}</style>
 
-      {/* ── SOUND TOGGLE (always visible) ── */}
+      {/* ── SOUND TOGGLE + HUB (always visible) ── */}
       {SoundBtn}
+      {HubBtn}
 
       {/* ── IDLE ── */}
       {phase === "idle" && (
