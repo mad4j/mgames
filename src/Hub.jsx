@@ -16,6 +16,7 @@ export default function Hub({ games }) {
         justifyContent: "center",
         fontFamily: "'DM Mono', 'Courier New', monospace",
         userSelect: "none",
+        position: "relative",
       }}
     >
       <style>{`
@@ -115,6 +116,26 @@ export default function Hub({ games }) {
           </button>
         ))}
       </div>
+
+      {/* footer email */}
+      <a
+        href="mailto:daniele.olmisani@gmail.com"
+        style={{
+          position: "absolute",
+          bottom: 24,
+          left: "50%",
+          transform: "translateX(-50%)",
+          color: "#fff",
+          fontSize: 9,
+          letterSpacing: 2,
+          opacity: 0.22,
+          textDecoration: "none",
+          fontFamily: "'DM Mono', 'Courier New', monospace",
+          animation: "fadeIn 0.8s ease",
+        }}
+      >
+        daniele.olmisani@gmail.com
+      </a>
     </div>
   );
 }
