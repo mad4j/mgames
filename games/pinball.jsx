@@ -263,13 +263,20 @@ export default function Pinball() {
       // Right canvas wall (lane right edge)
       if (ball.x > W - BALL_R) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx) * 0.72; }
 
-      // ── One-directional separator wall ────────────────────────
-      // Prevents the ball from crossing from the main field into the lane.
-      // The ball in the lane may freely drift left and enter the main field.
+      // ── Separator wall ─────────────────────────────────────────
+      // Bidirectional: prevents crossing in both directions between
+      // the main field and the launch lane. The ball must travel up
+      // the lane and exit from the top (above LANE_GAP).
       if (ball.y > H * LANE_GAP && ball.y < H * LANE_BOTTOM) {
+        // main field → lane
         if (ball.x < PW && ball.x + BALL_R >= PW && ball.vx > 0) {
           ball.x = PW - BALL_R;
           ball.vx = -Math.abs(ball.vx) * 0.60;
+        }
+        // lane → main field (ball must exit from the top)
+        if (ball.x >= PW && ball.x - BALL_R <= PW && ball.vx < 0) {
+          ball.x = PW + BALL_R;
+          ball.vx = Math.abs(ball.vx) * 0.60;
         }
       }
 
