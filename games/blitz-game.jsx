@@ -82,37 +82,49 @@ function Biplane() {
   return (
     <svg width="28" height="16" viewBox="0 0 28 16" fill="none" role="img" aria-label="Player aircraft">
       {/* Upper wing */}
-      <rect x="6" y="0" width="12" height="3" rx="1" fill={c} />
-      {/* Fuselage */}
-      <rect x="3" y="6" width="18" height="4" rx="2" fill={c} />
-      {/* Nose */}
-      <polygon points="21,6 28,8 21,10" fill={c} />
-      {/* Tail fins */}
-      <polygon points="3,6 0,3 5,6" fill={c} opacity="0.85" />
-      <polygon points="3,10 0,13 5,10" fill={c} opacity="0.85" />
+      <rect x="8" y="1" width="12" height="2.5" rx="1" fill={c} />
+      {/* Fuselage body – tapered nose pointing right, tapered tail on the left */}
+      <polygon points="2,8 4,6.5 22,6.5 27,8 22,9.5 4,9.5" fill={c} />
+      {/* Vertical tail fin */}
+      <polygon points="3,6.5 0.5,3 5.5,6.5" fill={c} opacity="0.88" />
+      {/* Horizontal stabilizer */}
+      <rect x="1" y="9.5" width="6" height="1.8" rx="0.5" fill={c} opacity="0.88" />
       {/* Lower wing */}
-      <rect x="6" y="13" width="12" height="3" rx="1" fill={c} />
+      <rect x="8" y="12.5" width="12" height="2.5" rx="1" fill={c} />
       {/* Wing struts */}
-      <line x1="9"  y1="3" x2="9"  y2="13" stroke={c} strokeWidth="0.9" opacity="0.6" />
-      <line x1="15" y1="3" x2="15" y2="13" stroke={c} strokeWidth="0.9" opacity="0.6" />
+      <line x1="10.5" y1="3.5" x2="10.5" y2="12.5" stroke={c} strokeWidth="0.9" opacity="0.6" />
+      <line x1="17"   y1="3.5" x2="17"   y2="12.5" stroke={c} strokeWidth="0.9" opacity="0.6" />
       {/* Cockpit */}
-      <ellipse cx="15" cy="8" rx="2.8" ry="2" fill="rgba(20,20,20,0.75)" />
+      <ellipse cx="16.5" cy="7.8" rx="2.4" ry="1.7" fill="rgba(20,20,20,0.82)" />
+      {/* Propeller blade + hub */}
+      <line x1="27.5" y1="4" x2="27.5" y2="12" stroke={c} strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="27" cy="8" r="1" fill="#0a0a0a" stroke={c} strokeWidth="0.6" />
+    </svg>
+  );
+}
+
+// Shared bomb drawing – used as the in-game projectile (small) and as the hub
+// card symbol (large). The viewBox is always "0 0 11 18" so the aspect ratio
+// stays consistent regardless of the rendered width/height.
+function BombSVG({ width = 11, height = 18 }) {
+  const c = "rgba(255,255,255,0.92)";
+  return (
+    <svg width={width} height={height} viewBox="0 0 11 18" fill="none" role="img" aria-label="bomb">
+      {/* Cruciform tail fins */}
+      <polygon points="5.5,4 2,0.5 3.5,4.5" fill={c} opacity="0.82" />
+      <polygon points="5.5,4 9,0.5 7.5,4.5" fill={c} opacity="0.82" />
+      {/* Cylindrical body */}
+      <rect x="2.5" y="4" width="6" height="9.5" rx="1.2" fill={c} />
+      {/* Nose cone – pointing down (direction of fall) */}
+      <polygon points="2.5,13.5 8.5,13.5 5.5,17.5" fill={c} />
+      {/* Highlight */}
+      <rect x="3.6" y="5.5" width="1.2" height="5" rx="0.6" fill="rgba(255,255,255,0.38)" />
     </svg>
   );
 }
 
 function Bomb() {
-  const c = "rgba(255,255,255,0.92)";
-  return (
-    <svg width="11" height="15" viewBox="0 0 11 15" fill="none" role="img" aria-label="Dropped bomb">
-      {/* Fuse */}
-      <path d="M5.5 3 C7.5 1 9 0 7 2" stroke="rgba(255,255,255,0.75)" strokeWidth="1.3" strokeLinecap="round" fill="none" />
-      {/* Body */}
-      <circle cx="5.5" cy="9.5" r="5" fill={c} />
-      {/* Shine */}
-      <ellipse cx="4" cy="8" rx="1.3" ry="1.8" fill="rgba(255,255,255,0.45)" />
-    </svg>
-  );
+  return <BombSVG width={11} height={18} />;
 }
 
 // ── icon components ───────────────────────────────────────────────────────────
@@ -149,7 +161,7 @@ function IconHub() {
 // ── meta ──────────────────────────────────────────────────────────────────────
 export const meta = {
   path: "/blitz",
-  symbol: "▶",
+  symbol: <BombSVG width={28} height={46} />,
   name: "blitz",
   description: "drop bombs, clear the runway",
 };
@@ -370,8 +382,8 @@ export default function BlitzGame() {
           to   { transform: translate(-50%,-50%) scale(1)   rotate(0deg);   opacity: 1; }
         }
         @keyframes planeSlide {
-          from { opacity: 0.4; transform: translateX(-6px); }
-          to   { opacity: 1;   transform: translateX(0); }
+          from { opacity: 0.5; }
+          to   { opacity: 1; }
         }
       `}</style>
 
@@ -506,7 +518,7 @@ export default function BlitzGame() {
                 alignItems: "center",
                 justifyContent: "center",
                 zIndex: 5,
-                transition: "left 65ms linear",
+                transition: `left ${Math.max(PLANE_SPEED_MIN, PLANE_SPEED_START - passRef.current * PLANE_ACCEL) - 12}ms linear`,
                 animation: "planeSlide 0.12s ease",
               }}
             ><Biplane /></div>
