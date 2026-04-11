@@ -2,7 +2,15 @@ import { Routes, Route } from "react-router-dom";
 import Hub from "./Hub.jsx";
 
 const gameModules = import.meta.glob("../games/*.jsx", { eager: true });
-const games = Object.values(gameModules).filter((m) => m.meta);
+const games = Object.values(gameModules).filter(
+  (m) =>
+    typeof m.default === "function" &&
+    m.meta &&
+    m.meta.path &&
+    m.meta.symbol &&
+    m.meta.name &&
+    m.meta.description
+);
 
 export default function App() {
   return (
