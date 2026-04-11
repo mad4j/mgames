@@ -7,9 +7,9 @@ export default function Hub({ games }) {
     <div
       style={{
         width: "100vw",
-        height: "100dvh",
+        minHeight: "100dvh",
         background: "#0a0a0a",
-        overflow: "hidden",
+        overflowX: "hidden",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -17,6 +17,9 @@ export default function Hub({ games }) {
         fontFamily: "'DM Mono', 'Courier New', monospace",
         userSelect: "none",
         position: "relative",
+        paddingTop: "32px",
+        paddingBottom: "64px",
+        boxSizing: "border-box",
       }}
     >
       <style>{`
@@ -28,11 +31,6 @@ export default function Hub({ games }) {
         @keyframes fadeInDim {
           from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 0.22; transform: translateY(0); }
-        }
-
-        @keyframes fadeInEmail {
-          from { opacity: 0; transform: translateX(-50%) translateY(12px); }
-          to   { opacity: 0.22; transform: translateX(-50%) translateY(0); }
         }
 
         .game-card {
@@ -56,36 +54,25 @@ export default function Hub({ games }) {
         .game-card:active {
           background: rgba(255,255,255,0.06);
         }
+        @media (max-width: 480px) {
+          .game-card {
+            padding: 20px 28px;
+            width: 130px;
+            gap: 12px;
+          }
+        }
       `}</style>
 
       {/* title */}
-      <div
+      <img
+        src="/mgames/title.png"
+        alt="mgames"
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 16,
-          marginBottom: 56,
+          marginBottom: "clamp(24px, 5vw, 56px)",
           animation: "fadeInDim 0.5s ease forwards",
+          maxWidth: "min(40vw, 320px)",
         }}
-      >
-        <img
-          src="/mgames/icon-64x64.png"
-          alt="mgames"
-          style={{ width: 64, height: 64, opacity: 0.85 }}
-        />
-        <span
-          style={{
-            color: "#fff",
-            fontSize: 10,
-            letterSpacing: 6,
-            opacity: 0.22,
-            textTransform: "uppercase",
-          }}
-        >
-          mgames
-        </span>
-      </div>
+      />
 
       {/* game cards */}
       <div
@@ -143,17 +130,14 @@ export default function Hub({ games }) {
       <a
         href="mailto:daniele.olmisani@gmail.com"
         style={{
-          position: "absolute",
-          bottom: 24,
-          left: "50%",
-          transform: "translateX(-50%)",
+          marginTop: 40,
           color: "#fff",
           fontSize: 9,
           letterSpacing: 2,
           opacity: 0.22,
           textDecoration: "none",
           fontFamily: "'DM Mono', 'Courier New', monospace",
-          animation: "fadeInEmail 0.8s ease forwards",
+          animation: "fadeIn 0.8s ease forwards",
         }}
       >
         daniele.olmisani@gmail.com
