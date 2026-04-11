@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 /* ═══════════════════════ CONSTANTS ════════════════════ */
@@ -71,23 +71,19 @@ export const meta = {
 
 /* ═══════════════════════ COMPONENT ════════════════════ */
 export default function MastermindGame() {
-  const navigate = useNavigate();
+  const navigate   = useNavigate();
+  const doneTimerRef = useRef(null);
 
   const [phase,         setPhase]         = useState("idle");
   const [game,          setGame]          = useState(null);
   const [selectedColor, setSelectedColor] = useState(0);
 
-  /* ── keyboard: Enter to submit ──────────────────────── */
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === "Enter") handleSubmit();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  });
-
   /* ── start / restart ─────────────────────────────────── */
   const start = useCallback(() => {
+    if (doneTimerRef.current) {
+      clearTimeout(doneTimerRef.current);
+      doneTimerRef.current = null;
+    }
     setGame(initGame());
     setSelectedColor(0);
     setPhase("playing");
@@ -113,7 +109,7 @@ export default function MastermindGame() {
       if (prev.currentGuess.some((c) => c === null)) return prev;
 
       const { blacks, whites } = evaluateGuess(prev.secret, prev.currentGuess);
-      const won       = blacks === CODE_LENGTH;
+      const won        = blacks === CODE_LENGTH;
       const newGuesses = [
         ...prev.guesses,
         { colors: [...prev.currentGuess], blacks, whites },
@@ -121,7 +117,10 @@ export default function MastermindGame() {
       const lost = !won && newGuesses.length >= MAX_ATTEMPTS;
 
       if (won || lost) {
-        setTimeout(() => setPhase("done"), won ? 500 : 200);
+        doneTimerRef.current = setTimeout(() => {
+          doneTimerRef.current = null;
+          setPhase("done");
+        }, won ? 500 : 200);
       }
 
       return {
@@ -131,6 +130,22 @@ export default function MastermindGame() {
         won,
       };
     });
+  }, []);
+
+  /* ── keyboard: Enter to submit ──────────────────────── */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Enter") handleSubmit();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [handleSubmit]);
+
+  /* ── cleanup on unmount ──────────────────────────────── */
+  useEffect(() => {
+    return () => {
+      if (doneTimerRef.current) clearTimeout(doneTimerRef.current);
+    };
   }, []);
 
   /* ═══════════════════════ RENDER HELPERS ════════════════ */
@@ -606,7 +621,7 @@ export default function MastermindGame() {
                 marginBottom:  20,
               }}
             >
-              {game.won ? "cracked it" : "code broken"}
+              {game.won ? "cracked it" : "out of attempts"}
             </div>
 
             {/* revealed secret */}
