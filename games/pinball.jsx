@@ -2,9 +2,14 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 // ── Constants ─────────────────────────────────────────────────
-const GRAV   = 0.30;
-const BALL_R = 9;
-const FLIP_R = 5;
+const GRAV               = 0.30;
+const BALL_R             = 9;
+const FLIP_R             = 5;
+const LANE_W             = 50;   // right launch-lane width (px)
+const LANE_GAP           = 0.08; // separator starts at this fraction of H from the top
+const LANE_BOTTOM        = 0.87; // separator ends at this fraction of H
+const STAR_COLL_PAD      = 3;    // extra radius for star collision detection
+const ROLLOVER_TOLERANCE = 4;    // vertical hit tolerance for rollover gates
 
 // ── Math helpers ──────────────────────────────────────────────
 function lerp(a, b, t) { return a + (b - a) * t; }
@@ -65,34 +70,51 @@ function pathTriangle(ctx, x, y, r) {
 
 // ── Game state factory ────────────────────────────────────────
 function makeState(W, H) {
+  const PW  = W - LANE_W;          // effective play-field width
   const fy  = H * 0.84;
-  const fl  = W * 0.20;
-  const fLx = W * 0.18, fRx = W * 0.82;
+  const fl  = PW * 0.22;
+  const fLx = PW * 0.18, fRx = PW * 0.82;
 
   return {
-    W, H,
-    ball: { x: W * 0.5, y: H * 0.28, vx: (Math.random() - .5) * 1.2, vy: 1.8 },
+    W, H, PW,
+    ball: { x: W - LANE_W * 0.4, y: H * 0.81, vx: 0, vy: 0 },
+    inLane: true,
+    launchAt: Date.now() + 900,
     fL: { px: fLx, py: fy, len: fl, a: 0.35, up: -0.46, dn: 0.35 },
     fR: { px: fRx, py: fy, len: fl, a: Math.PI - 0.35, up: Math.PI + 0.46, dn: Math.PI - 0.35 },
     guides: [
       [0,   H * 0.58, fLx, fy],
-      [W,   H * 0.58, fRx, fy],
+      [PW,  H * 0.58, fRx, fy],
     ],
     targets: [
-      // Pop bumpers – circle, explosive repulsion, +100
-      { type: 'bumper',   x: W*.50, y: H*.10, r: 24, pts: 100, fl: 0 },
-      { type: 'bumper',   x: W*.27, y: H*.21, r: 18, pts: 100, fl: 0 },
-      { type: 'bumper',   x: W*.73, y: H*.21, r: 18, pts: 100, fl: 0 },
-      // Diamond targets – angular, soft bounce, +75
-      { type: 'diamond',  x: W*.25, y: H*.38, r: 14, pts: 75,  fl: 0 },
-      { type: 'diamond',  x: W*.75, y: H*.38, r: 14, pts: 75,  fl: 0 },
-      // Triangle obstacles – deflect at sharp angles, +150
-      { type: 'triangle', x: W*.50, y: H*.26, r: 13, pts: 150, fl: 0 },
-      // Slingshot kickers – line segment with speed boost, +50
-      { type: 'kicker', x1: W*.05, y1: H*.52, x2: W*.20, y2: H*.42, pts: 50, fl: 0 },
-      { type: 'kicker', x1: W*.95, y1: H*.52, x2: W*.80, y2: H*.42, pts: 50, fl: 0 },
-      // Star – disappears on hit, respawns after 3 s, +200
-      { type: 'star',    x: W*.50, y: H*.36, r: 11, pts: 200, fl: 0, hidden: false, respawnAt: 0 },
+      // ── Top bumpers ─────────────────────────────────────────────
+      { type: 'bumper',   x: PW*.50, y: H*.08, r: 20, pts: 100, fl: 0 },
+      { type: 'bumper',   x: PW*.26, y: H*.17, r: 16, pts: 100, fl: 0 },
+      { type: 'bumper',   x: PW*.74, y: H*.17, r: 16, pts: 100, fl: 0 },
+      // ── Middle bumpers ──────────────────────────────────────────
+      { type: 'bumper',   x: PW*.40, y: H*.29, r: 14, pts: 150, fl: 0 },
+      { type: 'bumper',   x: PW*.60, y: H*.29, r: 14, pts: 150, fl: 0 },
+      // ── Diamonds ────────────────────────────────────────────────
+      { type: 'diamond',  x: PW*.18, y: H*.37, r: 13, pts: 75,  fl: 0 },
+      { type: 'diamond',  x: PW*.82, y: H*.37, r: 13, pts: 75,  fl: 0 },
+      { type: 'diamond',  x: PW*.50, y: H*.43, r: 12, pts: 75,  fl: 0 },
+      { type: 'diamond',  x: PW*.30, y: H*.53, r: 11, pts: 75,  fl: 0 },
+      { type: 'diamond',  x: PW*.70, y: H*.53, r: 11, pts: 75,  fl: 0 },
+      // ── Triangles ───────────────────────────────────────────────
+      { type: 'triangle', x: PW*.50, y: H*.22, r: 12, pts: 150, fl: 0 },
+      { type: 'triangle', x: PW*.22, y: H*.47, r: 11, pts: 150, fl: 0 },
+      { type: 'triangle', x: PW*.78, y: H*.47, r: 11, pts: 150, fl: 0 },
+      // ── Slingshot kickers ───────────────────────────────────────
+      { type: 'kicker', x1: PW*.05, y1: H*.54, x2: PW*.20, y2: H*.44, pts: 50, fl: 0 },
+      { type: 'kicker', x1: PW*.95, y1: H*.54, x2: PW*.80, y2: H*.44, pts: 50, fl: 0 },
+      // ── Stars ───────────────────────────────────────────────────
+      { type: 'star', x: PW*.50, y: H*.34, r: 11, pts: 200, fl: 0, hidden: false, respawnAt: 0 },
+      { type: 'star', x: PW*.24, y: H*.25, r:  9, pts: 200, fl: 0, hidden: false, respawnAt: 0 },
+      { type: 'star', x: PW*.76, y: H*.25, r:  9, pts: 200, fl: 0, hidden: false, respawnAt: 0 },
+      // ── Rollovers (horizontal gates – pass-through, +50) ────────
+      { type: 'rollover', x: PW*.50, y: H*.62, w: PW*.18, pts: 50, fl: 0 },
+      { type: 'rollover', x: PW*.25, y: H*.68, w: PW*.12, pts: 50, fl: 0 },
+      { type: 'rollover', x: PW*.75, y: H*.68, w: PW*.12, pts: 50, fl: 0 },
     ],
     score: 0,
     lives: 3,
@@ -138,8 +160,9 @@ function useSound() {
   const playKicker   = useCallback(() => playTone(330, 0.10, "sawtooth", 0.10), [playTone]);
   const playStar     = useCallback(() => playTone(880, 0.20, "sine",     0.18), [playTone]);
   const playDrain    = useCallback(() => playTone(110, 0.40, "sine",     0.20), [playTone]);
+  const playRollover = useCallback(() => playTone(528, 0.06, "sine",     0.10), [playTone]);
 
-  return { soundOn, setSoundOn, playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain };
+  return { soundOn, setSoundOn, playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain, playRollover };
 }
 
 // ── Icon components ───────────────────────────────────────────
@@ -192,20 +215,20 @@ export default function Pinball() {
   const keys   = useRef({ l: false, r: false });
   const phase  = useRef("idle");  const [ui, setUi] = useState({ p: "idle", score: 0, lives: 3, best: 0, newBest: false });
 
-  const { soundOn, setSoundOn, playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain } = useSound();
+  const { soundOn, setSoundOn, playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain, playRollover } = useSound();
 
   // Keep sound callbacks accessible inside the rAF loop without stale closures
   const sndRef = useRef({});
   useEffect(() => {
-    sndRef.current = { playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain };
-  }, [playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain]);
+    sndRef.current = { playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain, playRollover };
+  }, [playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain, playRollover]);
 
   const loop = useCallback(() => {
     const cv = cvRef.current;
     if (!cv || !gsRef.current || phase.current !== "playing") return;
     const ctx = cv.getContext("2d");
     const g   = gsRef.current;
-    const { W, H, ball, fL, fR, guides, targets } = g;
+    const { W, H, PW, ball, fL, fR, guides, targets } = g;
     const now = Date.now();
     const snd = sndRef.current;
 
@@ -214,147 +237,207 @@ export default function Pinball() {
       if (t.type === 'star' && t.hidden && now > t.respawnAt) t.hidden = false;
     });
 
-    // Flipper lerp
-    fL.a = lerp(fL.a, keys.current.l ? fL.up : fL.dn, 0.28);
-    fR.a = lerp(fR.a, keys.current.r ? fR.up : fR.dn, 0.28);
+    // ── Auto-launch from lane ──────────────────────────────────
+    if (g.inLane) {
+      if (now >= g.launchAt) {
+        g.inLane = false;
+        ball.vx  = -4;
+        ball.vy  = -24;
+      }
+    } else {
+      // Flipper lerp
+      fL.a = lerp(fL.a, keys.current.l ? fL.up : fL.dn, 0.28);
+      fR.a = lerp(fR.a, keys.current.r ? fR.up : fR.dn, 0.28);
 
-    // Physics
-    ball.vy += GRAV;
-    ball.x  += ball.vx;
-    ball.y  += ball.vy;
-    const spd = Math.hypot(ball.vx, ball.vy);
-    if (spd > 22) { ball.vx *= 22 / spd; ball.vy *= 22 / spd; }
+      // Physics
+      ball.vy += GRAV;
+      ball.x  += ball.vx;
+      ball.y  += ball.vy;
+      const spd = Math.hypot(ball.vx, ball.vy);
+      if (spd > 22) { ball.vx *= 22 / spd; ball.vy *= 22 / spd; }
 
-    // Side walls + ceiling
-    if (ball.x < BALL_R)     { ball.x = BALL_R;     ball.vx =  Math.abs(ball.vx) * 0.72; }
-    if (ball.x > W - BALL_R) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx) * 0.72; }
-    if (ball.y < BALL_R)     { ball.y = BALL_R;      ball.vy =  Math.abs(ball.vy) * 0.65; }
+      // Left wall + ceiling
+      if (ball.x < BALL_R) { ball.x = BALL_R; ball.vx = Math.abs(ball.vx) * 0.72; }
+      if (ball.y < BALL_R) { ball.y = BALL_R;  ball.vy = Math.abs(ball.vy) * 0.65; }
 
-    // Guide rails
-    guides.forEach(([x1, y1, x2, y2]) => reflectSeg(ball, x1, y1, x2, y2, 0.58));
+      // Right canvas wall (lane right edge)
+      if (ball.x > W - BALL_R) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx) * 0.72; }
 
-    // Flippers
-    function doFlip(f, isLeft) {
-      const ex = f.px + Math.cos(f.a) * f.len;
-      const ey = f.py + Math.sin(f.a) * f.len;
-      const { cx, cy } = closestPt(f.px, f.py, ex, ey, ball.x, ball.y);
-      const dx = ball.x - cx, dy = ball.y - cy;
-      const d  = Math.hypot(dx, dy);
-      const md = BALL_R + FLIP_R;
-      if (d < md && d > 0.001) {
-        const nx = dx / d, ny = dy / d;
-        ball.x = cx + nx * md;
-        ball.y = cy + ny * md;
-        const dot = ball.vx * nx + ball.vy * ny;
-        if (dot < 0) { ball.vx -= 2 * dot * nx * 0.72; ball.vy -= 2 * dot * ny * 0.72; }
-        const active   = isLeft ? keys.current.l : keys.current.r;
-        const swinging = isLeft ? (f.a - f.up > 0.08) : (f.up - f.a > 0.08);
-        if (active && swinging) { ball.vy -= 9.5; ball.vx += isLeft ? 3 : -3; }
+      // ── One-directional separator wall ────────────────────────
+      // Prevents the ball from crossing from the main field into the lane.
+      // The ball in the lane may freely drift left and enter the main field.
+      if (ball.y > H * LANE_GAP && ball.y < H * LANE_BOTTOM) {
+        if (ball.x < PW && ball.x + BALL_R >= PW && ball.vx > 0) {
+          ball.x = PW - BALL_R;
+          ball.vx = -Math.abs(ball.vx) * 0.60;
+        }
+      }
+
+      // Guide rails
+      guides.forEach(([x1, y1, x2, y2]) => reflectSeg(ball, x1, y1, x2, y2, 0.58));
+
+      // Flippers
+      function doFlip(f, isLeft) {
+        const ex = f.px + Math.cos(f.a) * f.len;
+        const ey = f.py + Math.sin(f.a) * f.len;
+        const { cx, cy } = closestPt(f.px, f.py, ex, ey, ball.x, ball.y);
+        const dx = ball.x - cx, dy = ball.y - cy;
+        const d  = Math.hypot(dx, dy);
+        const md = BALL_R + FLIP_R;
+        if (d < md && d > 0.001) {
+          const nx = dx / d, ny = dy / d;
+          ball.x = cx + nx * md;
+          ball.y = cy + ny * md;
+          const dot = ball.vx * nx + ball.vy * ny;
+          if (dot < 0) { ball.vx -= 2 * dot * nx * 0.72; ball.vy -= 2 * dot * ny * 0.72; }
+          const active   = isLeft ? keys.current.l : keys.current.r;
+          const swinging = isLeft ? (f.a - f.up > 0.08) : (f.up - f.a > 0.08);
+          if (active && swinging) { ball.vy -= 9.5; ball.vx += isLeft ? 3 : -3; }
+        }
+      }
+      doFlip(fL, true);
+      doFlip(fR, false);
+
+      // Targets collision
+      targets.forEach(t => {
+        // ○ Bumper – explosive circular repulsion
+        if (t.type === 'bumper') {
+          const dx = ball.x - t.x, dy = ball.y - t.y;
+          const d  = Math.hypot(dx, dy);
+          const md = BALL_R + t.r;
+          if (d < md && d > 0.001) {
+            const nx = dx / d, ny = dy / d;
+            ball.x = t.x + nx * md; ball.y = t.y + ny * md;
+            const s = Math.max(Math.hypot(ball.vx, ball.vy), 10);
+            ball.vx = nx * s * 1.45; ball.vy = ny * s * 1.45;
+            if (now - t.fl > 180) { t.fl = now; g.score += t.pts; snd.playBumper(); setUi(u => ({ ...u, score: g.score })); }
+          }
+        }
+
+        // ◇ Diamond – soft angled bounce
+        if (t.type === 'diamond') {
+          const dx = ball.x - t.x, dy = ball.y - t.y;
+          const d  = Math.hypot(dx, dy);
+          const md = BALL_R + t.r;
+          if (d < md && d > 0.001) {
+            const nx = dx / d, ny = dy / d;
+            ball.x = t.x + nx * md; ball.y = t.y + ny * md;
+            const dot = ball.vx * nx + ball.vy * ny;
+            if (dot < 0) { ball.vx -= 2 * dot * nx * 0.78; ball.vy -= 2 * dot * ny * 0.78; }
+            if (now - t.fl > 200) { t.fl = now; g.score += t.pts; snd.playDiamond(); setUi(u => ({ ...u, score: g.score })); }
+          }
+        }
+
+        // △ Triangle – sharp deflection
+        if (t.type === 'triangle') {
+          const dx = ball.x - t.x, dy = ball.y - t.y;
+          const d  = Math.hypot(dx, dy);
+          const md = BALL_R + t.r;
+          if (d < md && d > 0.001) {
+            const nx = dx / d, ny = dy / d;
+            ball.x = t.x + nx * md; ball.y = t.y + ny * md;
+            const dot = ball.vx * nx + ball.vy * ny;
+            if (dot < 0) { ball.vx -= 2 * dot * nx * 0.85; ball.vy -= 2 * dot * ny * 0.85; }
+            if (now - t.fl > 200) { t.fl = now; g.score += t.pts; snd.playTriangle(); setUi(u => ({ ...u, score: g.score })); }
+          }
+        }
+
+        // — Kicker – slingshot speed boost
+        if (t.type === 'kicker') {
+          const { hit, nx, ny } = reflectSeg(ball, t.x1, t.y1, t.x2, t.y2, 0.82);
+          if (hit && now - t.fl > 260) {
+            t.fl = now;
+            ball.vx += nx * 5.5; ball.vy += ny * 5.5;
+            g.score += t.pts;
+            snd.playKicker();
+            setUi(u => ({ ...u, score: g.score }));
+          }
+        }
+
+        // ★ Star – vanishes on hit, respawns after 3 s
+        if (t.type === 'star' && !t.hidden) {
+          const dx = ball.x - t.x, dy = ball.y - t.y;
+          const d  = Math.hypot(dx, dy);
+          const md = BALL_R + t.r + STAR_COLL_PAD;
+          if (d < md && d > 0.001) {
+            const nx = dx / d, ny = dy / d;
+            ball.x = t.x + nx * md; ball.y = t.y + ny * md;
+            const s = Math.max(Math.hypot(ball.vx, ball.vy), 9);
+            ball.vx = nx * s * 1.3; ball.vy = ny * s * 1.3;
+            t.fl = now; t.hidden = true; t.respawnAt = now + 3000;
+            g.score += t.pts;
+            snd.playStar();
+            setUi(u => ({ ...u, score: g.score }));
+          }
+        }
+
+        // ── Rollover – horizontal gate, pass-through, +pts ──────
+        if (t.type === 'rollover') {
+          const dy = Math.abs(ball.y - t.y);
+          if (dy < BALL_R + ROLLOVER_TOLERANCE && ball.x > t.x - t.w / 2 && ball.x < t.x + t.w / 2) {
+            if (now - t.fl > 350) {
+              t.fl = now; g.score += t.pts;
+              snd.playRollover();
+              setUi(u => ({ ...u, score: g.score }));
+            }
+          }
+        }
+      });
+
+      // ── Drain ────────────────────────────────────────────────
+      if (ball.y > H + 30) {
+        if (ball.x < PW) {
+          // Drained from main field – lose a life
+          g.lives--;
+          snd.playDrain();
+          if (g.lives <= 0) {
+            phase.current = "done";
+            setUi(u => {
+              const nb = g.score >= u.best;
+              return { ...u, p: "done", score: g.score, best: Math.max(u.best, g.score), newBest: nb };
+            });
+            return;
+          }
+          setUi(u => ({ ...u, lives: g.lives }));
+        }
+        // Reset ball to launch lane
+        ball.x = W - LANE_W * 0.4; ball.y = H * 0.81;
+        ball.vx = 0; ball.vy = 0;
+        g.inLane   = true;
+        g.launchAt = now + 900;
       }
     }
-    doFlip(fL, true);
-    doFlip(fR, false);
 
-    // Targets collision
-    targets.forEach(t => {
-      // ○ Bumper – explosive circular repulsion
-      if (t.type === 'bumper') {
-        const dx = ball.x - t.x, dy = ball.y - t.y;
-        const d  = Math.hypot(dx, dy);
-        const md = BALL_R + t.r;
-        if (d < md && d > 0.001) {
-          const nx = dx / d, ny = dy / d;
-          ball.x = t.x + nx * md; ball.y = t.y + ny * md;
-          const s = Math.max(Math.hypot(ball.vx, ball.vy), 10);
-          ball.vx = nx * s * 1.45; ball.vy = ny * s * 1.45;
-          if (now - t.fl > 180) { t.fl = now; g.score += t.pts; snd.playBumper(); setUi(u => ({ ...u, score: g.score })); }
-        }
-      }
-
-      // ◇ Diamond – soft angled bounce
-      if (t.type === 'diamond') {
-        const dx = ball.x - t.x, dy = ball.y - t.y;
-        const d  = Math.hypot(dx, dy);
-        const md = BALL_R + t.r;
-        if (d < md && d > 0.001) {
-          const nx = dx / d, ny = dy / d;
-          ball.x = t.x + nx * md; ball.y = t.y + ny * md;
-          const dot = ball.vx * nx + ball.vy * ny;
-          if (dot < 0) { ball.vx -= 2 * dot * nx * 0.78; ball.vy -= 2 * dot * ny * 0.78; }
-          if (now - t.fl > 200) { t.fl = now; g.score += t.pts; snd.playDiamond(); setUi(u => ({ ...u, score: g.score })); }
-        }
-      }
-
-      // △ Triangle – sharp deflection
-      if (t.type === 'triangle') {
-        const dx = ball.x - t.x, dy = ball.y - t.y;
-        const d  = Math.hypot(dx, dy);
-        const md = BALL_R + t.r;
-        if (d < md && d > 0.001) {
-          const nx = dx / d, ny = dy / d;
-          ball.x = t.x + nx * md; ball.y = t.y + ny * md;
-          const dot = ball.vx * nx + ball.vy * ny;
-          if (dot < 0) { ball.vx -= 2 * dot * nx * 0.85; ball.vy -= 2 * dot * ny * 0.85; }
-          if (now - t.fl > 200) { t.fl = now; g.score += t.pts; snd.playTriangle(); setUi(u => ({ ...u, score: g.score })); }
-        }
-      }
-
-      // — Kicker – slingshot speed boost
-      if (t.type === 'kicker') {
-        const { hit, nx, ny } = reflectSeg(ball, t.x1, t.y1, t.x2, t.y2, 0.82);
-        if (hit && now - t.fl > 260) {
-          t.fl = now;
-          ball.vx += nx * 5.5; ball.vy += ny * 5.5;
-          g.score += t.pts;
-          snd.playKicker();
-          setUi(u => ({ ...u, score: g.score }));
-        }
-      }
-
-      // ★ Star – vanishes on hit, respawns after 3 s
-      if (t.type === 'star' && !t.hidden) {
-        const dx = ball.x - t.x, dy = ball.y - t.y;
-        const d  = Math.hypot(dx, dy);
-        const md = BALL_R + t.r + 3;
-        if (d < md && d > 0.001) {
-          const nx = dx / d, ny = dy / d;
-          ball.x = t.x + nx * md; ball.y = t.y + ny * md;
-          const s = Math.max(Math.hypot(ball.vx, ball.vy), 9);
-          ball.vx = nx * s * 1.3; ball.vy = ny * s * 1.3;
-          t.fl = now; t.hidden = true; t.respawnAt = now + 3000;
-          g.score += t.pts;
-          snd.playStar();
-          setUi(u => ({ ...u, score: g.score }));
-        }
-      }
-    });
-
-    // Drain
-    if (ball.y > H + 30) {
-      g.lives--;
-      snd.playDrain();
-      if (g.lives <= 0) {
-        phase.current = "done";
-        setUi(u => {
-          const nb = g.score >= u.best;
-          return { ...u, p: "done", score: g.score, best: Math.max(u.best, g.score), newBest: nb };
-        });
-        return;
-      }
-      ball.x = W * 0.5; ball.y = H * 0.28;
-      ball.vx = (Math.random() - .5) * 1.2; ball.vy = 1.8;
-      setUi(u => ({ ...u, lives: g.lives }));
-    }
-
-    // ── Draw ───────────────────────────────────────────────────
+    // ── Draw ──────────────────────────────────────────────────
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = "#0a0a0a";
     ctx.fillRect(0, 0, W, H);
 
+    // Lane background
+    ctx.fillStyle = "rgba(255,255,255,0.018)";
+    ctx.fillRect(PW, 0, LANE_W, H);
+
+    // Separator wall (main field / lane divider)
+    ctx.strokeStyle = "rgba(255,255,255,0.14)";
+    ctx.lineWidth   = 1;
+    ctx.setLineDash([]);
+    ctx.lineCap     = "round";
+    ctx.beginPath();
+    ctx.moveTo(PW, H * LANE_GAP);
+    ctx.lineTo(PW, H * LANE_BOTTOM);
+    ctx.stroke();
+
+    // Top arc of lane (visual guide from separator top to right wall)
+    ctx.strokeStyle = "rgba(255,255,255,0.07)";
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.moveTo(W - 3, BALL_R * 2.5);
+    ctx.quadraticCurveTo(W - LANE_W * 0.3, BALL_R, PW, H * LANE_GAP);
+    ctx.stroke();
+
     // Guide rails
     ctx.strokeStyle = "rgba(255,255,255,0.11)";
     ctx.lineWidth   = 1;
-    ctx.lineCap     = "round";
     guides.forEach(([x1, y1, x2, y2]) => {
       ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
     });
@@ -469,6 +552,28 @@ export default function Pinball() {
           ctx.setLineDash([]);
         }
       }
+
+      // ── Rollover ─────────────────────────────────────────────
+      if (t.type === 'rollover') {
+        ctx.shadowBlur  = fa > 0 ? 8 * fa : 0;
+        ctx.shadowColor = "rgba(255,255,255,0.7)";
+        ctx.strokeStyle = `rgba(255,255,255,${0.30 + fa * 0.55})`;
+        ctx.lineWidth   = fa > 0 ? 3 : 1.5;
+        ctx.lineCap     = "round";
+        ctx.beginPath();
+        ctx.moveTo(t.x - t.w / 2, t.y);
+        ctx.lineTo(t.x + t.w / 2, t.y);
+        ctx.stroke();
+        ctx.shadowBlur  = 0;
+        ctx.strokeStyle = `rgba(255,255,255,${0.15 + fa * 0.25})`;
+        ctx.lineWidth   = 1;
+        [-1, 1].forEach(sign => {
+          const ex = t.x + sign * t.w / 2;
+          ctx.beginPath();
+          ctx.moveTo(ex, t.y - 4); ctx.lineTo(ex, t.y + 4);
+          ctx.stroke();
+        });
+      }
     });
 
     ctx.shadowBlur = 0;
@@ -492,6 +597,22 @@ export default function Pinball() {
     ctx.lineWidth   = 1.5;
     ctx.fill();
     ctx.stroke();
+
+    // Launch-lane arrow (shown while ball is queued in lane)
+    if (g.inLane) {
+      const prog  = 1 - Math.max(0, g.launchAt - now) / 900;
+      const laneX = W - LANE_W * 0.4;
+      const aY    = ball.y - 35;
+      ctx.strokeStyle = `rgba(255,255,255,${0.10 + prog * 0.28})`;
+      ctx.lineWidth   = 1.5;
+      ctx.lineCap     = "round";
+      ctx.beginPath();
+      ctx.moveTo(laneX, aY + 18); ctx.lineTo(laneX, aY);
+      ctx.lineTo(laneX - 5, aY + 8);
+      ctx.moveTo(laneX, aY);
+      ctx.lineTo(laneX + 5, aY + 8);
+      ctx.stroke();
+    }
 
     rafRef.current = requestAnimationFrame(loop);
   }, []);
@@ -627,7 +748,8 @@ export default function Pinball() {
           }}>{score}</div>
 
           <div style={{
-            position: "absolute", top: 22, right: 64, zIndex: 10,
+            position: "absolute", bottom: 18, left: 0, right: LANE_W, zIndex: 10,
+            textAlign: "center",
             color: "#fff", fontSize: 12, letterSpacing: 4, opacity: 0.5,
             pointerEvents: "none",
           }}>{"●".repeat(Math.max(0, lives))}</div>

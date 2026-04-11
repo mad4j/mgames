@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 /* ═══════════════════════ PALETTE ═══════════════════ */
 const C_BG   = "#0a0a0a";
@@ -198,6 +199,95 @@ function drawHUD(ctx, score, isNear, dpr) {
   ctx.shadowBlur  = 0;
 }
 
+/* ═══════════════════════ AUDIO ═════════════════════ */
+const NEAR_FREQS = [880, 1046.5, 1174.7]; // pitch rises with near-miss combo
+
+function useSound() {
+  const ctxRef     = useRef(null);
+  const enabledRef = useRef(true);
+  const [soundOn, _setSoundOn] = useState(true);
+
+  const setSoundOn = (v) => {
+    enabledRef.current = v;
+    _setSoundOn(v);
+  };
+
+  const getCtx = () => {
+    if (!ctxRef.current) {
+      ctxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (ctxRef.current.state === "suspended") ctxRef.current.resume();
+    return ctxRef.current;
+  };
+
+  const playTone = useCallback((freq, duration, type = "sine", gainVal = 0.15) => {
+    if (!enabledRef.current) return;
+    try {
+      const ctx  = getCtx();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type            = type;
+      gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + duration);
+    } catch (_) { /* ignore AudioContext errors */ }
+  }, []);
+
+  const playNear = useCallback((combo = 0) => {
+    const idx = Math.min(Math.floor(combo / 2), NEAR_FREQS.length - 1);
+    playTone(NEAR_FREQS[idx], 0.07, "square", 0.06);
+  }, [playTone]);
+
+  const playBonus = useCallback(() => {
+    // Sparkling ascending arpeggio for bomb pickup
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+      setTimeout(() => playTone(f, 0.18, "sine", 0.14), i * 55);
+    });
+  }, [playTone]);
+
+  const playDeath = useCallback(() => {
+    playTone(80,  0.5, "sawtooth", 0.22);
+    playTone(55,  0.8, "sine",     0.18);
+  }, [playTone]);
+
+  return { soundOn, setSoundOn, playNear, playBonus, playDeath };
+}
+
+/* ═══════════════════════ ICONS ══════════════════════ */
+function IconSound({ on }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="2,6 6,6 10,2 10,16 6,12 2,12" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" fill="none"/>
+      {on ? (
+        <>
+          <path d="M12.5 6.5 C13.8 7.3 13.8 10.7 12.5 11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+          <path d="M14.5 4.5 C17 6 17 12 14.5 13.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+        </>
+      ) : (
+        <>
+          <line x1="12" y1="6" x2="17" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+          <line x1="17" y1="6" x2="12" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+        </>
+      )}
+    </svg>
+  );
+}
+
+function IconHub() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2"  y="2"  width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="10" y="2"  width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="2"  y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <rect x="10" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+    </svg>
+  );
+}
+
 /* ═══════════════════════ COMPONENT ═════════════════ */
 export const meta = {
   path: "/void",
@@ -211,10 +301,19 @@ export default function VoidGame() {
   const raf    = useRef(null);
   const g      = useRef(null);
   const starsR = useRef([]);
+  const soundRef = useRef(null);
 
+  const navigate = useNavigate();
   const [phase, setPhase] = useState("idle");
   const [score, setScore] = useState(0);
   const [best,  setBest]  = useState(0);
+
+  const { soundOn, setSoundOn, playNear, playBonus, playDeath } = useSound();
+
+  // Keep soundRef current so game-loop callbacks always see the latest functions
+  useEffect(() => {
+    soundRef.current = { playNear, playBonus, playDeath };
+  }, [playNear, playBonus, playDeath]);
 
   useEffect(() => {
     const gen = () => {
@@ -383,6 +482,7 @@ export default function VoidGame() {
         const bx = s.bonus.x;
         const by = s.bonus.y;
         s.bonus  = null;
+        soundRef.current?.playBonus();
         triggerBomb(bx, by);
       }
     }
@@ -411,6 +511,7 @@ export default function VoidGame() {
         s.score  += NEAR_PTS * (1 + Math.floor(s.combo / 4));
         s.nearCD  = NEAR_CD;
         s.combo  += 1;
+        soundRef.current?.playNear(s.combo);
       }
     } else {
       s.nearCD = Math.max(0, (s.nearCD || 0) - 1);
@@ -424,6 +525,7 @@ export default function VoidGame() {
     if (dead) {
       s.on = false;
       setBest(b => Math.max(b, s.score));
+      soundRef.current?.playDeath();
 
       // ship fragments
       s.frags = [Math.PI * 0.5, Math.PI * 1.1, Math.PI * 1.9].map((ang, i) => ({
@@ -641,6 +743,38 @@ export default function VoidGame() {
           0%,100%{opacity:1} 92%{opacity:.95} 94%{opacity:.78} 96%{opacity:.97}
         }
       `}</style>
+
+      {/* ── SOUND TOGGLE + HUB (always visible) ── */}
+      <button
+        aria-label={soundOn ? "mute" : "unmute"}
+        onClick={() => setSoundOn(!soundOn)}
+        onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+        onMouseLeave={e => e.currentTarget.style.color = `rgba(255,255,255,${soundOn ? 0.38 : 0.18})`}
+        style={{
+          position:"absolute", top:14, right:52, zIndex:20,
+          background:"transparent", border:"none",
+          color:`rgba(255,255,255,${soundOn ? 0.38 : 0.18})`,
+          cursor:"pointer", padding:6, lineHeight:0,
+          transition:"color 0.2s",
+        }}
+      >
+        <IconSound on={soundOn} />
+      </button>
+      <button
+        aria-label="back to hub"
+        onClick={() => navigate("/")}
+        onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+        onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.38)"}
+        style={{
+          position:"absolute", top:14, right:12, zIndex:20,
+          background:"transparent", border:"none",
+          color:"rgba(255,255,255,0.38)",
+          cursor:"pointer", padding:6, lineHeight:0,
+          transition:"color 0.2s",
+        }}
+      >
+        <IconHub />
+      </button>
 
       <canvas
         ref={cvs}
