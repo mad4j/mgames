@@ -619,14 +619,17 @@ export default function VoidGame() {
   return (
     <div style={{
       width:"100vw", height:"100dvh", background:C_BG,
-      display:"flex", alignItems:"stretch", justifyContent:"center",
+      display:"flex", alignItems:"center", justifyContent:"center",
     }}>
     <div style={{
       position:"relative",
-      width:"100%",
-      maxWidth:430,
+      width:430,
+      height:760,
+      maxWidth:"100%",
+      maxHeight:"100%",
       overflow:"hidden",
       userSelect:"none", touchAction:"none",
+      outline:"1px solid rgba(255,255,255,0.07)",
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');

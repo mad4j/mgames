@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 const CELL      = 20;
 const MAX_SPEED = 160;
 const MIN_SPEED = 55;
+const GAME_H    = 760;
 
 function useWindowSize() {
   const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight });
@@ -26,7 +27,7 @@ const MAX_WIDTH = 430;
 export default function SnakeGame() {
   const { w, h } = useWindowSize();
   const cols = Math.floor(Math.min(w, MAX_WIDTH) / CELL);
-  const rows = Math.floor(h / CELL);
+  const rows = Math.floor(Math.min(h, GAME_H) / CELL);
 
   const [phase,       setPhase]       = useState("idle");
   const [score,       setScore]       = useState(0);
@@ -213,7 +214,7 @@ export default function SnakeGame() {
       height:          "100dvh",
       background:      "#0a0a0a",
       display:         "flex",
-      alignItems:      "stretch",
+      alignItems:      "center",
       justifyContent:  "center",
     }}>
     <div
@@ -221,12 +222,15 @@ export default function SnakeGame() {
       onTouchEnd={handleTouchEnd}
       style={{
         position:   "relative",
-        width:      "100%",
-        maxWidth:   MAX_WIDTH,
+        width:      MAX_WIDTH,
+        height:     GAME_H,
+        maxWidth:   "100%",
+        maxHeight:  "100%",
         overflow:   "hidden",
         userSelect: "none",
         fontFamily: "'DM Mono', 'Courier New', monospace",
         touchAction:"none",
+        outline:    "1px solid rgba(255,255,255,0.07)",
       }}
     >
       <style>{`
