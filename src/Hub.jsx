@@ -59,33 +59,15 @@ export default function Hub({ games }) {
       `}</style>
 
       {/* title */}
-      <div
+      <img
+        src="/mgames/title.png"
+        alt="mgames"
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 16,
           marginBottom: 56,
           animation: "fadeInDim 0.5s ease forwards",
+          maxWidth: "90vw",
         }}
-      >
-        <img
-          src="/mgames/icon-64x64.png"
-          alt="mgames"
-          style={{ width: 64, height: 64, opacity: 0.85 }}
-        />
-        <span
-          style={{
-            color: "#fff",
-            fontSize: 10,
-            letterSpacing: 6,
-            opacity: 0.22,
-            textTransform: "uppercase",
-          }}
-        >
-          mgames
-        </span>
-      </div>
+      />
 
       {/* game cards */}
       <div
