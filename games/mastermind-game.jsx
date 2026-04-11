@@ -3,26 +3,61 @@ import { useNavigate } from "react-router-dom";
 
 /* ═══════════════════════ CONSTANTS ════════════════════ */
 const CODE_LENGTH  = 4;
-const NUM_COLORS   = 6;
+const NUM_SHAPES   = 6;
 const MAX_ATTEMPTS = 10;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.88)";
 const mono   = "'DM Mono', 'Courier New', monospace";
 
-const COLORS = [
-  "#6ea8fe", // blue
-  "#f47e7e", // red
-  "#ffd77e", // yellow
-  "#7ef4a2", // green
-  "#d47ef4", // purple
-  "#f4b07e", // orange
-];
+/* ═══════════════════════ SHAPES ════════════════════════ */
+// Returns SVG child elements for the given shape index.
+// cx/cy = centre, r = radius of bounding circle
+function ShapeElement({ index, cx, cy, r, fill }) {
+  switch (index) {
+    case 0: // circle
+      return <circle cx={cx} cy={cy} r={r} fill={fill} />;
+    case 1: // square
+      return <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill={fill} />;
+    case 2: // triangle
+      return (
+        <polygon
+          points={`${cx},${cy - r} ${cx + r},${cy + r} ${cx - r},${cy + r}`}
+          fill={fill}
+        />
+      );
+    case 3: // diamond
+      return (
+        <polygon
+          points={`${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}`}
+          fill={fill}
+        />
+      );
+    case 4: { // star (5-pointed)
+      const r2 = r * 0.4;
+      const pts = Array.from({ length: 10 }, (_, i) => {
+        const angle  = (i * Math.PI / 5) - Math.PI / 2;
+        const radius = i % 2 === 0 ? r : r2;
+        return `${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)}`;
+      }).join(" ");
+      return <polygon points={pts} fill={fill} />;
+    }
+    case 5: { // hexagon
+      const pts = Array.from({ length: 6 }, (_, i) => {
+        const angle = (i * Math.PI / 3) - Math.PI / 6;
+        return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
+      }).join(" ");
+      return <polygon points={pts} fill={fill} />;
+    }
+    default:
+      return null;
+  }
+}
 
 /* ═══════════════════════ GAME LOGIC ════════════════════ */
 function generateSecret() {
   return Array.from({ length: CODE_LENGTH }, () =>
-    Math.floor(Math.random() * NUM_COLORS)
+    Math.floor(Math.random() * NUM_SHAPES)
   );
 }
 
@@ -66,7 +101,7 @@ export const meta = {
   path:        "/mastermind",
   symbol:      "◉",
   name:        "mastermind",
-  description: "crack the hidden color code",
+  description: "crack the hidden shape code",
 };
 
 /* ═══════════════════════ COMPONENT ════════════════════ */
@@ -76,7 +111,7 @@ export default function MastermindGame() {
 
   const [phase,         setPhase]         = useState("idle");
   const [game,          setGame]          = useState(null);
-  const [selectedColor, setSelectedColor] = useState(0);
+  const [selectedShape, setSelectedShape] = useState(0);
 
   /* ── start / restart ─────────────────────────────────── */
   const start = useCallback(() => {
@@ -85,7 +120,7 @@ export default function MastermindGame() {
       doneTimerRef.current = null;
     }
     setGame(initGame());
-    setSelectedColor(0);
+    setSelectedShape(0);
     setPhase("playing");
   }, []);
 
@@ -95,11 +130,11 @@ export default function MastermindGame() {
       setGame((prev) => {
         if (!prev || prev.won || prev.guesses.length >= MAX_ATTEMPTS) return prev;
         const newGuess = [...prev.currentGuess];
-        newGuess[slotIndex] = selectedColor;
+        newGuess[slotIndex] = selectedShape;
         return { ...prev, currentGuess: newGuess };
       });
     },
-    [selectedColor]
+    [selectedShape]
   );
 
   /* ── submit current guess ────────────────────────────── */
@@ -157,24 +192,46 @@ export default function MastermindGame() {
     game.guesses.length < MAX_ATTEMPTS &&
     game.currentGuess.every((c) => c !== null);
 
-  /* ── single peg circle ───────────────────────────────── */
-  const Peg = ({ colorIndex, size = 24, faded = false, clickable = false, onClick }) => (
-    <div
-      onClick={clickable ? onClick : undefined}
-      style={{
-        width:        size,
-        height:       size,
-        borderRadius: "50%",
-        background:   colorIndex !== null ? COLORS[colorIndex] : "transparent",
-        border:       `1.5px solid ${colorIndex !== null ? COLORS[colorIndex] : "rgba(255,255,255,0.18)"}`,
-        boxSizing:    "border-box",
-        opacity:      faded ? 0.22 : 1,
-        cursor:       clickable ? "pointer" : "default",
-        flexShrink:   0,
-        transition:   "opacity 0.15s",
-      }}
-    />
-  );
+  /* ── single shape peg ───────────────────────────────── */
+  const Peg = ({ shapeIndex, size = 24, faded = false, clickable = false, onClick }) => {
+    const cx = size / 2;
+    const cy = size / 2;
+    const r  = size / 2 - 2;
+    return (
+      <div
+        onClick={clickable ? onClick : undefined}
+        style={{
+          width:      size,
+          height:     size,
+          opacity:    faded ? 0.22 : 1,
+          cursor:     clickable ? "pointer" : "default",
+          flexShrink: 0,
+          transition: "opacity 0.15s",
+        }}
+      >
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          {shapeIndex !== null ? (
+            <ShapeElement
+              index={shapeIndex}
+              cx={cx}
+              cy={cy}
+              r={r}
+              fill="rgba(255,255,255,0.88)"
+            />
+          ) : (
+            <circle
+              cx={cx}
+              cy={cy}
+              r={r}
+              fill="transparent"
+              stroke="rgba(255,255,255,0.18)"
+              strokeWidth={1.5}
+            />
+          )}
+        </svg>
+      </div>
+    );
+  };
 
   /* ── 2×2 feedback dots ───────────────────────────────── */
   const FeedbackGrid = ({ blacks, whites }) => {
@@ -245,7 +302,7 @@ export default function MastermindGame() {
             .map((_, j) => (
               <Peg
                 key={j}
-                colorIndex={colors ? colors[j] : null}
+                shapeIndex={colors ? colors[j] : null}
                 size={22}
                 faded={faded}
                 clickable={isCurrent}
@@ -473,29 +530,22 @@ export default function MastermindGame() {
                 marginBottom:  36,
               }}
             >
-              crack the hidden color code
+              crack the hidden shape code
             </div>
 
-            {/* color preview */}
+            {/* shape preview */}
             <div style={{ display: "flex", gap: 7, marginBottom: 36 }}>
-              {COLORS.map((c, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width:        14,
-                    height:       14,
-                    borderRadius: "50%",
-                    background:   c,
-                    opacity:      0.6,
-                  }}
-                />
+              {Array.from({ length: NUM_SHAPES }, (_, i) => (
+                <svg key={i} width={14} height={14} viewBox="0 0 14 14" style={{ opacity: 0.6 }}>
+                  <ShapeElement index={i} cx={7} cy={7} r={5} fill="rgba(255,255,255,0.88)" />
+                </svg>
               ))}
             </div>
 
             {/* rules */}
             <div style={{ display: "flex", gap: 28, marginBottom: 4 }}>
               {[
-                ["COLORS", "6 to choose"],
+                ["SHAPES", "6 to choose"],
                 ["CODE",   "4 pegs"],
                 ["TRIES",  `${MAX_ATTEMPTS} attempts`],
               ].map(([k, v]) => (
@@ -516,8 +566,8 @@ export default function MastermindGame() {
               }}
             >
               {[
-                ["●", "right color & place"],
-                ["○", "right color, wrong place"],
+                ["●", "right shape & place"],
+                ["○", "right shape, wrong place"],
               ].map(([sym, label]) => (
                 <div key={sym} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <div
@@ -570,25 +620,31 @@ export default function MastermindGame() {
 
             <Board />
 
-            {/* color palette */}
+            {/* shape palette */}
             <div style={{ display: "flex", gap: 9, marginTop: 4 }}>
-              {COLORS.map((color, i) => (
+              {Array.from({ length: NUM_SHAPES }, (_, i) => (
                 <div
                   key={i}
-                  onClick={() => setSelectedColor(i)}
+                  onClick={() => setSelectedShape(i)}
                   style={{
-                    width:        30,
-                    height:       30,
-                    borderRadius: "50%",
-                    background:   color,
-                    cursor:       "pointer",
-                    border:       `2px solid ${selectedColor === i ? "rgba(255,255,255,0.9)" : "transparent"}`,
-                    boxSizing:    "border-box",
-                    opacity:      selectedColor === i ? 1 : 0.5,
-                    transition:   "opacity 0.15s, border-color 0.15s",
-                    boxShadow:    selectedColor === i ? `0 0 10px ${color}` : "none",
+                    width:      30,
+                    height:     30,
+                    cursor:     "pointer",
+                    opacity:    selectedShape === i ? 1 : 0.45,
+                    transition: "opacity 0.15s, filter 0.15s",
+                    filter:     selectedShape === i ? "drop-shadow(0 0 5px rgba(255,255,255,0.55))" : "none",
                   }}
-                />
+                >
+                  <svg width={30} height={30} viewBox="0 0 30 30">
+                    <ShapeElement
+                      index={i}
+                      cx={15}
+                      cy={15}
+                      r={12}
+                      fill={selectedShape === i ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.7)"}
+                    />
+                  </svg>
+                </div>
               ))}
             </div>
 
@@ -626,17 +682,16 @@ export default function MastermindGame() {
 
             {/* revealed secret */}
             <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-              {game.secret.map((colorIdx, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width:        28,
-                    height:       28,
-                    borderRadius: "50%",
-                    background:   COLORS[colorIdx],
-                    boxShadow:    `0 0 10px ${COLORS[colorIdx]}`,
-                  }}
-                />
+              {game.secret.map((shapeIdx, i) => (
+                <svg key={i} width={28} height={28} viewBox="0 0 28 28">
+                  <ShapeElement
+                    index={shapeIdx}
+                    cx={14}
+                    cy={14}
+                    r={11}
+                    fill="rgba(255,255,255,0.88)"
+                  />
+                </svg>
               ))}
             </div>
 
@@ -703,15 +758,9 @@ export default function MastermindGame() {
                   </div>
                   <div style={{ display: "flex", gap: 5 }}>
                     {g.colors.map((c, j) => (
-                      <div
-                        key={j}
-                        style={{
-                          width:        16,
-                          height:       16,
-                          borderRadius: "50%",
-                          background:   COLORS[c],
-                        }}
-                      />
+                      <svg key={j} width={16} height={16} viewBox="0 0 16 16">
+                        <ShapeElement index={c} cx={8} cy={8} r={6} fill="rgba(255,255,255,0.82)" />
+                      </svg>
                     ))}
                   </div>
                   <FeedbackGrid blacks={g.blacks} whites={g.whites} />
