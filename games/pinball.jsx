@@ -2,11 +2,14 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 // ── Constants ─────────────────────────────────────────────────
-const GRAV      = 0.30;
-const BALL_R    = 9;
-const FLIP_R    = 5;
-const LANE_W    = 50;   // right launch-lane width (px)
-const LANE_GAP  = 0.08; // separator starts at this fraction of H from the top
+const GRAV               = 0.30;
+const BALL_R             = 9;
+const FLIP_R             = 5;
+const LANE_W             = 50;   // right launch-lane width (px)
+const LANE_GAP           = 0.08; // separator starts at this fraction of H from the top
+const LANE_BOTTOM        = 0.87; // separator ends at this fraction of H
+const STAR_COLL_PAD      = 3;    // extra radius for star collision detection
+const ROLLOVER_TOLERANCE = 4;    // vertical hit tolerance for rollover gates
 
 // ── Math helpers ──────────────────────────────────────────────
 function lerp(a, b, t) { return a + (b - a) * t; }
@@ -263,7 +266,7 @@ export default function Pinball() {
       // ── One-directional separator wall ────────────────────────
       // Prevents the ball from crossing from the main field into the lane.
       // The ball in the lane may freely drift left and enter the main field.
-      if (ball.y > H * LANE_GAP && ball.y < H * 0.87) {
+      if (ball.y > H * LANE_GAP && ball.y < H * LANE_BOTTOM) {
         if (ball.x < PW && ball.x + BALL_R >= PW && ball.vx > 0) {
           ball.x = PW - BALL_R;
           ball.vx = -Math.abs(ball.vx) * 0.60;
@@ -355,7 +358,7 @@ export default function Pinball() {
         if (t.type === 'star' && !t.hidden) {
           const dx = ball.x - t.x, dy = ball.y - t.y;
           const d  = Math.hypot(dx, dy);
-          const md = BALL_R + t.r + 3;
+          const md = BALL_R + t.r + STAR_COLL_PAD;
           if (d < md && d > 0.001) {
             const nx = dx / d, ny = dy / d;
             ball.x = t.x + nx * md; ball.y = t.y + ny * md;
@@ -371,7 +374,7 @@ export default function Pinball() {
         // ── Rollover – horizontal gate, pass-through, +pts ──────
         if (t.type === 'rollover') {
           const dy = Math.abs(ball.y - t.y);
-          if (dy < BALL_R + 4 && ball.x > t.x - t.w / 2 && ball.x < t.x + t.w / 2) {
+          if (dy < BALL_R + ROLLOVER_TOLERANCE && ball.x > t.x - t.w / 2 && ball.x < t.x + t.w / 2) {
             if (now - t.fl > 350) {
               t.fl = now; g.score += t.pts;
               snd.playRollover();
@@ -421,7 +424,7 @@ export default function Pinball() {
     ctx.lineCap     = "round";
     ctx.beginPath();
     ctx.moveTo(PW, H * LANE_GAP);
-    ctx.lineTo(PW, H * 0.87);
+    ctx.lineTo(PW, H * LANE_BOTTOM);
     ctx.stroke();
 
     // Top arc of lane (visual guide from separator top to right wall)
