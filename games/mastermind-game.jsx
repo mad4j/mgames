@@ -193,7 +193,7 @@ export default function MastermindGame() {
     game.currentGuess.every((c) => c !== null);
 
   /* ── single shape peg ───────────────────────────────── */
-  const Peg = ({ colorIndex, size = 24, faded = false, clickable = false, onClick }) => {
+  const Peg = ({ shapeIndex, size = 24, faded = false, clickable = false, onClick }) => {
     const cx = size / 2;
     const cy = size / 2;
     const r  = size / 2 - 2;
@@ -210,9 +210,9 @@ export default function MastermindGame() {
         }}
       >
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          {colorIndex !== null ? (
+          {shapeIndex !== null ? (
             <ShapeElement
-              index={colorIndex}
+              index={shapeIndex}
               cx={cx}
               cy={cy}
               r={r}
@@ -302,7 +302,7 @@ export default function MastermindGame() {
             .map((_, j) => (
               <Peg
                 key={j}
-                colorIndex={colors ? colors[j] : null}
+                shapeIndex={colors ? colors[j] : null}
                 size={22}
                 faded={faded}
                 clickable={isCurrent}
