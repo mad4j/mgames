@@ -85,6 +85,13 @@ function pathStar(ctx, x, y, R, n = 5) {
   ctx.closePath();
 }
 
+export const meta = {
+  path:        "/pinball",
+  symbol:      "◉",
+  name:        "pinball",
+  description: "flip the ball, beat your best",
+};
+
 export default function Pinball() {
   const cvRef  = useRef(null);
   const gsRef  = useRef(null);
