@@ -21,9 +21,11 @@ export const meta = {
   description: "eat the diamond, don't hit the walls",
 };
 
+const MAX_WIDTH = 430;
+
 export default function SnakeGame() {
   const { w, h } = useWindowSize();
-  const cols = Math.floor(w / CELL);
+  const cols = Math.floor(Math.min(w, MAX_WIDTH) / CELL);
   const rows = Math.floor(h / CELL);
 
   const [phase,       setPhase]       = useState("idle");
@@ -206,15 +208,22 @@ export default function SnakeGame() {
 
   // ── render ─────────────────────────────────────────────────────────────────
   return (
+    <div style={{
+      width:           "100vw",
+      height:          "100dvh",
+      background:      "#0a0a0a",
+      display:         "flex",
+      alignItems:      "stretch",
+      justifyContent:  "center",
+    }}>
     <div
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       style={{
-        width:      "100vw",
-        height:     "100dvh",
-        background: "#0a0a0a",
-        overflow:   "hidden",
         position:   "relative",
+        width:      "100%",
+        maxWidth:   MAX_WIDTH,
+        overflow:   "hidden",
         userSelect: "none",
         fontFamily: "'DM Mono', 'Courier New', monospace",
         touchAction:"none",
@@ -391,6 +400,7 @@ export default function SnakeGame() {
           >again</button>
         </div>
       )}
+    </div>
     </div>
   );
 }
