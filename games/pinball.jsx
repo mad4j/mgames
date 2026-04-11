@@ -6,8 +6,8 @@ const GRAV               = 0.30;
 const BALL_R             = 9;
 const FLIP_R             = 5;
 const LANE_W             = 36;   // right launch-lane width (px)
-const LANE_GAP           = 0.28; // separator starts at this fraction of H from the top
 const LANE_BOTTOM        = 0.87; // separator ends at this fraction of H
+const GALLERY_ARCH_Y     = BALL_R * 3; // y-height of the exit gallery arch (px from top)
 const STAR_COLL_PAD      = 3;    // extra radius for star collision detection
 const ROLLOVER_TOLERANCE = 4;    // vertical hit tolerance for rollover gates
 
@@ -79,14 +79,13 @@ function makeState(W, H) {
     W, H, PW,
     ball: { x: W - LANE_W * 0.4, y: H * 0.81, vx: 0, vy: 0 },
     inLane: true,
+    galleryExit: false,
     launchAt: Date.now() + 900,
     fL: { px: fLx, py: fy, len: fl, a: 0.35, up: -0.46, dn: 0.35 },
     fR: { px: fRx, py: fy, len: fl, a: Math.PI - 0.35, up: Math.PI + 0.46, dn: Math.PI - 0.35 },
     guides: [
       [0,   H * 0.58, fLx, fy],
       [PW,  H * 0.58, fRx, fy],
-      // Right-lane exit ramp: deflects the ball leftward toward the centre
-      [W - 3, BALL_R * 2.5, PW, H * LANE_GAP],
     ],
     targets: [
       // ── Top bumpers ─────────────────────────────────────────────
@@ -265,17 +264,29 @@ export default function Pinball() {
       // Right canvas wall (lane right edge)
       if (ball.x > W - BALL_R) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx) * 0.72; }
 
+      // ── Gallery arch exit ──────────────────────────────────────────
+      // When the ball reaches the arch at the top of the launch lane it
+      // is released at the centre of the screen (x = W/2) and falls from
+      // the top, following the gallery's physical path.
+      if (!g.galleryExit && ball.x > PW && ball.y < GALLERY_ARCH_Y) {
+        g.galleryExit = true;
+        ball.x  = W * 0.5;
+        ball.y  = BALL_R + 1;
+        ball.vx = 0;
+        ball.vy = 2;
+      }
+
       // ── Separator wall ─────────────────────────────────────────
       // Bidirectional: prevents crossing in both directions between
-      // the main field and the launch lane. The ball must travel up
-      // the lane and exit from the top (above LANE_GAP).
-      if (ball.y > H * LANE_GAP && ball.y < H * LANE_BOTTOM) {
+      // the main field and the launch lane. The ball must travel all
+      // the way up the lane and exit through the gallery arch at the top.
+      if (ball.y > GALLERY_ARCH_Y && ball.y < H * LANE_BOTTOM) {
         // main field → lane
         if (ball.x < PW && ball.x + BALL_R >= PW && ball.vx > 0) {
           ball.x = PW - BALL_R;
           ball.vx = -Math.abs(ball.vx) * 0.60;
         }
-        // lane → main field (ball must exit from the top)
+        // lane → main field (ball must exit through gallery arch at top)
         if (ball.x >= PW && ball.x - BALL_R <= PW && ball.vx < 0) {
           ball.x = PW + BALL_R;
           ball.vx = Math.abs(ball.vx) * 0.60;
@@ -412,8 +423,9 @@ export default function Pinball() {
         // Reset ball to launch lane
         ball.x = W - LANE_W * 0.4; ball.y = H * 0.81;
         ball.vx = 0; ball.vy = 0;
-        g.inLane   = true;
-        g.launchAt = now + 900;
+        g.inLane      = true;
+        g.galleryExit = false;
+        g.launchAt    = now + 900;
       }
     }
 
@@ -432,16 +444,21 @@ export default function Pinball() {
     ctx.setLineDash([]);
     ctx.lineCap     = "round";
     ctx.beginPath();
-    ctx.moveTo(PW, H * LANE_GAP);
+    ctx.moveTo(PW, GALLERY_ARCH_Y);
     ctx.lineTo(PW, H * LANE_BOTTOM);
     ctx.stroke();
 
-    // Top ramp of lane (physical deflector that guides the ball toward the centre)
+    // Gallery arch: horizontal corridor at the top of the lane that
+    // guides the ball from the lane exit to the centre of the screen.
     ctx.strokeStyle = "rgba(255,255,255,0.14)";
     ctx.lineWidth   = 1;
     ctx.beginPath();
-    ctx.moveTo(W - 3, BALL_R * 2.5);
-    ctx.lineTo(PW, H * LANE_GAP);
+    ctx.moveTo(W - 3, GALLERY_ARCH_Y);
+    ctx.lineTo(W * 0.5, GALLERY_ARCH_Y);   // horizontal ceiling to screen centre
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(W * 0.5, GALLERY_ARCH_Y);
+    ctx.lineTo(W * 0.5, GALLERY_ARCH_Y + BALL_R * 3.5);  // short drop marker at centre
     ctx.stroke();
 
     // Guide rails
