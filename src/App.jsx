@@ -1,14 +1,16 @@
 import { Routes, Route } from "react-router-dom";
 import Hub from "./Hub.jsx";
-import TapGame from "../games/tap-game.jsx";
-import VoidGame from "../games/void-game.jsx";
+
+const gameModules = import.meta.glob("../games/*.jsx", { eager: true });
+const games = Object.values(gameModules).filter((m) => m.meta);
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Hub />} />
-      <Route path="/tap" element={<TapGame />} />
-      <Route path="/void" element={<VoidGame />} />
+      <Route path="/" element={<Hub games={games.map((m) => m.meta)} />} />
+      {games.map(({ meta, default: Component }) => (
+        <Route key={meta.path} path={meta.path} element={<Component />} />
+      ))}
     </Routes>
   );
 }
