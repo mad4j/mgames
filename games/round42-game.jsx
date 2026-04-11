@@ -5,8 +5,9 @@ const C_BG    = "#0a0a0a";
 const C_MAIN  = "rgba(255,255,255,0.88)";
 const C_NEAR  = "rgba(255,255,255,1)";
 const C_SCAN  = "rgba(255,255,255,0.018)";
-const C_LASER = "rgba(255,255,255,0.95)";
-const C_EBUL  = "rgba(255,140,140,0.9)";
+const C_LASER  = "rgba(255,255,255,0.95)";
+const C_EBUL   = "rgba(255,140,140,0.9)";
+const C_PHAZOR = "rgba(180,120,255,0.95)";
 
 /* ═══════════════════════ CONFIG ═════════════════════ */
 const P_R         = 13;    // player half-size (collision radius)
@@ -27,6 +28,8 @@ const ROW_PTS     = [30, 20, 15, 10]; // score per enemy by row
 const LASER_BONUS_WAVE  = 3;  // earn +1 laser every N waves
 const MAX_WAVES         = 42; // total waves (matches the original game's title)
 const MAX_WAVE_Y_OFFSET = 6;  // cap on extra starting-row depth per wave
+const PHAZOR_SCORE_INTERVAL = 7500; // earn +1 phazor every N points
+const MAX_PHAZORS           = 5;    // phazor cap
 
 /* ═══════════════════════ HELPERS ════════════════════ */
 function mkEnemies(wave, W) {
@@ -205,6 +208,35 @@ function drawLaserBeam(ctx, beam, dpr) {
   ctx.restore();
 }
 
+function drawPhazorBeam(ctx, beam, dpr) {
+  if (!beam) return;
+  const alpha = Math.max(0, 1 - beam.t / 12);
+  if (alpha <= 0) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.shadowColor = C_PHAZOR;
+  ctx.shadowBlur  = 22 * dpr;
+  ctx.strokeStyle = C_PHAZOR;
+  ctx.lineWidth   = 2.5 * dpr;
+  ctx.lineJoin    = "round";
+  ctx.lineCap     = "round";
+  // two overlapping jagged paths give a richer lightning look
+  for (let pass = 0; pass < 2; pass++) {
+    const segs = 7;
+    ctx.beginPath();
+    ctx.moveTo(beam.x1 * dpr, beam.y1 * dpr);
+    for (let i = 1; i < segs; i++) {
+      const t  = i / segs;
+      const jx = beam.x1 + (beam.x2 - beam.x1) * t + (Math.random() - 0.5) * 30;
+      const jy = beam.y1 + (beam.y2 - beam.y1) * t + (Math.random() - 0.5) * 15;
+      ctx.lineTo(jx * dpr, jy * dpr);
+    }
+    ctx.lineTo(beam.x2 * dpr, beam.y2 * dpr);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function drawParticles(ctx, particles, dpr) {
   for (const p of particles) {
     ctx.globalAlpha = p.life * p.life;
@@ -237,7 +269,7 @@ function drawScanlines(ctx, W, H) {
   }
 }
 
-function drawHUD(ctx, { score, wave, lives, lasers }, dpr, cssW, cssH) {
+function drawHUD(ctx, { score, wave, lives, lasers, phazors }, dpr, cssW, cssH) {
   const mono = "'Share Tech Mono', monospace";
   ctx.shadowColor = C_MAIN;
   ctx.shadowBlur  = 6 * dpr;
@@ -271,10 +303,10 @@ function drawHUD(ctx, { score, wave, lives, lasers }, dpr, cssW, cssH) {
     ctx.stroke();
   }
 
-  // lasers – diamond icons (bottom right)
+  // lasers – diamond icons (bottom right, second row)
   for (let i = 0; i < lasers; i++) {
     const lx = (cssW - 14 - i * 16) * dpr;
-    const ly = baseY * dpr;
+    const ly = (cssH - 38) * dpr;
     const sz = 5 * dpr;
     ctx.strokeStyle = C_LASER;
     ctx.lineWidth   = 1.2 * dpr;
@@ -284,6 +316,26 @@ function drawHUD(ctx, { score, wave, lives, lasers }, dpr, cssW, cssH) {
     ctx.lineTo(lx,      ly + sz);
     ctx.lineTo(lx - sz, ly);
     ctx.closePath();
+    ctx.stroke();
+  }
+
+  // phazors – lightning bolt icons (bottom right, bottom row)
+  for (let i = 0; i < phazors; i++) {
+    const lx = (cssW - 14 - i * 16) * dpr;
+    const ly = (cssH - 20) * dpr;
+    const sz = 6 * dpr;
+    ctx.shadowColor = C_PHAZOR;
+    ctx.shadowBlur  = 6 * dpr;
+    ctx.strokeStyle = C_PHAZOR;
+    ctx.lineWidth   = 1.4 * dpr;
+    ctx.lineJoin    = "round";
+    ctx.lineCap     = "round";
+    // lightning bolt: top-right → middle-left → middle-right → bottom-left
+    ctx.beginPath();
+    ctx.moveTo(lx + sz * 0.2, ly - sz);
+    ctx.lineTo(lx - sz * 0.3, ly + sz * 0.1);
+    ctx.lineTo(lx + sz * 0.2, ly + sz * 0.1);
+    ctx.lineTo(lx - sz * 0.2, ly + sz);
     ctx.stroke();
   }
 }
@@ -371,6 +423,13 @@ export default function Round42Game() {
       if (s.laserBeam.t > 16) s.laserBeam = null;
     }
 
+    // phazor beam
+    if (s.phazorBeam) {
+      drawPhazorBeam(ctx, s.phazorBeam, dpr);
+      s.phazorBeam.t++;
+      if (s.phazorBeam.t > 14) s.phazorBeam = null;
+    }
+
     // player bullets
     for (const b of s.bullets)       drawBullet(ctx, b, dpr);
     // enemy bullets
@@ -391,7 +450,7 @@ export default function Round42Game() {
     }
 
     // HUD
-    drawHUD(ctx, { score: s.score, wave: s.wave, lives: s.lives, lasers: s.lasers }, dpr, cssW, cssH);
+    drawHUD(ctx, { score: s.score, wave: s.wave, lives: s.lives, lasers: s.lasers, phazors: s.phazors }, dpr, cssW, cssH);
 
     // red screen flash on hit
     if (s.hitFlash > 0) {
@@ -418,6 +477,24 @@ export default function Round42Game() {
         s.particles.push(...mkSparks(e.x, e.y, 8, C_LASER, 1.2));
       }
     }
+  }, []);
+
+  /* ── fire phazor ────────────────────────────────────── */
+  const firePhazor = useCallback(() => {
+    const s = g.current;
+    const c = cvs.current;
+    if (!s || !s.on || s.phazors <= 0) return;
+    const alive = s.enemies.filter(e => e.alive);
+    if (alive.length === 0) return;
+    s.phazors--;
+    const target = alive[Math.floor(Math.random() * alive.length)];
+    target.alive = false;
+    s.score += ROW_PTS[target.row] * 2;
+    const cssH = c ? c.offsetHeight : 760;
+    const shipY = cssH * 0.88;
+    s.phazorBeam = { x1: s.px, y1: shipY, x2: target.x, y2: target.y, t: 0 };
+    s.particles.push(...mkSparks(target.x, target.y, 12, C_PHAZOR, 1.5));
+    s.particles.push(...mkSparks(target.x, target.y, 5,  C_NEAR,   2.0));
   }, []);
 
   /* ── main loop ──────────────────────────────────────── */
@@ -454,6 +531,7 @@ export default function Round42Game() {
       s.wave++;
       s.score += 200 + s.wave * 20;
       if (s.wave % LASER_BONUS_WAVE === 0) s.lasers = Math.min(s.lasers + 1, 5);
+      s.phazors = Math.min(s.phazors + 1, MAX_PHAZORS); // earn phazor on wave completion
       if (s.wave > MAX_WAVES) {
         // all 42 waves cleared – victory!
         s.on = false;
@@ -575,6 +653,12 @@ export default function Round42Game() {
       s.invincible--;
     }
 
+    // award phazor every PHAZOR_SCORE_INTERVAL points
+    while (s.score >= s.phazorMilestone) {
+      s.phazors = Math.min(s.phazors + 1, MAX_PHAZORS);
+      s.phazorMilestone += PHAZOR_SCORE_INTERVAL;
+    }
+
     setScore(s.score);
     render();
     raf.current = requestAnimationFrame(loop);
@@ -589,6 +673,7 @@ export default function Round42Game() {
     g.current = {
       on: true, frame: 0, score: 0, wave: 1,
       lives: LIVES_INIT, lasers: LASER_INIT,
+      phazors: 0, phazorMilestone: PHAZOR_SCORE_INTERVAL, phazorBeam: null,
       px: cssW / 2, tx: cssW / 2,
       bullets: [], enemyBullets: [],
       enemies:   mkEnemies(1, cssW),
@@ -634,8 +719,10 @@ export default function Round42Game() {
     const dx = e.changedTouches[0].clientX - touchStart.current.x;
     const dy = e.changedTouches[0].clientY - touchStart.current.y;
     touchStart.current = null;
-    if (Math.abs(dx) < 12 && Math.abs(dy) < 12) fireLaser();
-  }, [fireLaser]);
+    if (Math.abs(dx) < 12 && Math.abs(dy) < 12) {
+      if (g.current?.phazors > 0) firePhazor(); else fireLaser();
+    }
+  }, [firePhazor, fireLaser]);
 
   // ── keyboard ─────────────────────────────────────────
   useEffect(() => {
@@ -712,7 +799,7 @@ export default function Round42Game() {
           ref={cvs}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", animation: "flicker 7s infinite" }}
           onMouseMove={track}
-          onClick={() => { if (g.current?.on) fireLaser(); }}
+          onClick={() => { if (g.current?.on) { if (g.current.phazors > 0) firePhazor(); else fireLaser(); } }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -730,9 +817,10 @@ export default function Round42Game() {
 
             <div style={{ display: "flex", gap: 24, marginTop: 4 }}>
               {[
-                ["MOVE",     "cursor · touch drag"],
-                ["CANNON",   "auto-fire · unlimited"],
-                ["◆ LASER",  "space · tap · limited"],
+                ["MOVE",      "cursor · touch drag"],
+                ["CANNON",    "auto-fire · unlimited"],
+                ["◆ LASER",   "space · tap (fallback)"],
+                ["⚡ PHAZOR",  "tap · random kill"],
               ].map(([k, v]) => (
                 <div key={k} style={{ textAlign: "center" }}>
                   <div style={{ color: C_MAIN, fontSize: 9, letterSpacing: 3, opacity: 0.55 }}>{k}</div>
