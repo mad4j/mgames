@@ -597,14 +597,14 @@ export default function VoidGame() {
     <button
       style={{
         marginTop:52, background:"transparent",
-        border:`1px solid ${C_MAIN}44`, color:C_MAIN,
+        border:`1px solid rgba(255,255,255,0.27)`, color:C_MAIN,
         fontFamily:mono, fontSize:11, letterSpacing:5,
         padding:"14px 36px", cursor:"pointer",
         textTransform:"uppercase", textShadow:`0 0 8px ${C_MAIN}`,
         transition:"border-color 0.2s, box-shadow 0.2s",
       }}
       onMouseEnter={e=>{ e.currentTarget.style.borderColor=C_MAIN; e.currentTarget.style.boxShadow=`0 0 18px ${C_MAIN}44`; }}
-      onMouseLeave={e=>{ e.currentTarget.style.borderColor=`${C_MAIN}44`; e.currentTarget.style.boxShadow="none"; }}
+      onMouseLeave={e=>{ e.currentTarget.style.borderColor=`rgba(255,255,255,0.27)`; e.currentTarget.style.boxShadow="none"; }}
       onClick={onClick}
     >{children}</button>
   );
