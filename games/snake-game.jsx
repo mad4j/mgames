@@ -112,8 +112,10 @@ const MAX_WIDTH = 430;
 export default function SnakeGame() {
   const { w, h } = useWindowSize();
   const navigate = useNavigate();
-  const cols = Math.floor(Math.min(w, MAX_WIDTH) / CELL);
-  const rows = Math.floor(Math.min(h, GAME_H) / CELL);
+  const containerW = Math.min(w - 32, MAX_WIDTH);
+  const containerH = Math.min(h - 32, GAME_H);
+  const cols = Math.floor(containerW / CELL);
+  const rows = Math.floor(containerH / CELL);
 
   const [phase,       setPhase]       = useState("idle");
   const [score,       setScore]       = useState(0);
@@ -359,10 +361,8 @@ export default function SnakeGame() {
       onTouchEnd={handleTouchEnd}
       style={{
         position:   "relative",
-        width:      MAX_WIDTH,
-        height:     GAME_H,
-        maxWidth:   "calc(100vw - 32px)",
-        maxHeight:  "calc(100dvh - 32px)",
+        width:      cols * CELL,
+        height:     rows * CELL,
         overflow:   "hidden",
         userSelect: "none",
         fontFamily: "'DM Mono', 'Courier New', monospace",
