@@ -175,10 +175,19 @@ export default function SnakeGame() {
   };
   const handleTouchEnd = (e) => {
     if (!touchStart.current || phaseRef.current !== "playing") return;
+    const startX = touchStart.current.x;
     const dx = e.changedTouches[0].clientX - touchStart.current.x;
     const dy = e.changedTouches[0].clientY - touchStart.current.y;
     touchStart.current = null;
-    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      // Tap: turn left or right relative to current direction
+      const cur = dirRef.current;
+      const d = startX < window.innerWidth / 2
+        ? { x:  cur.y, y: -cur.x }   // turn left (counter-clockwise)
+        : { x: -cur.y, y:  cur.x };  // turn right (clockwise)
+      nextDirRef.current = d;
+      return;
+    }
     let d;
     if (Math.abs(dx) > Math.abs(dy)) {
       d = dx > 0 ? { x: 1, y: 0 } : { x:-1, y: 0 };
@@ -297,7 +306,7 @@ export default function SnakeGame() {
           >start</button>
 
           <div style={{ color:"#fff", fontSize:10, letterSpacing:3, opacity:0.14, textTransform:"uppercase", marginTop:48 }}>
-            swipe · arrows
+            tap · swipe · arrows
           </div>
         </div>
       )}
