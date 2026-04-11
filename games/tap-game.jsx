@@ -6,6 +6,61 @@ const MAX_DOTS      = 2;     // max dots on screen at once
 const FALLBACK_MS   = 900;   // spawn a dot automatically if screen is empty too long
 const SPAWN_DELAY   = 120;   // ms after a tap before the new dot appears
 
+// ── audio ──────────────────────────────────────────────────────
+const HAPPY_NOTES = [523.25, 587.33, 659.25, 783.99, 880, 1046.5]; // C5 D5 E5 G5 A5 C6
+
+function useSound() {
+  const ctxRef     = useRef(null);
+  const enabledRef = useRef(true);
+  const [soundOn, _setSoundOn] = useState(true);
+
+  const setSoundOn = (v) => {
+    enabledRef.current = v;
+    _setSoundOn(v);
+  };
+
+  const getCtx = () => {
+    if (!ctxRef.current) {
+      ctxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (ctxRef.current.state === "suspended") ctxRef.current.resume();
+    return ctxRef.current;
+  };
+
+  const playTone = useCallback((freq, duration, type = "sine", gainVal = 0.15) => {
+    if (!enabledRef.current) return;
+    try {
+      const ctx  = getCtx();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type            = type;
+      gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + duration);
+    } catch (_) { /* ignore AudioContext errors */ }
+  }, []);
+
+  const playTick = useCallback((alt) => {
+    // alternating hi/lo click for tic-tac feel
+    playTone(alt ? 1760 : 1320, 0.04, "square", 0.07);
+  }, [playTone]);
+
+  const playHit = useCallback(() => {
+    const freq = HAPPY_NOTES[Math.floor(Math.random() * HAPPY_NOTES.length)];
+    playTone(freq, 0.22, "sine", 0.18);
+  }, [playTone]);
+
+  const playMiss = useCallback(() => {
+    playTone(110, 0.35, "sine", 0.22);
+  }, [playTone]);
+
+  return { soundOn, setSoundOn, playTick, playHit, playMiss };
+}
+
 function generateDot(id) {
   const size = 48 + Math.random() * 36;
   return {
@@ -54,9 +109,13 @@ export default function TapGame() {
   const [combo,   setCombo]   = useState(0);
   const [burst,   setBurst]   = useState(null);  // { key, type:'multi'|'miss', value? }
 
-  const nextId   = useRef(0);
-  const rippleId = useRef(0);
-  const burstId  = useRef(0);
+  const nextId    = useRef(0);
+  const rippleId  = useRef(0);
+  const burstId   = useRef(0);
+  const timeLeftRef = useRef(GAME_DURATION);
+  const tickAltRef  = useRef(false);
+
+  const { soundOn, setSoundOn, playTick, playHit, playMiss } = useSound();
 
   // ── helpers ──────────────────────────────────────────────
   const spawnDot = useCallback(() => {
@@ -79,6 +138,8 @@ export default function TapGame() {
     setBurst(null);
     setRipples([]);
     setTimeLeft(GAME_DURATION);
+    timeLeftRef.current = GAME_DURATION;
+    tickAltRef.current  = false;
     setPhase("playing");
   };
 
@@ -102,6 +163,7 @@ export default function TapGame() {
         if (expired.length > 0) {
           setCombo(0);
           showBurst("miss");
+          playMiss();
           // spawn a replacement after a small pause
           setTimeout(spawnDot, 300);
         }
@@ -109,19 +171,35 @@ export default function TapGame() {
       });
     }, 80);
     return () => clearInterval(iv);
-  }, [phase, showBurst, spawnDot]);
+  }, [phase, showBurst, spawnDot, playMiss]);
 
   // Timer
   useEffect(() => {
     if (phase !== "playing") return;
     const iv = setInterval(() => {
       setTimeLeft(t => {
-        if (t <= 1) { setPhase("done"); return 0; }
-        return t - 1;
+        const next = t <= 1 ? 0 : t - 1;
+        timeLeftRef.current = next;
+        if (next === 0) setPhase("done");
+        return next;
       });
     }, 1000);
     return () => clearInterval(iv);
   }, [phase]);
+
+  // Tic-tac: self-rescheduling tick whose speed grows as time runs out
+  useEffect(() => {
+    if (phase !== "playing") return;
+    let timeoutId;
+    const tickDelay = (t) => 200 + 800 * (t / GAME_DURATION);
+    const tick = () => {
+      tickAltRef.current = !tickAltRef.current;
+      playTick(tickAltRef.current);
+      timeoutId = setTimeout(tick, tickDelay(timeLeftRef.current));
+    };
+    timeoutId = setTimeout(tick, tickDelay(timeLeftRef.current));
+    return () => clearTimeout(timeoutId);
+  }, [phase, playTick]);
 
   // ── tap ───────────────────────────────────────────────────
   const popDot = useCallback((dot, e) => {
@@ -146,9 +224,12 @@ export default function TapGame() {
     // Ripple feedback
     setRipples(r => [...r, { id: rippleId.current++, x: dot.x, y: dot.y }]);
 
+    // Sound
+    playHit();
+
     // ✦ Speed reward: new dot appears quickly after each tap
     setTimeout(spawnDot, SPAWN_DELAY);
-  }, [phase, combo, showBurst, spawnDot]);
+  }, [phase, combo, showBurst, spawnDot, playHit]);
 
   useEffect(() => {
     if (phase === "done") setBest(b => Math.max(b, score));
@@ -168,6 +249,22 @@ export default function TapGame() {
     cursor: "pointer",
     textTransform: "uppercase",
   };
+
+  const SoundBtn = (
+    <button
+      aria-label={soundOn ? "mute" : "unmute"}
+      onClick={() => setSoundOn(!soundOn)}
+      style={{
+        position: "absolute", top: 14, right: 16, zIndex: 20,
+        background: "transparent", border: "none",
+        color: `rgba(255,255,255,${soundOn ? 0.45 : 0.2})`,
+        fontSize: 18, cursor: "pointer", padding: 4,
+        lineHeight: 1,
+      }}
+    >
+      {soundOn ? "🔊" : "🔇"}
+    </button>
+  );
 
   return (
     <div style={{
@@ -221,6 +318,9 @@ export default function TapGame() {
           100% { opacity: 0;    transform: translate(-50%,-50%) scale(0.92); }
         }
       `}</style>
+
+      {/* ── SOUND TOGGLE (always visible) ── */}
+      {SoundBtn}
 
       {/* ── IDLE ── */}
       {phase === "idle" && (
