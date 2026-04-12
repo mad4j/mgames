@@ -357,6 +357,7 @@ export default function SnakeGame() {
       justifyContent:  "center",
     }}>
     <div
+      className="game-area"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       style={{

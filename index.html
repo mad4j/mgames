@@ -13,6 +13,13 @@
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
       html, body { width: 100%; min-height: 100%; overflow-x: hidden; background-color: #0a0a0a; }
       #root { width: 100%; min-height: 100%; }
+      @media (max-width: 480px) {
+        .game-area {
+          max-width: calc(100vw - 8px) !important;
+          max-height: calc(100dvh - 8px) !important;
+          outline: none !important;
+        }
+      }
     </style>
   </head>
   <body>

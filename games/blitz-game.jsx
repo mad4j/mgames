@@ -389,7 +389,7 @@ export default function BlitzGame() {
       alignItems: "center",
       justifyContent: "center",
     }}>
-    <div style={{
+    <div className="game-area" style={{
       position: "relative",
       width: 430,
       height: GRID_H,

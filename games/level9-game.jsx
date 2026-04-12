@@ -713,7 +713,7 @@ export default function Level9Game() {
       width: "100vw", height: "100dvh", background: C_BG,
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>
-      <div style={{
+      <div className="game-area" style={{
         position: "relative", width: 430, height: 760,
         maxWidth: "calc(100vw - 32px)", maxHeight: "calc(100dvh - 32px)",
         overflow: "hidden", userSelect: "none", touchAction: "none",
