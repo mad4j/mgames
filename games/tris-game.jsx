@@ -310,7 +310,7 @@ export default function TrisGame() {
       fontFamily: mono,
       userSelect: "none",
     }}>
-      <div style={{
+      <div className="game-area" style={{
         position: "relative",
         width: 430,
         height: 760,

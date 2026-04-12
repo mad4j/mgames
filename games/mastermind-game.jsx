@@ -450,6 +450,7 @@ export default function MastermindGame() {
       }}
     >
       <div
+        className="game-area"
         style={{
           position:      "relative",
           width:         430,

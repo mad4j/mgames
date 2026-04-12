@@ -723,7 +723,7 @@ export default function VoidGame() {
       width:"100vw", height:"100dvh", background:C_BG,
       display:"flex", alignItems:"center", justifyContent:"center",
     }}>
-    <div style={{
+    <div className="game-area" style={{
       position:"relative",
       width:430,
       height:760,

@@ -332,7 +332,7 @@ export default function TapGame() {
       alignItems: "center",
       justifyContent: "center",
     }}>
-    <div style={{
+    <div className="game-area" style={{
       position: "relative",
       width: 430,
       height: 760,

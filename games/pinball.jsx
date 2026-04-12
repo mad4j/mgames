@@ -713,7 +713,7 @@ export default function Pinball() {
       alignItems: "center",
       justifyContent: "center",
     }}>
-      <div style={{
+      <div className="game-area" style={{
         position: "relative",
         width: 380,
         height: 760,
