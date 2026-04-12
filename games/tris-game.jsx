@@ -316,6 +316,7 @@ export default function TrisGame() {
         height: 760,
         maxWidth: "calc(100vw - 32px)",
         maxHeight: "calc(100dvh - 32px)",
+        overflow: "hidden",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
