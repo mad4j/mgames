@@ -10,6 +10,12 @@ const SPAWN_MS = 360;
 const GRAVITY = 0.22;
 const MAX_VY = 6.8;
 const OVERFLOW_MARGIN = 2;
+const MAX_SPAWN_ATTEMPTS = 36;
+const SPAWN_OVERLAP_TOLERANCE = 1;
+const COLLISION_PASSES = 3;
+const COLLISION_EPSILON = 0.01;
+const OVERLAP_CORRECTION_FACTOR = 0.5;
+const VERTICAL_SEPARATION_FACTOR = 0.12;
 
 function randomInt(max) {
   return Math.floor(Math.random() * max);
@@ -48,9 +54,9 @@ function spawnToken(tokens, nextIdRef, boardW, radius) {
   const y = -radius;
   const diameter = radius * 2;
 
-  for (let i = 0; i < 36; i++) {
+  for (let i = 0; i < MAX_SPAWN_ATTEMPTS; i++) {
     const x = radius + Math.random() * (boardW - diameter);
-    const blocked = tokens.some((token) => Math.hypot(token.x - x, token.y - y) < diameter - 1);
+    const blocked = tokens.some((token) => Math.hypot(token.x - x, token.y - y) < diameter - SPAWN_OVERLAP_TOLERANCE);
     if (blocked) continue;
 
     return {
@@ -86,7 +92,7 @@ function simulate(tokens, boardW, boardH, radius) {
     };
   });
 
-  for (let pass = 0; pass < 3; pass++) {
+  for (let pass = 0; pass < COLLISION_PASSES; pass++) {
     for (let i = 0; i < next.length; i++) {
       const token = next[i];
       let maxY = floorY;
@@ -96,7 +102,7 @@ function simulate(tokens, boardW, boardH, radius) {
         const other = next[j];
         const dx = token.x - other.x;
         const absDx = Math.abs(dx);
-        if (absDx >= diameter - 0.01) continue;
+        if (absDx >= diameter - COLLISION_EPSILON) continue;
 
         const support = other.y - Math.sqrt(Math.max(0, diameter * diameter - absDx * absDx));
         if (support < maxY) maxY = support;
@@ -124,16 +130,16 @@ function simulate(tokens, boardW, boardH, radius) {
       const dx = a.x - b.x;
       const dy = a.y - b.y;
       const dist = Math.hypot(dx, dy);
-      if (dist >= diameter - 0.01) continue;
+      if (dist >= diameter - COLLISION_EPSILON) continue;
 
       const overlap = diameter - dist;
       let nx = dx / dist;
       if (!Number.isFinite(nx)) nx = Math.random() > 0.5 ? 1 : -1;
 
-      a.x += nx * (overlap * 0.5);
-      b.x -= nx * (overlap * 0.5);
-      if (a.y <= b.y) a.y -= overlap * 0.12;
-      else b.y -= overlap * 0.12;
+      a.x += nx * (overlap * OVERLAP_CORRECTION_FACTOR);
+      b.x -= nx * (overlap * OVERLAP_CORRECTION_FACTOR);
+      if (a.y <= b.y) a.y -= overlap * VERTICAL_SEPARATION_FACTOR;
+      else b.y -= overlap * VERTICAL_SEPARATION_FACTOR;
 
       if (a.x < radius) a.x = radius;
       if (a.x > boardW - radius) a.x = boardW - radius;
