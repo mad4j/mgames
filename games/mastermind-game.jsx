@@ -118,15 +118,13 @@ function MastermindHubSymbol({ size = 32 }) {
       focusable="false"
     >
       {coords.map(([x, y], i) => (
-        <rect
+        <ShapeElement
           key={i}
-          x={x}
-          y={y}
-          width={slot}
-          height={slot}
-          rx={slot * 0.12}
-          stroke="currentColor"
-          strokeWidth={1.6}
+          index={i}
+          cx={x + slot / 2}
+          cy={y + slot / 2}
+          r={slot * 0.34}
+          fill="currentColor"
         />
       ))}
     </svg>
@@ -326,9 +324,9 @@ export default function MastermindGame() {
         {/* peg slots */}
         <div
           style={{
-            display:    "flex",
-             gap:        12,
-             padding:    "6px 12px",
+             display:    "flex",
+              gap:        9,
+              padding:    "6px 12px",
              border:     isCurrent ? "1px solid rgba(255,255,255,0.22)" : "1px solid transparent",
              transition: "border-color 0.2s",
            }}
@@ -338,8 +336,8 @@ export default function MastermindGame() {
             .map((_, j) => (
               <Peg
                 key={j}
-                shapeIndex={colors ? colors[j] : null}
-                 size={30}
+                 shapeIndex={colors ? colors[j] : null}
+                  size={34}
                  faded={faded}
                  clickable={isCurrent}
                  onClick={() => handleSlotClick(j)}
