@@ -8,9 +8,11 @@ const MAX_ATTEMPTS = 10;
 const ROW_INDEX_WIDTH = 20;
 const FEEDBACK_COL_WIDTH = 36;
 const BOARD_CENTER_SHIFT = (FEEDBACK_COL_WIDTH - ROW_INDEX_WIDTH) / 2;
+const SHAPE_DIAMOND_INDEX = 3;
 const HUB_ICON_SLOT_SCALE = 0.4;
 const HUB_ICON_GAP_SCALE = 0.06;
 const HUB_ICON_SYMBOL_SCALE = 0.4;
+const HUB_ICON_DIAMOND_SCALE = 1.1;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.88)";
@@ -32,7 +34,7 @@ function ShapeElement({ index, cx, cy, r, fill }) {
           fill={fill}
         />
       );
-    case 3: // diamond
+    case SHAPE_DIAMOND_INDEX: // diamond
       return (
         <polygon
           points={`${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}`}
@@ -129,7 +131,7 @@ function MastermindHubSymbol({ size = 32 }) {
           index={i}
           cx={x + slot / 2}
           cy={y + slot / 2}
-          r={slot * HUB_ICON_SYMBOL_SCALE}
+          r={slot * HUB_ICON_SYMBOL_SCALE * (i === SHAPE_DIAMOND_INDEX ? HUB_ICON_DIAMOND_SCALE : 1)}
           fill="currentColor"
         />
       ))}
