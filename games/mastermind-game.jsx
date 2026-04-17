@@ -8,9 +8,9 @@ const MAX_ATTEMPTS = 10;
 const ROW_INDEX_WIDTH = 20;
 const FEEDBACK_COL_WIDTH = 36;
 const BOARD_CENTER_SHIFT = (FEEDBACK_COL_WIDTH - ROW_INDEX_WIDTH) / 2;
-const HUB_ICON_SLOT_RATIO = 0.4;
-const HUB_ICON_GAP_RATIO = 0.06;
-const HUB_ICON_SYMBOL_RADIUS_RATIO = 0.4;
+const HUB_ICON_SLOT_SIZE_RATIO = 0.4;
+const HUB_ICON_GAP_SIZE_RATIO = 0.06;
+const HUB_ICON_SYMBOL_SIZE_RATIO = 0.4;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.88)";
@@ -103,8 +103,8 @@ function initGame() {
 
 /* ═══════════════════════ META ══════════════════════════ */
 function MastermindHubSymbol({ size = 32 }) {
-  const slot = size * HUB_ICON_SLOT_RATIO;
-  const gap = size * HUB_ICON_GAP_RATIO;
+  const slot = size * HUB_ICON_SLOT_SIZE_RATIO;
+  const gap = size * HUB_ICON_GAP_SIZE_RATIO;
   const start = (size - (slot * 2 + gap)) / 2;
   const coords = [
     [start, start],
@@ -129,7 +129,7 @@ function MastermindHubSymbol({ size = 32 }) {
           index={i}
           cx={x + slot / 2}
           cy={y + slot / 2}
-          r={slot * HUB_ICON_SYMBOL_RADIUS_RATIO}
+          r={slot * HUB_ICON_SYMBOL_SIZE_RATIO}
           fill="currentColor"
         />
       ))}
