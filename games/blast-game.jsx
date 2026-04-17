@@ -413,7 +413,7 @@ export default function BlastGame() {
               color: "rgba(255,255,255,0.88)",
             }}
           >
-            <div style={{ fontSize: 72, lineHeight: 1 }}>◉</div>
+            <div aria-hidden="true" style={{ fontSize: 72, lineHeight: 1 }}>◉</div>
             <div style={{ marginTop: 20, fontSize: 11, letterSpacing: 4, opacity: 0.45, textTransform: "uppercase" }}>blast</div>
             <div style={{ marginTop: 10, fontSize: 10, letterSpacing: 2, opacity: 0.3, textAlign: "center", lineHeight: 1.7 }}>
               circles fall and stack.<br />tap groups to explode chains.
