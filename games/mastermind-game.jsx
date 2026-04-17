@@ -33,11 +33,10 @@ function ShapeElement({ index, cx, cy, r, fill }) {
           fill={fill}
         />
       );
-    case 4: { // star (5-pointed)
-      const r2 = r * 0.4;
-      const pts = Array.from({ length: 10 }, (_, i) => {
-        const angle  = (i * Math.PI / 5) - Math.PI / 2;
-        const radius = i % 2 === 0 ? r : r2;
+    case 4: { // pentagon
+      const pts = Array.from({ length: 5 }, (_, i) => {
+        const angle = (i * (2 * Math.PI) / 5) - Math.PI / 2;
+        const radius = r;
         return `${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)}`;
       }).join(" ");
       return <polygon points={pts} fill={fill} />;
@@ -97,9 +96,38 @@ function initGame() {
 }
 
 /* ═══════════════════════ META ══════════════════════════ */
+function MastermindHubSymbol({ size = 32 }) {
+  const slot = size * 0.36;
+  const gap = size * 0.12;
+  const start = (size - (slot * 2 + gap)) / 2;
+  const coords = [
+    [start, start],
+    [start + slot + gap, start],
+    [start, start + slot + gap],
+    [start + slot + gap, start + slot + gap],
+  ];
+
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none" style={{ display: "block" }}>
+      {coords.map(([x, y], i) => (
+        <rect
+          key={i}
+          x={x}
+          y={y}
+          width={slot}
+          height={slot}
+          rx={slot * 0.12}
+          stroke="currentColor"
+          strokeWidth={1.6}
+        />
+      ))}
+    </svg>
+  );
+}
+
 export const meta = {
   path:        "/mastermind",
-  symbol:      "◉",
+  symbol:      <MastermindHubSymbol />,
   name:        "mastermind",
   description: "crack the hidden shape code",
 };
@@ -241,13 +269,13 @@ export default function MastermindGame() {
       ...Array(CODE_LENGTH - blacks - whites).fill("empty"),
     ];
     return (
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
         {pegs.map((p, i) => (
           <div
             key={i}
             style={{
-              width:        8,
-              height:       8,
+              width:        9,
+              height:       9,
               borderRadius: "50%",
               background:   p === "black" ? "rgba(255,255,255,0.88)" : "transparent",
               border:       `1px solid ${p === "empty" ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.88)"}`,
@@ -269,7 +297,7 @@ export default function MastermindGame() {
         style={{
           display:    "flex",
           alignItems: "center",
-          gap:        10,
+          gap:        12,
           opacity,
           transition: "opacity 0.2s",
         }}
@@ -291,8 +319,8 @@ export default function MastermindGame() {
         <div
           style={{
             display:    "flex",
-            gap:        7,
-            padding:    "3px 6px",
+            gap:        9,
+            padding:    "4px 8px",
             border:     isCurrent ? "1px solid rgba(255,255,255,0.22)" : "1px solid transparent",
             transition: "border-color 0.2s",
           }}
@@ -303,7 +331,7 @@ export default function MastermindGame() {
               <Peg
                 key={j}
                 shapeIndex={colors ? colors[j] : null}
-                size={22}
+                size={26}
                 faded={faded}
                 clickable={isCurrent}
                 onClick={() => handleSlotClick(j)}
@@ -312,7 +340,7 @@ export default function MastermindGame() {
         </div>
 
         {/* feedback */}
-        <div style={{ width: 22, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
           {!isCurrent && !isEmpty && (
             <FeedbackGrid blacks={blacks} whites={whites} />
           )}
@@ -327,7 +355,7 @@ export default function MastermindGame() {
     const isPlaying  = phase === "playing" && game && !game.won;
 
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
         {Array(MAX_ATTEMPTS)
           .fill(null)
           .map((_, i) => {
@@ -453,10 +481,10 @@ export default function MastermindGame() {
         className="game-area"
         style={{
           position:      "relative",
-          width:         430,
-          height:        760,
-          maxWidth:      "calc(100vw - 32px)",
-          maxHeight:     "calc(100dvh - 32px)",
+          width:         470,
+          height:        840,
+          maxWidth:      "calc(100vw - 24px)",
+          maxHeight:     "calc(100dvh - 24px)",
           overflow:      "hidden",
           display:       "flex",
           flexDirection: "column",
@@ -600,7 +628,7 @@ export default function MastermindGame() {
               display:       "flex",
               flexDirection: "column",
               alignItems:    "center",
-              gap:           14,
+              gap:           18,
               animation:     "fadeIn 0.4s ease",
               width:         "100%",
               padding:       "0 24px",
@@ -629,20 +657,20 @@ export default function MastermindGame() {
                   key={i}
                   onClick={() => setSelectedShape(i)}
                   style={{
-                    width:      30,
-                    height:     30,
+                    width:      34,
+                    height:     34,
                     cursor:     "pointer",
                     opacity:    selectedShape === i ? 1 : 0.45,
                     transition: "opacity 0.15s, filter 0.15s",
                     filter:     selectedShape === i ? "drop-shadow(0 0 5px rgba(255,255,255,0.55))" : "none",
                   }}
                 >
-                  <svg width={30} height={30} viewBox="0 0 30 30">
+                  <svg width={34} height={34} viewBox="0 0 34 34">
                     <ShapeElement
                       index={i}
-                      cx={15}
-                      cy={15}
-                      r={12}
+                      cx={17}
+                      cy={17}
+                      r={13}
                       fill={selectedShape === i ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.7)"}
                     />
                   </svg>
