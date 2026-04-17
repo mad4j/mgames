@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 const CODE_LENGTH  = 4;
 const NUM_SHAPES   = 6;
 const MAX_ATTEMPTS = 10;
+const ROW_INDEX_WIDTH = 20;
+const FEEDBACK_COL_WIDTH = 36;
+const BOARD_CENTER_SHIFT = (FEEDBACK_COL_WIDTH - ROW_INDEX_WIDTH) / 2;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.88)";
@@ -311,7 +314,7 @@ export default function MastermindGame() {
         {/* row number */}
         <div
           style={{
-             width:     20,
+             width:     ROW_INDEX_WIDTH,
              textAlign: "right",
              color:     C_MAIN,
              fontSize:  9,
@@ -346,7 +349,7 @@ export default function MastermindGame() {
         </div>
 
         {/* feedback */}
-        <div style={{ width: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: FEEDBACK_COL_WIDTH, display: "flex", alignItems: "center", justifyContent: "center" }}>
           {!isCurrent && !isEmpty && (
             <FeedbackGrid blacks={blacks} whites={whites} />
           )}
@@ -367,7 +370,7 @@ export default function MastermindGame() {
           flexDirection: "column",
           gap:           7,
           width:         "100%",
-          transform:     "translateX(8px)",
+          transform:     `translateX(${BOARD_CENTER_SHIFT}px)`,
         }}
       >
         {Array(MAX_ATTEMPTS)
