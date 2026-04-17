@@ -16,6 +16,8 @@ const COLLISION_PASSES = 3;
 const COLLISION_EPSILON = 0.01;
 const OVERLAP_CORRECTION_FACTOR = 0.5;
 const VERTICAL_SEPARATION_FACTOR = 0.12;
+const BOARD_WIDTH_TO_RADIUS_DIVISOR = 19;
+const CONNECT_DISTANCE_MULTIPLIER = 2.2;
 
 function randomInt(max) {
   return Math.floor(Math.random() * max);
@@ -208,8 +210,8 @@ export default function BlastGame() {
 
   const boardW = Math.max(240, frameW - 24);
   const boardH = Math.max(320, frameH - HUD_TOP - 24);
-  const radius = Math.max(12, Math.min(20, Math.floor(boardW / 19)));
-  const connectDist = radius * 2.2;
+  const radius = Math.max(12, Math.min(20, Math.floor(boardW / BOARD_WIDTH_TO_RADIUS_DIVISOR)));
+  const connectDist = radius * CONNECT_DISTANCE_MULTIPLIER;
 
   const start = useCallback(() => {
     nextId.current = 1;
