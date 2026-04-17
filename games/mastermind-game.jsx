@@ -5,6 +5,12 @@ import { useNavigate } from "react-router-dom";
 const CODE_LENGTH  = 4;
 const NUM_SHAPES   = 6;
 const MAX_ATTEMPTS = 10;
+const ROW_INDEX_WIDTH = 20;
+const FEEDBACK_COL_WIDTH = 36;
+const BOARD_CENTER_SHIFT = (FEEDBACK_COL_WIDTH - ROW_INDEX_WIDTH) / 2;
+const HUB_ICON_SLOT_SCALE = 0.4;
+const HUB_ICON_GAP_SCALE = 0.06;
+const HUB_ICON_SYMBOL_SCALE = 0.4;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.88)";
@@ -97,8 +103,8 @@ function initGame() {
 
 /* ═══════════════════════ META ══════════════════════════ */
 function MastermindHubSymbol({ size = 32 }) {
-  const slot = size * 0.36;
-  const gap = size * 0.12;
+  const slot = size * HUB_ICON_SLOT_SCALE;
+  const gap = size * HUB_ICON_GAP_SCALE;
   const start = (size - (slot * 2 + gap)) / 2;
   const coords = [
     [start, start],
@@ -123,7 +129,7 @@ function MastermindHubSymbol({ size = 32 }) {
           index={i}
           cx={x + slot / 2}
           cy={y + slot / 2}
-          r={slot * 0.34}
+          r={slot * HUB_ICON_SYMBOL_SCALE}
           fill="currentColor"
         />
       ))}
@@ -311,7 +317,7 @@ export default function MastermindGame() {
         {/* row number */}
         <div
           style={{
-             width:     20,
+             width:     ROW_INDEX_WIDTH,
              textAlign: "right",
              color:     C_MAIN,
              fontSize:  9,
@@ -346,7 +352,7 @@ export default function MastermindGame() {
         </div>
 
         {/* feedback */}
-        <div style={{ width: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: FEEDBACK_COL_WIDTH, display: "flex", alignItems: "center", justifyContent: "center" }}>
           {!isCurrent && !isEmpty && (
             <FeedbackGrid blacks={blacks} whites={whites} />
           )}
@@ -361,7 +367,15 @@ export default function MastermindGame() {
     const isPlaying  = phase === "playing" && game && !game.won;
 
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 7, width: "100%" }}>
+      <div
+        style={{
+          display:       "flex",
+          flexDirection: "column",
+          gap:           7,
+          width:         "100%",
+          transform:     `translateX(${BOARD_CENTER_SHIFT}px)`,
+        }}
+      >
         {Array(MAX_ATTEMPTS)
           .fill(null)
           .map((_, i) => {
