@@ -270,20 +270,20 @@ export default function MastermindGame() {
   };
 
   /* ── 2×2 feedback dots ───────────────────────────────── */
-  const FeedbackGrid = ({ blacks, whites }) => {
+  const FeedbackGrid = ({ blacks, whites, dotSize = 9, gap = 4 }) => {
     const pegs = [
       ...Array(blacks).fill("black"),
       ...Array(whites).fill("white"),
       ...Array(CODE_LENGTH - blacks - whites).fill("empty"),
     ];
     return (
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap }}>
         {pegs.map((p, i) => (
           <div
             key={i}
             style={{
-              width:        9,
-              height:       9,
+              width:        dotSize,
+              height:       dotSize,
               borderRadius: "50%",
               background:   p === "black" ? "rgba(255,255,255,0.88)" : "transparent",
               border:       `1px solid ${p === "empty" ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.88)"}`,
@@ -313,12 +313,12 @@ export default function MastermindGame() {
         {/* row number */}
         <div
           style={{
-            width:     16,
-            textAlign: "right",
-            color:     C_MAIN,
-            fontSize:  8,
-            opacity:   0.3,
-          }}
+             width:     20,
+             textAlign: "right",
+             color:     C_MAIN,
+             fontSize:  9,
+             opacity:   0.3,
+           }}
         >
           {index + 1}
         </div>
@@ -327,11 +327,11 @@ export default function MastermindGame() {
         <div
           style={{
             display:    "flex",
-            gap:        9,
-            padding:    "4px 8px",
-            border:     isCurrent ? "1px solid rgba(255,255,255,0.22)" : "1px solid transparent",
-            transition: "border-color 0.2s",
-          }}
+             gap:        12,
+             padding:    "6px 12px",
+             border:     isCurrent ? "1px solid rgba(255,255,255,0.22)" : "1px solid transparent",
+             transition: "border-color 0.2s",
+           }}
         >
           {Array(CODE_LENGTH)
             .fill(null)
@@ -339,16 +339,16 @@ export default function MastermindGame() {
               <Peg
                 key={j}
                 shapeIndex={colors ? colors[j] : null}
-                size={26}
-                faded={faded}
-                clickable={isCurrent}
-                onClick={() => handleSlotClick(j)}
+                 size={30}
+                 faded={faded}
+                 clickable={isCurrent}
+                 onClick={() => handleSlotClick(j)}
               />
             ))}
         </div>
 
         {/* feedback */}
-        <div style={{ width: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
           {!isCurrent && !isEmpty && (
             <FeedbackGrid blacks={blacks} whites={whites} />
           )}
@@ -363,7 +363,7 @@ export default function MastermindGame() {
     const isPlaying  = phase === "playing" && game && !game.won;
 
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 7, width: "100%" }}>
         {Array(MAX_ATTEMPTS)
           .fill(null)
           .map((_, i) => {
@@ -489,7 +489,7 @@ export default function MastermindGame() {
         className="game-area"
         style={{
           position:      "relative",
-          width:         470,
+           width:         560,
           height:        840,
           maxWidth:      "calc(100vw - 24px)",
           maxHeight:     "calc(100dvh - 24px)",
@@ -537,27 +537,19 @@ export default function MastermindGame() {
             <div
               style={{
                 color:         C_MAIN,
-                fontSize:      42,
-                letterSpacing: 12,
-                lineHeight:    1,
-                textShadow:    `0 0 28px ${C_MAIN}`,
-                marginBottom:  6,
-              }}
-            >
-              MASTER
-            </div>
-            <div
-              style={{
-                color:         C_MAIN,
-                fontSize:      42,
-                letterSpacing: 12,
-                lineHeight:    1,
-                textShadow:    `0 0 28px ${C_MAIN}`,
-                marginBottom:  16,
-              }}
-            >
-              MIND
-            </div>
+                 display:              "grid",
+                 gridTemplateColumns:  "repeat(2, 1fr)",
+                 gridTemplateRows:     "repeat(2, 1fr)",
+                 gap:                  14,
+                 marginBottom:         20,
+               }}
+             >
+               {[0, 1, 2, 3].map((shape) => (
+                 <svg key={shape} width={40} height={40} viewBox="0 0 40 40" style={{ opacity: 0.92 }}>
+                   <ShapeElement index={shape} cx={20} cy={20} r={15} fill="rgba(255,255,255,0.88)" />
+                 </svg>
+               ))}
+             </div>
 
             <div
               style={{
@@ -565,7 +557,7 @@ export default function MastermindGame() {
                 fontSize:      9,
                 letterSpacing: 3,
                 opacity:       0.28,
-                marginBottom:  36,
+                 marginBottom:  30,
               }}
             >
               crack the hidden shape code
@@ -636,12 +628,13 @@ export default function MastermindGame() {
               display:       "flex",
               flexDirection: "column",
               alignItems:    "center",
-              gap:           18,
-              animation:     "fadeIn 0.4s ease",
-              width:         "100%",
-              padding:       "0 24px",
-              boxSizing:     "border-box",
-            }}
+               gap:           18,
+               animation:     "fadeIn 0.4s ease",
+               width:         "100%",
+               maxWidth:      500,
+               padding:       "0 16px",
+               boxSizing:     "border-box",
+             }}
           >
             {/* attempt counter */}
             <div
@@ -708,8 +701,8 @@ export default function MastermindGame() {
             <div
               style={{
                 color:         C_MAIN,
-                fontSize:      11,
-                letterSpacing: 6,
+                 fontSize:      14,
+                 letterSpacing: 6,
                 textTransform: "uppercase",
                 opacity:       0.5,
                 marginBottom:  20,
@@ -719,17 +712,17 @@ export default function MastermindGame() {
             </div>
 
             {/* revealed secret */}
-            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-              {game.secret.map((shapeIdx, i) => (
-                <svg key={i} width={28} height={28} viewBox="0 0 28 28">
-                  <ShapeElement
-                    index={shapeIdx}
-                    cx={14}
-                    cy={14}
-                    r={11}
-                    fill="rgba(255,255,255,0.88)"
-                  />
-                </svg>
+             <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+               {game.secret.map((shapeIdx, i) => (
+                 <svg key={i} width={36} height={36} viewBox="0 0 36 36">
+                   <ShapeElement
+                     index={shapeIdx}
+                     cx={18}
+                     cy={18}
+                     r={14}
+                     fill="rgba(255,255,255,0.88)"
+                   />
+                 </svg>
               ))}
             </div>
 
@@ -737,8 +730,8 @@ export default function MastermindGame() {
               <div
                 style={{
                   color:         C_MAIN,
-                  fontSize:      9,
-                  letterSpacing: 3,
+                   fontSize:      11,
+                   letterSpacing: 3,
                   opacity:       0.38,
                   marginBottom:  20,
                 }}
@@ -750,8 +743,8 @@ export default function MastermindGame() {
               <div
                 style={{
                   color:         C_MAIN,
-                  fontSize:      9,
-                  letterSpacing: 3,
+                   fontSize:      11,
+                   letterSpacing: 3,
                   opacity:       0.28,
                   marginBottom:  20,
                 }}
@@ -767,43 +760,45 @@ export default function MastermindGame() {
               style={{
                 display:       "flex",
                 flexDirection: "column",
-                gap:           5,
-                marginBottom:  20,
-                maxHeight:     320,
-                overflowY:     "auto",
-              }}
+                 gap:           8,
+                 marginBottom:  20,
+                 maxHeight:     360,
+                 width:         "100%",
+                 maxWidth:      420,
+                 overflowY:     "auto",
+               }}
             >
               {game.guesses.map((g, i) => (
                 <div
                   key={i}
                   style={{
                     display:    "flex",
-                    gap:        8,
-                    alignItems: "center",
-                    opacity:    game.won && i === game.guesses.length - 1 ? 1 : 0.55,
-                  }}
+                     gap:        10,
+                     alignItems: "center",
+                     opacity:    game.won && i === game.guesses.length - 1 ? 1 : 0.55,
+                   }}
                 >
                   <div
                     style={{
-                      width:     14,
-                      textAlign: "right",
-                      color:     C_MAIN,
-                      fontSize:  8,
-                      opacity:   0.3,
-                    }}
-                  >
-                    {i + 1}
-                  </div>
-                  <div style={{ display: "flex", gap: 5 }}>
-                    {g.colors.map((c, j) => (
-                      <svg key={j} width={16} height={16} viewBox="0 0 16 16">
-                        <ShapeElement index={c} cx={8} cy={8} r={6} fill="rgba(255,255,255,0.82)" />
-                      </svg>
-                    ))}
-                  </div>
-                  <FeedbackGrid blacks={g.blacks} whites={g.whites} />
-                </div>
-              ))}
+                       width:     18,
+                       textAlign: "right",
+                       color:     C_MAIN,
+                       fontSize:  9,
+                       opacity:   0.3,
+                     }}
+                   >
+                     {i + 1}
+                   </div>
+                   <div style={{ display: "flex", gap: 6 }}>
+                     {g.colors.map((c, j) => (
+                       <svg key={j} width={20} height={20} viewBox="0 0 20 20">
+                         <ShapeElement index={c} cx={10} cy={10} r={8} fill="rgba(255,255,255,0.82)" />
+                       </svg>
+                     ))}
+                   </div>
+                   <FeedbackGrid blacks={g.blacks} whites={g.whites} dotSize={11} gap={5} />
+                 </div>
+               ))}
             </div>
 
             <Btn onClick={start}>again</Btn>
