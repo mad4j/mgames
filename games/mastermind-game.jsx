@@ -11,6 +11,7 @@ const BOARD_CENTER_SHIFT = (FEEDBACK_COL_WIDTH - ROW_INDEX_WIDTH) / 2;
 const HUB_ICON_SLOT_SCALE = 0.4;
 const HUB_ICON_GAP_SCALE = 0.06;
 const HUB_ICON_SYMBOL_SCALE = 0.4;
+const HUB_ICON_DIAMOND_SCALE = 1.1;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.88)";
@@ -129,7 +130,7 @@ function MastermindHubSymbol({ size = 32 }) {
           index={i}
           cx={x + slot / 2}
           cy={y + slot / 2}
-          r={slot * HUB_ICON_SYMBOL_SCALE}
+          r={slot * HUB_ICON_SYMBOL_SCALE * (i === 3 ? HUB_ICON_DIAMOND_SCALE : 1)}
           fill="currentColor"
         />
       ))}
