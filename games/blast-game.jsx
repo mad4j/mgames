@@ -9,6 +9,7 @@ const SHAPES = 5;
 const SPAWN_MS = 360;
 const GRAVITY = 0.22;
 const MAX_VY = 6.8;
+const OVERFLOW_MARGIN = 2;
 
 function randomInt(max) {
   return Math.floor(Math.random() * max);
@@ -126,7 +127,8 @@ function simulate(tokens, boardW, boardH, radius) {
       if (dist >= diameter - 0.01) continue;
 
       const overlap = diameter - dist;
-      const nx = dist > 0.001 ? dx / dist : Math.random() > 0.5 ? 1 : -1;
+      let nx = dx / dist;
+      if (!Number.isFinite(nx)) nx = Math.random() > 0.5 ? 1 : -1;
 
       a.x += nx * (overlap * 0.5);
       b.x -= nx * (overlap * 0.5);
@@ -236,7 +238,7 @@ export default function BlastGame() {
     const loop = () => {
       setTokens((prev) => {
         const next = simulate(prev, boardW, boardH, radius);
-        const overflow = next.some((token) => token.y <= radius + 2 && token.vy === 0);
+        const overflow = next.some((token) => token.y <= radius + OVERFLOW_MARGIN && token.vy === 0);
         if (overflow) setPhase("done");
         return next;
       });
