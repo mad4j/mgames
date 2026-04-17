@@ -18,6 +18,9 @@ const OVERLAP_CORRECTION_FACTOR = 0.5;
 const VERTICAL_SEPARATION_FACTOR = 0.12;
 const BOARD_WIDTH_TO_RADIUS_DIVISOR = 19;
 const CONNECT_DISTANCE_MULTIPLIER = 2.2;
+const BOARD_INSET = 24;
+const MIN_BOARD_DIMENSION = 64;
+const TOKEN_SPAWN_OFFSET = 2;
 
 function randomInt(max) {
   return Math.floor(Math.random() * max);
@@ -53,7 +56,7 @@ function IconHub() {
 }
 
 function spawnToken(tokens, nextIdRef, boardW, radius) {
-  const y = radius + 2;
+  const y = radius + TOKEN_SPAWN_OFFSET;
   const diameter = radius * 2;
 
   for (let i = 0; i < MAX_SPAWN_ATTEMPTS; i++) {
@@ -208,8 +211,8 @@ export default function BlastGame() {
   const frameW = viewport.w;
   const frameH = viewport.h;
 
-  const boardW = Math.max(48, frameW - 24);
-  const boardH = Math.max(48, frameH - HUD_TOP - 24);
+  const boardW = Math.max(MIN_BOARD_DIMENSION, frameW - BOARD_INSET);
+  const boardH = Math.max(MIN_BOARD_DIMENSION, frameH - HUD_TOP - BOARD_INSET);
   const radius = Math.max(12, Math.min(20, Math.floor(boardW / BOARD_WIDTH_TO_RADIUS_DIVISOR)));
   const connectDist = radius * CONNECT_DISTANCE_MULTIPLIER;
 
