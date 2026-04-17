@@ -108,7 +108,15 @@ function MastermindHubSymbol({ size = 32 }) {
   ];
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none" style={{ display: "block" }}>
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      fill="none"
+      style={{ display: "block" }}
+      aria-hidden="true"
+      focusable="false"
+    >
       {coords.map(([x, y], i) => (
         <rect
           key={i}
