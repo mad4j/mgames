@@ -97,8 +97,8 @@ function initGame() {
 
 /* ═══════════════════════ META ══════════════════════════ */
 function MastermindHubSymbol({ size = 32 }) {
-  const slot = size * 0.36;
-  const gap = size * 0.12;
+  const slot = size * 0.4;
+  const gap = size * 0.06;
   const start = (size - (slot * 2 + gap)) / 2;
   const coords = [
     [start, start],
@@ -123,7 +123,7 @@ function MastermindHubSymbol({ size = 32 }) {
           index={i}
           cx={x + slot / 2}
           cy={y + slot / 2}
-          r={slot * 0.34}
+          r={slot * 0.4}
           fill="currentColor"
         />
       ))}
@@ -361,7 +361,15 @@ export default function MastermindGame() {
     const isPlaying  = phase === "playing" && game && !game.won;
 
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 7, width: "100%" }}>
+      <div
+        style={{
+          display:       "flex",
+          flexDirection: "column",
+          gap:           7,
+          width:         "100%",
+          transform:     "translateX(8px)",
+        }}
+      >
         {Array(MAX_ATTEMPTS)
           .fill(null)
           .map((_, i) => {
