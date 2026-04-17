@@ -208,8 +208,8 @@ export default function BlastGame() {
   const frameW = viewport.w;
   const frameH = viewport.h;
 
-  const boardW = frameW - 24;
-  const boardH = frameH - HUD_TOP - 24;
+  const boardW = Math.max(1, frameW - 24);
+  const boardH = Math.max(1, frameH - HUD_TOP - 24);
   const radius = Math.max(12, Math.min(20, Math.floor(boardW / BOARD_WIDTH_TO_RADIUS_DIVISOR)));
   const connectDist = radius * CONNECT_DISTANCE_MULTIPLIER;
 
