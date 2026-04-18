@@ -189,6 +189,8 @@ export default function SnakeGame() {
   const colsRef        = useRef(cols);
   const rowsRef        = useRef(rows);
   const foodExpiresAt  = useRef(0);
+  const foodSpawnedAt  = useRef(0);
+  const foodLifetimeMs = useRef(0);
 
   useEffect(() => { colsRef.current = cols; }, [cols]);
   useEffect(() => { rowsRef.current = rows; }, [rows]);
@@ -215,7 +217,11 @@ export default function SnakeGame() {
   // Place food and set a random expiry time
   const placeFood = useCallback((sn) => {
     const f = randFood(sn);
-    foodExpiresAt.current = Date.now() + FOOD_MIN_MS + Math.random() * (FOOD_MAX_MS - FOOD_MIN_MS);
+    const now = Date.now();
+    const lifetime = FOOD_MIN_MS + Math.random() * (FOOD_MAX_MS - FOOD_MIN_MS);
+    foodSpawnedAt.current = now;
+    foodLifetimeMs.current = lifetime;
+    foodExpiresAt.current = now + lifetime;
     return f;
   }, [randFood]);
 
@@ -410,6 +416,12 @@ export default function SnakeGame() {
     transition: "color 0.2s",
   };
 
+  const foodElapsed = Date.now() - foodSpawnedAt.current;
+  const foodLifeRatio = foodLifetimeMs.current > 0
+    ? Math.min(1, Math.max(0, foodElapsed / foodLifetimeMs.current))
+    : 0;
+  const foodOpacity = 1 - foodLifeRatio * 0.85;
+
   // ── render ─────────────────────────────────────────────────────────────────
   return (
     <div style={{
@@ -557,8 +569,8 @@ export default function SnakeGame() {
                 top:        renderFood.y * CELL + CELL / 2,
                 width:      CELL * 0.6,
                 height:     CELL * 0.6,
-                border:     "1.5px solid rgba(255,255,255,0.88)",
-                background: "rgba(255,255,255,0.05)",
+                border:     `1.5px solid rgba(255,255,255,${0.88 * foodOpacity})`,
+                background: `rgba(255,255,255,${0.05 * foodOpacity})`,
                 transform:  "translate(-50%,-50%) rotate(45deg)",
                 animation:  "foodAppear 0.2s cubic-bezier(0.34,1.56,0.64,1) forwards",
                 pointerEvents: "none",
