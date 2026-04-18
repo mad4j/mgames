@@ -13,6 +13,8 @@ const HUB_ICON_SLOT_SCALE = 0.4;
 const HUB_ICON_GAP_SCALE = 0.06;
 const HUB_ICON_SYMBOL_SCALE = 0.4;
 const HUB_ICON_DIAMOND_SCALE = 1.1;
+const SHAPE_HINT_DURATION_MS = 900;
+const GAME_AREA_PADDING = 24;
 const GAME_AREA_WIDTH = "min(92vw, 760px)";
 const GAME_AREA_HEIGHT = "min(94dvh, 940px)";
 const GAME_CONTENT_MAX_WIDTH = "min(100%, 640px)";
@@ -193,7 +195,7 @@ export default function MastermindGame() {
     shapeHintTimerRef.current = setTimeout(() => {
       shapeHintTimerRef.current = null;
       setShowShapeOrderHint(false);
-    }, 900);
+    }, SHAPE_HINT_DURATION_MS);
   }, []);
 
   /* ── start / restart ─────────────────────────────────── */
@@ -615,8 +617,8 @@ export default function MastermindGame() {
           position:      "relative",
           width:         GAME_AREA_WIDTH,
           height:        GAME_AREA_HEIGHT,
-          maxWidth:      "calc(100vw - 24px)",
-          maxHeight:     "calc(100dvh - 24px)",
+          maxWidth:      `calc(100vw - ${GAME_AREA_PADDING}px)`,
+          maxHeight:     `calc(100dvh - ${GAME_AREA_PADDING}px)`,
           overflow:      "hidden",
           display:       "flex",
           flexDirection: "column",
