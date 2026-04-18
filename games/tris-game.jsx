@@ -157,6 +157,17 @@ export default function TrisGame() {
     setPhase("playing");
   }, []);
 
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.repeat) return;
+      if ((e.code !== "Space" && e.key !== " ") || (phase !== "idle" && phase !== "done")) return;
+      e.preventDefault();
+      start();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [phase, start]);
+
   /* ═══════════════════════ RENDER HELPERS ═════════════ */
   const xGhost = game.xMoves.length === MAX_SYMBOLS ? game.xMoves[0] : -1;
   const oGhost = game.oMoves.length === MAX_SYMBOLS ? game.oMoves[0] : -1;

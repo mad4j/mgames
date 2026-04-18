@@ -663,14 +663,16 @@ export default function Level9Game() {
   // ── keyboard ─────────────────────────────────────────
   useEffect(() => {
     const handle = e => {
+      if (e.repeat) return;
       if (e.code === "Space" || e.key === " ") {
         e.preventDefault();
-        firePhazor();
+        if (phase === "idle" || phase === "done") start();
+        else firePhazor();
       }
     };
     window.addEventListener("keydown", handle);
     return () => window.removeEventListener("keydown", handle);
-  }, [firePhazor]);
+  }, [phase, start, firePhazor]);
 
   useEffect(() => () => cancelAnimationFrame(raf.current), []);
 

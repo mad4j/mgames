@@ -273,6 +273,17 @@ export default function TapGame() {
     if (phase === "done") setBest(b => Math.max(b, score));
   }, [phase, score]);
 
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.repeat) return;
+      if ((e.code !== "Space" && e.key !== " ") || (phase !== "idle" && phase !== "done")) return;
+      e.preventDefault();
+      startGame();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [phase, startGame]);
+
   // ── render ────────────────────────────────────────────────
   const timerFrac = timeLeft / GAME_DURATION;
 

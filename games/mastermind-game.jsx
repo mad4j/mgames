@@ -313,14 +313,24 @@ export default function MastermindGame() {
     else if (lost) setTimeout(playLose, 80);
   }, [game, playSubmit, playWin, playLose, isRoundLocked]);
 
-  /* ── keyboard: Enter to submit ──────────────────────── */
+  /* ── keyboard: Enter/Space as button press ──────────── */
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "Enter") handleSubmit();
+      if (e.repeat) return;
+      const isSpace = e.code === "Space" || e.key === " ";
+      if (phase === "playing" && (e.key === "Enter" || isSpace)) {
+        e.preventDefault();
+        handleSubmit();
+        return;
+      }
+      if ((phase === "idle" || phase === "done") && isSpace) {
+        e.preventDefault();
+        start();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [handleSubmit]);
+  }, [phase, start, handleSubmit]);
 
   /* ── cleanup on unmount ──────────────────────────────── */
   useEffect(() => {
