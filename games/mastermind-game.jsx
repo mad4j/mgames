@@ -7,12 +7,12 @@ const NUM_SHAPES   = 6;
 const MAX_ATTEMPTS = 10;
 const ROW_INDEX_WIDTH = 20;
 const FEEDBACK_COL_WIDTH = 36;
-const BOARD_CENTER_SHIFT = (FEEDBACK_COL_WIDTH - ROW_INDEX_WIDTH) / 2;
 const SHAPE_DIAMOND_INDEX = 3;
 const HUB_ICON_SLOT_SCALE = 0.4;
 const HUB_ICON_GAP_SCALE = 0.06;
 const HUB_ICON_SYMBOL_SCALE = 0.4;
 const HUB_ICON_DIAMOND_SCALE = 1.1;
+const TAP_HINT_BOTTOM_SPACING = 24;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.95)";
@@ -464,9 +464,9 @@ export default function MastermindGame() {
         style={{
           display:       "flex",
           flexDirection: "column",
+          alignItems:    "center",
           gap:           7,
           width:         "100%",
-          transform:     `translateX(${BOARD_CENTER_SHIFT}px)`,
         }}
       >
         {Array(MAX_ATTEMPTS)
@@ -576,6 +576,36 @@ export default function MastermindGame() {
         <rect x="10" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
       </svg>
     </button>
+  );
+
+  const TapSequenceHint = () => (
+    <div
+      style={{
+        display:       "flex",
+        flexDirection: "column",
+        alignItems:    "center",
+        gap:           8,
+      }}
+    >
+      <div
+        style={{
+          color:         C_MAIN,
+          fontSize:      8,
+          letterSpacing: 2.5,
+          opacity:       0.34,
+          textTransform: "uppercase",
+        }}
+      >
+        Tap each slot to cycle
+      </div>
+      <div style={{ display: "flex", gap: 8, opacity: 0.72 }}>
+        {Array.from({ length: NUM_SHAPES }, (_, i) => (
+          <svg key={i} width={16} height={16} viewBox="0 0 16 16">
+            <ShapeElement index={i} cx={8} cy={8} r={6} fill={C_MAIN} />
+          </svg>
+        ))}
+      </div>
+    </div>
   );
 
   /* ══════════════════════════════════════════════════════ */
@@ -726,59 +756,44 @@ export default function MastermindGame() {
               display:       "flex",
               flexDirection: "column",
               alignItems:    "center",
-               gap:           18,
-               animation:     "fadeIn 0.4s ease",
-               width:         "100%",
-               maxWidth:      500,
-               padding:       "0 16px",
-               boxSizing:     "border-box",
-             }}
+              animation:     "fadeIn 0.4s ease",
+              width:         "100%",
+              height:        "100%",
+              maxWidth:      500,
+              padding:       "0 16px",
+              boxSizing:     "border-box",
+            }}
           >
-            {/* attempt counter */}
-            <div
-              style={{
-                color:         C_MAIN,
-                fontSize:      9,
-                letterSpacing: 4,
-                opacity:       0.35,
-                textTransform: "uppercase",
-              }}
-            >
-              attempt {game.guesses.length + 1} / {MAX_ATTEMPTS}
-            </div>
-
-            {/* one-hand interaction hints */}
             <div
               style={{
                 display:       "flex",
                 flexDirection: "column",
                 alignItems:    "center",
-                gap:           8,
-                marginBottom:  2,
+                justifyContent: "center",
+                gap:           18,
+                width:         "100%",
+                flex:          1,
               }}
             >
+              {/* attempt counter */}
               <div
                 style={{
                   color:         C_MAIN,
-                  fontSize:      8,
-                  letterSpacing: 2.5,
-                  opacity:       0.34,
+                  fontSize:      9,
+                  letterSpacing: 4,
+                  opacity:       0.35,
                   textTransform: "uppercase",
                 }}
               >
-                Tap each slot to cycle
+                attempt {game.guesses.length + 1} / {MAX_ATTEMPTS}
               </div>
-              <div style={{ display: "flex", gap: 8, opacity: 0.72 }}>
-                {Array.from({ length: NUM_SHAPES }, (_, i) => (
-                  <svg key={i} width={16} height={16} viewBox="0 0 16 16">
-                    <ShapeElement index={i} cx={8} cy={8} r={6} fill={C_MAIN} />
-                  </svg>
-                ))}
-              </div>
+
+              <Board />
             </div>
 
-            <Board />
-
+            <div style={{ paddingBottom: TAP_HINT_BOTTOM_SPACING }}>
+              <TapSequenceHint />
+            </div>
           </div>
         )}
 
