@@ -12,6 +12,8 @@ const HUB_ICON_SLOT_SCALE = 0.4;
 const HUB_ICON_GAP_SCALE = 0.06;
 const HUB_ICON_SYMBOL_SCALE = 0.4;
 const HUB_ICON_DIAMOND_SCALE = 1.1;
+const TAP_HINT_BOTTOM_OFFSET = 24;
+const PLAYING_CONTENT_BOTTOM_PADDING = 84;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.95)";
@@ -761,7 +763,7 @@ export default function MastermindGame() {
               width:         "100%",
               height:        "100%",
               maxWidth:      500,
-              padding:       "0 16px 84px",
+              padding:       `0 16px ${PLAYING_CONTENT_BOTTOM_PADDING}px`,
               boxSizing:     "border-box",
               position:      "relative",
             }}
@@ -780,7 +782,7 @@ export default function MastermindGame() {
             </div>
 
             <Board />
-            <div style={{ position: "absolute", bottom: 24 }}>
+            <div style={{ position: "absolute", bottom: TAP_HINT_BOTTOM_OFFSET }}>
               <TapSequenceHint />
             </div>
           </div>
