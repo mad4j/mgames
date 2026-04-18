@@ -663,6 +663,7 @@ export default function Level9Game() {
   // ── keyboard ─────────────────────────────────────────
   useEffect(() => {
     const handle = e => {
+      if (e.repeat) return;
       if (e.code === "Space" || e.key === " ") {
         e.preventDefault();
         if (phase === "idle" || phase === "done") start();
