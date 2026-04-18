@@ -766,7 +766,7 @@ export default function MastermindGame() {
                   textTransform: "uppercase",
                 }}
               >
-                tap each slot to cycle
+                Tap each slot to cycle
               </div>
               <div style={{ display: "flex", gap: 8, opacity: 0.72 }}>
                 {Array.from({ length: NUM_SHAPES }, (_, i) => (
