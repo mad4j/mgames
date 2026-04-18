@@ -226,6 +226,17 @@ export default function BlastGame() {
   }, []);
 
   useEffect(() => {
+    const onKey = (e) => {
+      if (e.repeat) return;
+      if ((e.code !== "Space" && e.key !== " ") || (phase !== "idle" && phase !== "done")) return;
+      e.preventDefault();
+      start();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [phase, start]);
+
+  useEffect(() => {
     if (phase !== "playing") return;
 
     const interval = setInterval(() => {

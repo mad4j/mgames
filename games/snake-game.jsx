@@ -296,6 +296,17 @@ export default function SnakeGame() {
     return () => window.removeEventListener("keydown", handle);
   }, []);
 
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.repeat) return;
+      if ((e.code !== "Space" && e.key !== " ") || (phase !== "idle" && phase !== "done")) return;
+      e.preventDefault();
+      startGame();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [phase, startGame]);
+
   // ── touch ─────────────────────────────────────────────────────────────────
   const handleTouchStart = (e) => {
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };

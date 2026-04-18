@@ -671,6 +671,17 @@ export default function Pinball() {
     return () => { window.removeEventListener("keydown", kd); window.removeEventListener("keyup", ku); };
   }, []);
 
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.repeat) return;
+      if ((e.code !== "Space" && e.key !== " ") || (ui.p !== "idle" && ui.p !== "done")) return;
+      e.preventDefault();
+      start();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [ui.p, start]);
+
   // Touch / pointer controls
   const onPD = e => {
     if (phase.current !== "playing") return;

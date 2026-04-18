@@ -354,6 +354,17 @@ export default function BlitzGame() {
     return () => window.removeEventListener("keydown", onKey);
   }, [phase, dropBomb]);
 
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.repeat) return;
+      if ((e.code !== "Space" && e.key !== " ") || (phase !== "idle" && phase !== "done")) return;
+      e.preventDefault();
+      startGame();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [phase, startGame]);
+
   // ── best score ────────────────────────────────────────────────────────────
   useEffect(() => {
     if (phase === "done") setBest(b => Math.max(b, score));
