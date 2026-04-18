@@ -301,6 +301,48 @@ export default function MastermindGame() {
     );
   };
 
+  /* ── submit icon in feedback slot ────────────────────── */
+  const SubmitHintIcon = ({ enabled, onClick }) => (
+    <button
+      aria-label="submit guess"
+      onClick={enabled ? onClick : undefined}
+      style={{
+        width:        28,
+        height:       28,
+        display:      "flex",
+        alignItems:   "center",
+        justifyContent: "center",
+        background:   "transparent",
+        border:       `1px solid ${enabled ? "rgba(255,255,255,0.52)" : "rgba(255,255,255,0.18)"}`,
+        borderRadius: 6,
+        color:        enabled ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.26)",
+        cursor:       enabled ? "pointer" : "default",
+        opacity:      enabled ? 1 : 0.7,
+        transition:   "border-color 0.2s, box-shadow 0.2s, color 0.2s, opacity 0.2s",
+      }}
+      onMouseEnter={(e) => {
+        if (enabled) {
+          e.currentTarget.style.borderColor = "rgba(255,255,255,0.9)";
+          e.currentTarget.style.boxShadow = "0 0 12px rgba(255,255,255,0.2)";
+        }
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = enabled ? "rgba(255,255,255,0.52)" : "rgba(255,255,255,0.18)";
+        e.currentTarget.style.boxShadow = "none";
+      }}
+    >
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path
+          d="M2 7h8M7 2l5 5-5 5"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+
   /* ── one guess row ───────────────────────────────────── */
   const GuessRow = ({ index, colors, blacks, whites, isCurrent, isEmpty }) => {
     const faded   = isEmpty;
@@ -357,6 +399,9 @@ export default function MastermindGame() {
         <div style={{ width: FEEDBACK_COL_WIDTH, display: "flex", alignItems: "center", justifyContent: "center" }}>
           {!isCurrent && !isEmpty && (
             <FeedbackGrid blacks={blacks} whites={whites} />
+          )}
+          {isCurrent && !isEmpty && (
+            <SubmitHintIcon enabled={canSubmit} onClick={handleSubmit} />
           )}
         </div>
       </div>
@@ -693,10 +738,6 @@ export default function MastermindGame() {
               ))}
             </div>
 
-            {/* submit */}
-            <Btn onClick={handleSubmit} disabled={!canSubmit}>
-              submit
-            </Btn>
           </div>
         )}
 
