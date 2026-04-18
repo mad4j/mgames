@@ -35,17 +35,29 @@ const FEEDBACK_LEGEND = [
 /* ═══════════════════════ SHAPES ════════════════════════ */
 // Returns SVG child elements for the given shape index.
 // cx/cy = centre, r = radius of bounding circle
-function ShapeElement({ index, cx, cy, r, fill }) {
+function ShapeElement({ index, cx, cy, r, fill, stroke = "none", strokeWidth = 0 }) {
   switch (index) {
     case 0: // circle
-      return <circle cx={cx} cy={cy} r={r} fill={fill} />;
+      return <circle cx={cx} cy={cy} r={r} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />;
     case 1: // square
-      return <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill={fill} />;
+      return (
+        <rect
+          x={cx - r}
+          y={cy - r}
+          width={r * 2}
+          height={r * 2}
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+        />
+      );
     case 2: // triangle
       return (
         <polygon
           points={`${cx},${cy - r} ${cx + r},${cy + r} ${cx - r},${cy + r}`}
           fill={fill}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
         />
       );
     case SHAPE_DIAMOND_INDEX: // diamond
@@ -53,6 +65,8 @@ function ShapeElement({ index, cx, cy, r, fill }) {
         <polygon
           points={`${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}`}
           fill={fill}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
         />
       );
     case 4: { // pentagon
@@ -61,14 +75,14 @@ function ShapeElement({ index, cx, cy, r, fill }) {
         const radius = r;
         return `${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)}`;
       }).join(" ");
-      return <polygon points={pts} fill={fill} />;
+      return <polygon points={pts} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />;
     }
     case 5: { // hexagon
       const pts = Array.from({ length: 6 }, (_, i) => {
         const angle = (i * Math.PI / 3) - Math.PI / 6;
         return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
       }).join(" ");
-      return <polygon points={pts} fill={fill} />;
+      return <polygon points={pts} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />;
     }
     default:
       return null;
@@ -632,13 +646,13 @@ export default function MastermindGame() {
                 display:              "grid",
                 gridTemplateColumns:  "repeat(2, 1fr)",
                 gridTemplateRows:     "repeat(2, 1fr)",
-                gap:                  14,
+                gap:                  0,
                 marginBottom:         20,
               }}
             >
               {[0, 1, 2, 3].map((shape) => (
                 <svg key={shape} width={40} height={40} viewBox="0 0 40 40" style={{ opacity: 0.92 }}>
-                  <ShapeElement index={shape} cx={20} cy={20} r={15} fill={C_MAIN} />
+                  <ShapeElement index={shape} cx={20} cy={20} r={19} fill="none" stroke={C_MAIN} strokeWidth={2} />
                 </svg>
               ))}
             </div>
