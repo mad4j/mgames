@@ -15,11 +15,11 @@ const HUB_ICON_SYMBOL_SCALE = 0.4;
 const HUB_ICON_DIAMOND_SCALE = 1.1;
 
 const C_BG   = "#0a0a0a";
-const C_MAIN = "rgba(255,255,255,0.92)";
+const C_MAIN = "rgba(255,255,255,0.95)";
 const C_STRONG = "rgba(255,255,255,0.96)";
 const C_SOFT = "rgba(255,255,255,0.78)";
-const C_DIM = "rgba(255,255,255,0.36)";
-const C_FAINT = "rgba(255,255,255,0.24)";
+const C_DIM = "rgba(255,255,255,0.42)";
+const C_FAINT = "rgba(255,255,255,0.28)";
 const C_BORDER = "rgba(255,255,255,0.28)";
 const mono   = "'DM Mono', 'Courier New', monospace";
 const IDLE_RULES = [
@@ -239,6 +239,25 @@ export default function MastermindGame() {
     };
   }, []);
 
+  useEffect(() => {
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+    const prevThemeColor = themeMeta?.getAttribute("content") ?? null;
+    const prevHtmlBg = document.documentElement.style.backgroundColor;
+    const prevBodyBg = document.body.style.backgroundColor;
+
+    if (themeMeta) themeMeta.setAttribute("content", C_BG);
+    document.documentElement.style.backgroundColor = C_BG;
+    document.body.style.backgroundColor = C_BG;
+
+    return () => {
+      if (themeMeta && prevThemeColor !== null) {
+        themeMeta.setAttribute("content", prevThemeColor);
+      }
+      document.documentElement.style.backgroundColor = prevHtmlBg;
+      document.body.style.backgroundColor = prevBodyBg;
+    };
+  }, []);
+
   /* ═══════════════════════ RENDER HELPERS ════════════════ */
 
   const canSubmit =
@@ -378,8 +397,8 @@ export default function MastermindGame() {
              width:     ROW_INDEX_WIDTH,
              textAlign: "right",
              color:     C_MAIN,
-             fontSize:  9,
-             opacity:   0.3,
+             fontSize:  10,
+             opacity:   0.38,
            }}
         >
           {index + 1}
@@ -845,8 +864,8 @@ export default function MastermindGame() {
                       width:     18,
                       textAlign: "right",
                       color:     C_MAIN,
-                      fontSize:  9,
-                      opacity:   0.3,
+                      fontSize:  10,
+                      opacity:   0.38,
                     }}
                   >
                     {i + 1}
@@ -863,7 +882,7 @@ export default function MastermindGame() {
               ))}
             </div>
 
-            <Btn onClick={start}>again</Btn>
+            <Btn onClick={start} style={{ marginTop: 14 }}>again</Btn>
           </div>
         )}
       </div>
