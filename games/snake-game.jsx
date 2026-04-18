@@ -56,7 +56,13 @@ function useSound() {
   }, [getCtx]);
 
   useEffect(() => {
-    const unlockAudio = () => primeAudio();
+    const unlockAudio = () => {
+      primeAudio();
+      if (!primedRef.current) return;
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+    };
     window.addEventListener("pointerdown", unlockAudio, { passive: true });
     window.addEventListener("touchstart", unlockAudio, { passive: true });
     window.addEventListener("keydown", unlockAudio);
