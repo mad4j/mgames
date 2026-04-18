@@ -105,6 +105,7 @@ export const meta = {
   symbol: "◈",
   name: "snake",
   description: "eat the diamond, don't hit the walls",
+  status: "final",
 };
 
 const MAX_WIDTH = 430;

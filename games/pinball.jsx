@@ -206,6 +206,7 @@ export const meta = {
   symbol:      "◉",
   name:        "pinball",
   description: "flip the ball, beat your best",
+  status:      "draft",
 };
 
 export default function Pinball() {

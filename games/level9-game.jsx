@@ -309,6 +309,7 @@ export const meta = {
   symbol:      "9",
   name:        "level9",
   description: "defend against the alien fleet",
+  status:      "draft",
 };
 
 export default function Level9Game() {

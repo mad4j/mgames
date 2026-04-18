@@ -98,6 +98,7 @@ export const meta = {
   symbol: "●",
   name: "tap",
   description: "pop the dots before they vanish",
+  status: "final",
 };
 
 // ── icon components ───────────────────────────────────────────

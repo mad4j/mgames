@@ -187,6 +187,7 @@ export const meta = {
   symbol: "◉",
   name: "blast",
   description: "tap adjacent matching chains",
+  status: "draft",
 };
 
 export default function BlastGame() {

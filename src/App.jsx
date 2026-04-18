@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Hub from "./Hub.jsx";
 
 const gameModules = import.meta.glob("../games/*.jsx", { eager: true });
+const VALID_STATUSES = new Set(["final", "draft"]);
 const games = Object.values(gameModules).filter(
   (m) =>
     typeof m.default === "function" &&
@@ -9,7 +10,8 @@ const games = Object.values(gameModules).filter(
     m.meta.path &&
     m.meta.symbol &&
     m.meta.name &&
-    m.meta.description
+    m.meta.description &&
+    VALID_STATUSES.has(m.meta.status)
 );
 
 export default function App() {

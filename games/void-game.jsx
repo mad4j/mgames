@@ -294,6 +294,7 @@ export const meta = {
   symbol: "△",
   name: "void",
   description: "navigate the asteroid field",
+  status: "draft",
 };
 
 export default function VoidGame() {

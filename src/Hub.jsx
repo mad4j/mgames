@@ -1,7 +1,13 @@
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Hub({ games }) {
   const navigate = useNavigate();
+  const [showDrafts, setShowDrafts] = useState(false);
+  const visibleGames = useMemo(
+    () => games.filter((g) => g.status === "final" || (showDrafts && g.status === "draft")),
+    [games, showDrafts]
+  );
 
   return (
     <div
@@ -75,6 +81,29 @@ export default function Hub({ games }) {
       />
 
       {/* game cards */}
+      <label
+        style={{
+          marginBottom: 22,
+          color: "rgba(255,255,255,0.46)",
+          fontSize: 9,
+          letterSpacing: 2.2,
+          textTransform: "uppercase",
+          display: "flex",
+          gap: 8,
+          alignItems: "center",
+          cursor: "pointer",
+          animation: "fadeIn 0.6s ease both",
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={showDrafts}
+          onChange={(e) => setShowDrafts(e.target.checked)}
+          style={{ cursor: "pointer" }}
+        />
+        mostra anche draft
+      </label>
+
       <div
         style={{
           display: "flex",
@@ -84,7 +113,7 @@ export default function Hub({ games }) {
           justifyContent: "center",
         }}
       >
-        {games.map((g, i) => (
+        {visibleGames.map((g, i) => (
           <button
             key={g.path}
             className="game-card"
