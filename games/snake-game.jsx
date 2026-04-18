@@ -498,14 +498,12 @@ export default function SnakeGame() {
         }}>
           <div style={{ color:"#fff", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase" }}>snake</div>
 
-          {/* Diamond icon */}
-          <div style={{
-            width:      26, height: 26,
-            border:     "1.5px solid rgba(255,255,255,0.55)",
-            background: "rgba(255,255,255,0.04)",
-            transform:  "rotate(45deg)",
-            margin:     "36px 0",
-          }} />
+          {/* Snake body logo */}
+          <div style={{ display: "flex", alignItems: "center", gap: 7, margin: "36px 0" }}>
+            <div style={{ width: 18, height: 18, background: "rgba(255,255,255,0.92)" }} />
+            <div style={{ width: 16, height: 16, border: "1.5px solid rgba(255,255,255,0.65)" }} />
+            <div style={{ width: 16, height: 16, border: "1.5px solid rgba(255,255,255,0.42)" }} />
+          </div>
 
           {best > 0 && (
             <div style={{ color:"#fff", fontSize:11, letterSpacing:3, opacity:0.18, marginBottom: 8 }}>

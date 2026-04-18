@@ -1,6 +1,16 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+function SnakeBodyLogo() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 4, opacity: 0.85 }}>
+      <div style={{ width: 14, height: 14, background: "rgba(255,255,255,0.92)" }} />
+      <div style={{ width: 12, height: 12, border: "1.5px solid rgba(255,255,255,0.65)" }} />
+      <div style={{ width: 12, height: 12, border: "1.5px solid rgba(255,255,255,0.42)" }} />
+    </div>
+  );
+}
+
 export default function Hub({ games }) {
   const navigate = useNavigate();
   const [showDrafts, setShowDrafts] = useState(false);
@@ -120,16 +130,20 @@ export default function Hub({ games }) {
             style={{ animationDelay: `${i * 0.12 + 0.1}s` }}
             onClick={() => navigate(g.path)}
           >
-            <span
-              style={{
-                fontSize: 32,
-                fontWeight: 300,
-                lineHeight: 1,
-                opacity: 0.85,
-              }}
-            >
-              {g.symbol}
-            </span>
+            {g.path === "/snake" ? (
+              <SnakeBodyLogo />
+            ) : (
+              <span
+                style={{
+                  fontSize: 32,
+                  fontWeight: 300,
+                  lineHeight: 1,
+                  opacity: 0.85,
+                }}
+              >
+                {g.symbol}
+              </span>
+            )}
             <span
               style={{
                 fontSize: 10,
