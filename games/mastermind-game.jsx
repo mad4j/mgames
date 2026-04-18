@@ -260,6 +260,10 @@ export default function MastermindGame() {
 
   const [phase,         setPhase]         = useState("idle");
   const [game,          setGame]          = useState(null);
+  const isRoundLocked = useCallback(
+    (g) => !g || g.won || g.guesses.length >= MAX_ATTEMPTS,
+    []
+  );
 
   /* ── start / restart ─────────────────────────────────── */
   const start = useCallback(() => {
@@ -274,19 +278,19 @@ export default function MastermindGame() {
   /* ── tap slot to cycle through shapes ───────────────── */
   const handleSlotClick = useCallback(
     (slotIndex) => {
-      if (phase !== "playing" || !game || game.won || game.guesses.length >= MAX_ATTEMPTS) return;
+      if (phase !== "playing" || isRoundLocked(game)) return;
       const newGuess = [...game.currentGuess];
       const current = newGuess[slotIndex];
       newGuess[slotIndex] = current === null ? 0 : (current + 1) % NUM_SHAPES;
       setGame({ ...game, currentGuess: newGuess });
       playPick();
     },
-    [phase, game, playPick]
+    [phase, game, playPick, isRoundLocked]
   );
 
   /* ── submit current guess ────────────────────────────── */
   const handleSubmit = useCallback(() => {
-    if (!game || game.won || game.guesses.length >= MAX_ATTEMPTS) return;
+    if (isRoundLocked(game)) return;
     if (game.currentGuess.some((c) => c === null)) return;
 
     const { blacks, whites } = evaluateGuess(game.secret, game.currentGuess);
@@ -313,8 +317,8 @@ export default function MastermindGame() {
 
     playSubmit();
     if (won) setTimeout(playWin, 80);
-    if (lost) setTimeout(playLose, 80);
-  }, [game, playSubmit, playWin, playLose]);
+    else if (lost) setTimeout(playLose, 80);
+  }, [game, playSubmit, playWin, playLose, isRoundLocked]);
 
   /* ── keyboard: Enter to submit ──────────────────────── */
   useEffect(() => {
