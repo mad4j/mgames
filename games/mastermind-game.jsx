@@ -311,7 +311,7 @@ export default function MastermindGame() {
         height:       28,
         display:      "flex",
         alignItems:   "center",
-        justifyContent:"center",
+        justifyContent: "center",
         background:   "transparent",
         border:       `1px solid ${enabled ? "rgba(255,255,255,0.52)" : "rgba(255,255,255,0.18)"}`,
         borderRadius: 6,
