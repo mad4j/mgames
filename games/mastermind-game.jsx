@@ -11,7 +11,7 @@ const SHAPE_DIAMOND_INDEX = 3;
 const TAP_HINT_BOTTOM_SPACING = 24;
 const MIN_ICON_STROKE_WIDTH = 1.2;
 
-const C_BG   = "#0a0a0a";
+const C_BG   = "#000";
 const C_MAIN = "rgba(255,255,255,0.95)";
 const C_STRONG = "rgba(255,255,255,0.96)";
 const C_SOFT = "rgba(255,255,255,0.78)";
@@ -706,6 +706,7 @@ export default function MastermindGame() {
         width:           "100vw",
         height:          "100dvh",
         background:      C_BG,
+        filter:          "invert(1) hue-rotate(180deg)",
         display:         "flex",
         alignItems:      "center",
         justifyContent:  "center",

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 /* ═══════════════════════ PALETTE ════════════════════ */
-const C_BG    = "#0a0a0a";
+const C_BG    = "#000";
 const C_MAIN  = "rgba(255,255,255,0.88)";
 const C_NEAR  = "rgba(255,255,255,1)";
 const C_SCAN  = "rgba(255,255,255,0.018)";
@@ -714,6 +714,7 @@ export default function Level9Game() {
   return (
     <div style={{
       width: "100vw", height: "100dvh", background: C_BG,
+      filter: "invert(1) hue-rotate(180deg)",
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>
       <div className="game-area" style={{

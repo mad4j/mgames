@@ -432,7 +432,7 @@ export default function Pinball() {
 
     // ── Draw ──────────────────────────────────────────────────
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = "#0a0a0a";
+    ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, W, H);
 
     // Lane background
@@ -720,7 +720,8 @@ export default function Pinball() {
   return (
     <div style={{
       width: "100vw", height: "100dvh",
-      background: "#0a0a0a",
+      background: "#000",
+      filter: "invert(1) hue-rotate(180deg)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",

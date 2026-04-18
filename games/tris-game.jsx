@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 /* ═══════════════════════ PALETTE ═══════════════════ */
-const C_BG   = "#0a0a0a";
+const C_BG   = "#000";
 const C_MAIN = "rgba(255,255,255,0.88)";
 const C_GRID = "rgba(255,255,255,0.14)";
 const C_WIN  = "rgba(255,255,255,1)";
@@ -316,6 +316,7 @@ export default function TrisGame() {
       width: "100vw",
       height: "100dvh",
       background: C_BG,
+      filter: "invert(1) hue-rotate(180deg)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",

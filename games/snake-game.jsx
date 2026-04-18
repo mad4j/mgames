@@ -427,7 +427,8 @@ export default function SnakeGame() {
     <div style={{
       width:           "100vw",
       height:          "100dvh",
-      background:      "#0a0a0a",
+      background:      "#000",
+      filter:          "invert(1) hue-rotate(180deg)",
       display:         "flex",
       alignItems:      "center",
       justifyContent:  "center",
