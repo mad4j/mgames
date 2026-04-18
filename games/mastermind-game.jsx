@@ -275,13 +275,10 @@ export default function MastermindGame() {
   const handleSlotClick = useCallback(
     (slotIndex) => {
       if (phase !== "playing" || !game || game.won || game.guesses.length >= MAX_ATTEMPTS) return;
-      setGame((prev) => {
-        if (!prev || prev.won || prev.guesses.length >= MAX_ATTEMPTS) return prev;
-        const newGuess = [...prev.currentGuess];
-        const current = newGuess[slotIndex];
-        newGuess[slotIndex] = current === null ? 0 : (current + 1) % NUM_SHAPES;
-        return { ...prev, currentGuess: newGuess };
-      });
+      const newGuess = [...game.currentGuess];
+      const current = newGuess[slotIndex];
+      newGuess[slotIndex] = current === null ? 0 : (current + 1) % NUM_SHAPES;
+      setGame({ ...game, currentGuess: newGuess });
       playPick();
     },
     [phase, game, playPick]
@@ -300,15 +297,11 @@ export default function MastermindGame() {
     ];
     const lost = !won && newGuesses.length >= MAX_ATTEMPTS;
 
-    setGame((prev) => {
-      if (!prev || prev.won || prev.guesses.length >= MAX_ATTEMPTS) return prev;
-      if (prev.currentGuess.some((c) => c === null)) return prev;
-      return {
-        ...prev,
-        guesses:      newGuesses,
-        currentGuess: [...prev.currentGuess],
-        won,
-      };
+    setGame({
+      ...game,
+      guesses:      newGuesses,
+      currentGuess: [...game.currentGuess],
+      won,
     });
 
     if (won || lost) {
@@ -517,14 +510,14 @@ export default function MastermindGame() {
           {Array(CODE_LENGTH)
             .fill(null)
             .map((_, j) => (
-                <Peg
-                  key={j}
-                  shapeIndex={colors ? colors[j] : null}
-                  size={34}
-                  faded={faded}
-                  clickable={isCurrent}
-                  onClick={() => handleSlotClick(j)}
-               />
+              <Peg
+                key={j}
+                shapeIndex={colors ? colors[j] : null}
+                size={34}
+                faded={faded}
+                clickable={isCurrent}
+                onClick={() => handleSlotClick(j)}
+              />
             ))}
         </div>
 
