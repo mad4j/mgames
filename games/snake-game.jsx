@@ -9,6 +9,8 @@ const SPEED_TICK_MS = 3000;  // interval between time-based speed bumps
 const SPEED_TICK_DEC = 4;    // ms removed from interval each bump
 const FOOD_MIN_MS   = 1800;  // min food lifetime before reposition
 const FOOD_MAX_MS   = 5000;  // max food lifetime before reposition
+const FIRST_BOOST_VALUE = 5;
+const NEXT_BOOST_VALUE  = 2;
 
 // ── audio ─────────────────────────────────────────────────────────────────────
 function useSound() {
@@ -136,7 +138,7 @@ export default function SnakeGame() {
   const speedRef       = useRef(MAX_SPEED);
   const scoreRef       = useRef(0);
   const streakRef      = useRef(1);
-  const hasReceivedFirstBoostRef = useRef(false);
+  const firstBoostAppliedRef = useRef(false);
   const bestRef        = useRef(0);
   const loopId         = useRef(null);
   const touchStart     = useRef(null);
@@ -209,8 +211,8 @@ export default function SnakeGame() {
     if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
       // Ate the food — score increases by current streak, then streak grows
       scoreRef.current += streakRef.current;
-      streakRef.current += hasReceivedFirstBoostRef.current ? 2 : 5;
-      hasReceivedFirstBoostRef.current = true;
+      streakRef.current += firstBoostAppliedRef.current ? NEXT_BOOST_VALUE : FIRST_BOOST_VALUE;
+      firstBoostAppliedRef.current = true;
       setScore(scoreRef.current);
       setStreak(streakRef.current);
       soundRef.current.playEat();
@@ -266,7 +268,7 @@ export default function SnakeGame() {
     nextDirRef.current = initDir;
     scoreRef.current   = 0;
     streakRef.current  = 1;
-    hasReceivedFirstBoostRef.current = false;
+    firstBoostAppliedRef.current = false;
     speedRef.current   = MAX_SPEED;
     phaseRef.current   = "playing";
 
