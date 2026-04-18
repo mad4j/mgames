@@ -16,7 +16,7 @@ export default function Hub({ games }) {
         width: "100vw",
         minHeight: "100dvh",
         background: "#000",
-        filter: "invert(1) hue-rotate(180deg)",
+        filter: "invert(1) hue-rotate(180deg) contrast(1.3)",
         overflowX: "hidden",
         display: "flex",
         flexDirection: "column",

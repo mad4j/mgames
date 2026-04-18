@@ -706,7 +706,7 @@ export default function MastermindGame() {
         width:           "100vw",
         height:          "100dvh",
         background:      C_BG,
-        filter:          "invert(1) hue-rotate(180deg)",
+        filter: "invert(1) hue-rotate(180deg) contrast(1.3)",
         display:         "flex",
         alignItems:      "center",
         justifyContent:  "center",

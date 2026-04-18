@@ -397,7 +397,7 @@ export default function BlitzGame() {
     <div style={{
       width: "100vw", height: "100dvh",
       background: "#000",
-      filter: "invert(1) hue-rotate(180deg)",
+      filter: "invert(1) hue-rotate(180deg) contrast(1.3)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
