@@ -319,7 +319,7 @@ export default function MastermindGame() {
       if (e.repeat) return;
       const isSpace = e.code === "Space" || e.key === " ";
       if (phase === "playing" && (e.key === "Enter" || isSpace)) {
-        if (isSpace) e.preventDefault();
+        e.preventDefault();
         handleSubmit();
         return;
       }
