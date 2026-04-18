@@ -242,6 +242,7 @@ export const meta = {
   symbol:      <MastermindHubSymbol />,
   name:        "mastermind",
   description: "crack the hidden shape code",
+  status:      "final",
 };
 
 /* ═══════════════════════ COMPONENT ════════════════════ */

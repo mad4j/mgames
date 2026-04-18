@@ -185,6 +185,7 @@ export const meta = {
   symbol: <BombSVG width={18} height={22} />,
   name: "blitz",
   description: "drop bombs, clear the runway",
+  status: "draft",
 };
 
 // ── component ─────────────────────────────────────────────────────────────────

@@ -91,6 +91,7 @@ export const meta = {
   symbol:      "✕",
   name:        "tris",
   description: "vanishing tic-tac-toe",
+  status:      "draft",
 };
 
 export default function TrisGame() {
