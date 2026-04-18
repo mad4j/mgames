@@ -101,7 +101,7 @@ export default function Hub({ games }) {
           onChange={(e) => setShowDrafts(e.target.checked)}
           style={{ cursor: "pointer" }}
         />
-        mostra anche draft
+        show draft games
       </label>
 
       <div
