@@ -274,6 +274,7 @@ export default function MastermindGame() {
   /* ── tap slot to cycle through shapes ───────────────── */
   const handleSlotClick = useCallback(
     (slotIndex) => {
+      if (phase !== "playing" || !game || game.won || game.guesses.length >= MAX_ATTEMPTS) return;
       setGame((prev) => {
         if (!prev || prev.won || prev.guesses.length >= MAX_ATTEMPTS) return prev;
         const newGuess = [...prev.currentGuess];
@@ -281,38 +282,27 @@ export default function MastermindGame() {
         newGuess[slotIndex] = current === null ? 0 : (current + 1) % NUM_SHAPES;
         return { ...prev, currentGuess: newGuess };
       });
+      playPick();
     },
-    []
+    [phase, game, playPick]
   );
 
   /* ── submit current guess ────────────────────────────── */
   const handleSubmit = useCallback(() => {
-    let didSubmit = false;
-    let wonNow = false;
-    let lostNow = false;
+    if (!game || game.won || game.guesses.length >= MAX_ATTEMPTS) return;
+    if (game.currentGuess.some((c) => c === null)) return;
+
+    const { blacks, whites } = evaluateGuess(game.secret, game.currentGuess);
+    const won = blacks === CODE_LENGTH;
+    const newGuesses = [
+      ...game.guesses,
+      { colors: [...game.currentGuess], blacks, whites },
+    ];
+    const lost = !won && newGuesses.length >= MAX_ATTEMPTS;
 
     setGame((prev) => {
       if (!prev || prev.won || prev.guesses.length >= MAX_ATTEMPTS) return prev;
       if (prev.currentGuess.some((c) => c === null)) return prev;
-      didSubmit = true;
-
-      const { blacks, whites } = evaluateGuess(prev.secret, prev.currentGuess);
-      const won        = blacks === CODE_LENGTH;
-      const newGuesses = [
-        ...prev.guesses,
-        { colors: [...prev.currentGuess], blacks, whites },
-      ];
-      const lost = !won && newGuesses.length >= MAX_ATTEMPTS;
-      wonNow = won;
-      lostNow = lost;
-
-      if (won || lost) {
-        doneTimerRef.current = setTimeout(() => {
-          doneTimerRef.current = null;
-          setPhase("done");
-        }, won ? 500 : 200);
-      }
-
       return {
         ...prev,
         guesses:      newGuesses,
@@ -320,11 +310,18 @@ export default function MastermindGame() {
         won,
       };
     });
-    if (!didSubmit) return;
+
+    if (won || lost) {
+      doneTimerRef.current = setTimeout(() => {
+        doneTimerRef.current = null;
+        setPhase("done");
+      }, won ? 500 : 200);
+    }
+
     playSubmit();
-    if (wonNow) setTimeout(playWin, 80);
-    if (lostNow) setTimeout(playLose, 80);
-  }, [playSubmit, playWin, playLose]);
+    if (won) setTimeout(playWin, 80);
+    if (lost) setTimeout(playLose, 80);
+  }, [game, playSubmit, playWin, playLose]);
 
   /* ── keyboard: Enter to submit ──────────────────────── */
   useEffect(() => {
@@ -520,16 +517,13 @@ export default function MastermindGame() {
           {Array(CODE_LENGTH)
             .fill(null)
             .map((_, j) => (
-               <Peg
-                 key={j}
+                <Peg
+                  key={j}
                   shapeIndex={colors ? colors[j] : null}
-                   size={34}
+                  size={34}
                   faded={faded}
                   clickable={isCurrent}
-                  onClick={() => {
-                    handleSlotClick(j);
-                    playPick();
-                  }}
+                  onClick={() => handleSlotClick(j)}
                />
             ))}
         </div>
