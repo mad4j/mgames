@@ -104,8 +104,6 @@ export default function Hub({ games }) {
           style={{
             cursor: "pointer",
             filter: "invert(1) hue-rotate(180deg)",
-            accentColor: "#000",
-            backgroundColor: "#fff",
           }}
         />
         show draft games
