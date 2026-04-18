@@ -222,17 +222,17 @@ export default function SnakeGame() {
       setFoodKey(k => k + 1);
       speedRef.current = Math.max(MIN_SPEED, speedRef.current - 5);
     } else {
-      // Missed food tick — multiplier gradually decays until 1
-      if (streakRef.current > 1) {
-        streakRef.current -= 1;
-        setStreak(streakRef.current);
-      }
       // Check if food lifetime expired → reposition without scoring
       if (Date.now() >= foodExpiresAt.current) {
         const newFood = placeFood(newSnake);
         foodRef.current = newFood;
         setRenderFood(newFood);
         setFoodKey(k => k + 1);
+        // Timeout fired and food moved — multiplier decays until 1
+        if (streakRef.current > 1) {
+          streakRef.current -= 1;
+          setStreak(streakRef.current);
+        }
       }
       newSnake.pop();
     }
