@@ -16,6 +16,7 @@ const NEXT_BOOST_VALUE  = 2;
 function useSound() {
   const ctxRef     = useRef(null);
   const enabledRef = useRef(true);
+  const primedRef  = useRef(false);
   const [soundOn, _setSoundOn] = useState(true);
 
   const setSoundOn = (v) => {
@@ -30,6 +31,47 @@ function useSound() {
     if (ctxRef.current.state === "suspended") ctxRef.current.resume();
     return ctxRef.current;
   }, []);
+
+  useEffect(() => {
+    try {
+      if (!ctxRef.current) {
+        ctxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    } catch (_) { /* ignore AudioContext errors */ }
+  }, []);
+
+  const primeAudio = useCallback(() => {
+    if (primedRef.current) return;
+    try {
+      const ctx = getCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.00001, ctx.currentTime);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.01);
+      primedRef.current = true;
+    } catch (_) { /* ignore AudioContext errors */ }
+  }, [getCtx]);
+
+  useEffect(() => {
+    const unlockAudio = () => {
+      primeAudio();
+      if (!primedRef.current) return;
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+    };
+    window.addEventListener("pointerdown", unlockAudio, { passive: true });
+    window.addEventListener("touchstart", unlockAudio, { passive: true });
+    window.addEventListener("keydown", unlockAudio);
+    return () => {
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+    };
+  }, [primeAudio]);
 
   const playTone = useCallback((freq, duration, type = "sine", gainVal = 0.15) => {
     if (!enabledRef.current) return;
