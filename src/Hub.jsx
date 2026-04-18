@@ -55,6 +55,12 @@ export default function Hub({ games }) {
           transition: border-color 0.2s ease, background 0.2s ease;
           animation: fadeIn 0.6s ease both;
         }
+        .game-card-icon {
+          min-height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
         .game-card:hover {
           border-color: rgba(255,255,255,0.5);
           background: rgba(255,255,255,0.03);
@@ -86,7 +92,7 @@ export default function Hub({ games }) {
       <label
         style={{
           marginBottom: 22,
-          color: "rgba(255,255,255,0.78)",
+          color: "rgba(255,255,255,0.9)",
           fontSize: 9,
           letterSpacing: 2.2,
           textTransform: "uppercase",
@@ -126,26 +132,28 @@ export default function Hub({ games }) {
             style={{ animationDelay: `${i * 0.12 + 0.1}s` }}
             onClick={() => navigate(g.path)}
           >
-            {g.icon === "snake-body" ? (
-              <SnakeBodyLogo />
-            ) : (
-              <span
-                style={{
-                  fontSize: 32,
-                  fontWeight: 300,
-                  lineHeight: 1,
-                  opacity: 0.85,
-                }}
-              >
-                {g.symbol}
-              </span>
-            )}
+            <span className="game-card-icon">
+              {g.icon === "snake-body" ? (
+                <SnakeBodyLogo size={16} headSize={18} gap={5} />
+              ) : (
+                <span
+                  style={{
+                    fontSize: 32,
+                    fontWeight: 300,
+                    lineHeight: 1,
+                    opacity: 0.92,
+                  }}
+                >
+                  {g.symbol}
+                </span>
+              )}
+            </span>
             <span
               style={{
                 fontSize: 10,
                 letterSpacing: 5,
                 textTransform: "uppercase",
-                opacity: 0.55,
+                opacity: 0.72,
               }}
             >
               {g.name}
@@ -154,7 +162,7 @@ export default function Hub({ games }) {
               style={{
                 fontSize: 9,
                 letterSpacing: 1.5,
-                opacity: 0.22,
+                opacity: 0.5,
                 textAlign: "center",
                 lineHeight: 1.6,
               }}
@@ -173,7 +181,7 @@ export default function Hub({ games }) {
           color: "#fff",
           fontSize: 9,
           letterSpacing: 2,
-          opacity: 0.22,
+          opacity: 0.5,
           textDecoration: "none",
           fontFamily: "'DM Mono', 'Courier New', monospace",
           animation: "fadeIn 0.8s ease forwards",
