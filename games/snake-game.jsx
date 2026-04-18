@@ -136,7 +136,7 @@ export default function SnakeGame() {
   const speedRef       = useRef(MAX_SPEED);
   const scoreRef       = useRef(0);
   const streakRef      = useRef(1);
-  const firstBoostRef  = useRef(false);
+  const hasReceivedFirstBoostRef = useRef(false);
   const bestRef        = useRef(0);
   const loopId         = useRef(null);
   const touchStart     = useRef(null);
@@ -209,8 +209,8 @@ export default function SnakeGame() {
     if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
       // Ate the food — score increases by current streak, then streak grows
       scoreRef.current += streakRef.current;
-      streakRef.current += firstBoostRef.current ? 2 : 5;
-      firstBoostRef.current = true;
+      streakRef.current += hasReceivedFirstBoostRef.current ? 2 : 5;
+      hasReceivedFirstBoostRef.current = true;
       setScore(scoreRef.current);
       setStreak(streakRef.current);
       soundRef.current.playEat();
@@ -266,7 +266,7 @@ export default function SnakeGame() {
     nextDirRef.current = initDir;
     scoreRef.current   = 0;
     streakRef.current  = 1;
-    firstBoostRef.current = false;
+    hasReceivedFirstBoostRef.current = false;
     speedRef.current   = MAX_SPEED;
     phaseRef.current   = "playing";
 
