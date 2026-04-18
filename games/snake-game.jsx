@@ -9,7 +9,7 @@ const SPEED_TICK_MS = 3000;  // interval between time-based speed bumps
 const SPEED_TICK_DEC = 4;    // ms removed from interval each bump
 const FOOD_MIN_MS   = 1800;  // min food lifetime before reposition
 const FOOD_MAX_MS   = 5000;  // max food lifetime before reposition
-const FIRST_BOOST_VALUE = 5;
+const FIRST_BOOST_VALUE = 3;
 const NEXT_BOOST_VALUE  = 2;
 
 // ── audio ─────────────────────────────────────────────────────────────────────
