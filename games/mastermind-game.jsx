@@ -131,6 +131,65 @@ function initGame() {
   };
 }
 
+/* ═══════════════════════ AUDIO ═════════════════════════ */
+function useSound() {
+  const ctxRef = useRef(null);
+  const enabledRef = useRef(true);
+  const [soundOn, _setSoundOn] = useState(true);
+
+  const setSoundOn = useCallback((v) => {
+    enabledRef.current = v;
+    _setSoundOn(v);
+  }, []);
+
+  const getCtx = useCallback(() => {
+    if (!ctxRef.current) {
+      ctxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (ctxRef.current.state === "suspended") ctxRef.current.resume();
+    return ctxRef.current;
+  }, []);
+
+  const playTone = useCallback((freq, duration, type = "sine", gainVal = 0.12) => {
+    if (!enabledRef.current) return;
+    try {
+      const ctx = getCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = type;
+      gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + duration);
+    } catch (_) { /* ignore AudioContext errors */ }
+  }, [getCtx]);
+
+  const playPick = useCallback(() => {
+    playTone(660, 0.06, "triangle", 0.08);
+  }, [playTone]);
+
+  const playSubmit = useCallback(() => {
+    playTone(820, 0.08, "sine", 0.12);
+    setTimeout(() => playTone(980, 0.08, "sine", 0.1), 45);
+  }, [playTone]);
+
+  const playWin = useCallback(() => {
+    playTone(784, 0.12, "sine", 0.12);
+    setTimeout(() => playTone(988, 0.14, "sine", 0.11), 80);
+    setTimeout(() => playTone(1318, 0.2, "sine", 0.1), 160);
+  }, [playTone]);
+
+  const playLose = useCallback(() => {
+    playTone(170, 0.35, "sawtooth", 0.14);
+    setTimeout(() => playTone(120, 0.35, "triangle", 0.11), 120);
+  }, [playTone]);
+
+  return { soundOn, setSoundOn, playPick, playSubmit, playWin, playLose };
+}
+
 /* ═══════════════════════ META ══════════════════════════ */
 function MastermindHubSymbol({ size = 32 }) {
   const slot = size * HUB_ICON_SLOT_SCALE;
@@ -167,6 +226,25 @@ function MastermindHubSymbol({ size = 32 }) {
   );
 }
 
+function IconSound({ on }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="2,6 6,6 10,2 10,16 6,12 2,12" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" fill="none"/>
+      {on ? (
+        <>
+          <path d="M12.5 6.5 C13.8 7.3 13.8 10.7 12.5 11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+          <path d="M14.5 4.5 C17 6 17 12 14.5 13.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+        </>
+      ) : (
+        <>
+          <line x1="12" y1="6" x2="17" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+          <line x1="17" y1="6" x2="12" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+        </>
+      )}
+    </svg>
+  );
+}
+
 export const meta = {
   path:        "/mastermind",
   symbol:      <MastermindHubSymbol />,
@@ -178,6 +256,7 @@ export const meta = {
 export default function MastermindGame() {
   const navigate   = useNavigate();
   const doneTimerRef = useRef(null);
+  const { soundOn, setSoundOn, playPick, playSubmit, playWin, playLose } = useSound();
 
   const [phase,         setPhase]         = useState("idle");
   const [game,          setGame]          = useState(null);
@@ -208,9 +287,14 @@ export default function MastermindGame() {
 
   /* ── submit current guess ────────────────────────────── */
   const handleSubmit = useCallback(() => {
+    let didSubmit = false;
+    let wonNow = false;
+    let lostNow = false;
+
     setGame((prev) => {
       if (!prev || prev.won || prev.guesses.length >= MAX_ATTEMPTS) return prev;
       if (prev.currentGuess.some((c) => c === null)) return prev;
+      didSubmit = true;
 
       const { blacks, whites } = evaluateGuess(prev.secret, prev.currentGuess);
       const won        = blacks === CODE_LENGTH;
@@ -219,6 +303,8 @@ export default function MastermindGame() {
         { colors: [...prev.currentGuess], blacks, whites },
       ];
       const lost = !won && newGuesses.length >= MAX_ATTEMPTS;
+      wonNow = won;
+      lostNow = lost;
 
       if (won || lost) {
         doneTimerRef.current = setTimeout(() => {
@@ -234,7 +320,11 @@ export default function MastermindGame() {
         won,
       };
     });
-  }, []);
+    if (!didSubmit) return;
+    playSubmit();
+    if (wonNow) setTimeout(playWin, 80);
+    if (lostNow) setTimeout(playLose, 80);
+  }, [playSubmit, playWin, playLose]);
 
   /* ── keyboard: Enter to submit ──────────────────────── */
   useEffect(() => {
@@ -430,14 +520,17 @@ export default function MastermindGame() {
           {Array(CODE_LENGTH)
             .fill(null)
             .map((_, j) => (
-              <Peg
-                key={j}
-                 shapeIndex={colors ? colors[j] : null}
-                  size={34}
-                 faded={faded}
-                 clickable={isCurrent}
-                 onClick={() => handleSlotClick(j)}
-              />
+               <Peg
+                 key={j}
+                  shapeIndex={colors ? colors[j] : null}
+                   size={34}
+                  faded={faded}
+                  clickable={isCurrent}
+                  onClick={() => {
+                    handleSlotClick(j);
+                    playPick();
+                  }}
+               />
             ))}
         </div>
 
@@ -548,6 +641,18 @@ export default function MastermindGame() {
     </button>
   );
 
+  const iconBtnStyle = {
+    position: "absolute",
+    top: 14,
+    zIndex: 20,
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    padding: 6,
+    lineHeight: 0,
+    transition: "color 0.2s",
+  };
+
   /* ── hub icon button ─────────────────────────────────── */
   const HubBtn = () => (
     <button
@@ -556,17 +661,9 @@ export default function MastermindGame() {
       onMouseEnter={(e) => (e.currentTarget.style.color = C_SOFT)}
       onMouseLeave={(e) => (e.currentTarget.style.color = C_DIM)}
       style={{
-        position:   "absolute",
-        top:        14,
+        ...iconBtnStyle,
         right:      12,
-        zIndex:     20,
-        background: "transparent",
-        border:     "none",
         color:      C_DIM,
-        cursor:     "pointer",
-        padding:    6,
-        lineHeight: 0,
-        transition: "color 0.2s",
       }}
     >
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -643,6 +740,19 @@ export default function MastermindGame() {
           @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
         `}</style>
 
+        <button
+          aria-label={soundOn ? "mute" : "unmute"}
+          onClick={() => setSoundOn(!soundOn)}
+          onMouseEnter={(e) => (e.currentTarget.style.color = C_SOFT)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = soundOn ? C_DIM : C_FAINT)}
+          style={{
+            ...iconBtnStyle,
+            right: 52,
+            color: soundOn ? C_DIM : C_FAINT,
+          }}
+        >
+          <IconSound on={soundOn} />
+        </button>
         <HubBtn />
 
         {/* ── IDLE ──────────────────────────────────────── */}
