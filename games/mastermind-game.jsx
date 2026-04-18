@@ -181,7 +181,6 @@ export default function MastermindGame() {
 
   const [phase,         setPhase]         = useState("idle");
   const [game,          setGame]          = useState(null);
-  const [selectedShape, setSelectedShape] = useState(0);
 
   /* ── start / restart ─────────────────────────────────── */
   const start = useCallback(() => {
@@ -190,21 +189,21 @@ export default function MastermindGame() {
       doneTimerRef.current = null;
     }
     setGame(initGame());
-    setSelectedShape(0);
     setPhase("playing");
   }, []);
 
-  /* ── place selected color in a slot ─────────────────── */
+  /* ── tap slot to cycle through shapes ───────────────── */
   const handleSlotClick = useCallback(
     (slotIndex) => {
       setGame((prev) => {
         if (!prev || prev.won || prev.guesses.length >= MAX_ATTEMPTS) return prev;
         const newGuess = [...prev.currentGuess];
-        newGuess[slotIndex] = selectedShape;
+        const current = newGuess[slotIndex];
+        newGuess[slotIndex] = current === null ? 0 : (current + 1) % NUM_SHAPES;
         return { ...prev, currentGuess: newGuess };
       });
     },
-    [selectedShape]
+    []
   );
 
   /* ── submit current guess ────────────────────────────── */
@@ -231,7 +230,7 @@ export default function MastermindGame() {
       return {
         ...prev,
         guesses:      newGuesses,
-        currentGuess: Array(CODE_LENGTH).fill(null),
+        currentGuess: [...prev.currentGuess],
         won,
       };
     });
@@ -748,35 +747,37 @@ export default function MastermindGame() {
               attempt {game.guesses.length + 1} / {MAX_ATTEMPTS}
             </div>
 
-            <Board />
-
-            {/* shape palette */}
-            <div style={{ display: "flex", gap: 9, marginTop: 4 }}>
-              {Array.from({ length: NUM_SHAPES }, (_, i) => (
-                <div
-                  key={i}
-                  onClick={() => setSelectedShape(i)}
-                  style={{
-                    width:      34,
-                    height:     34,
-                    cursor:     "pointer",
-                    opacity:    selectedShape === i ? 1 : 0.45,
-                    transition: "opacity 0.15s, filter 0.15s",
-                    filter:     selectedShape === i ? "drop-shadow(0 0 5px rgba(255,255,255,0.62))" : "none",
-                  }}
-                >
-                  <svg width={34} height={34} viewBox="0 0 34 34">
-                    <ShapeElement
-                      index={i}
-                      cx={17}
-                      cy={17}
-                      r={13}
-                      fill={selectedShape === i ? C_STRONG : C_SOFT}
-                    />
+            {/* one-hand interaction hints */}
+            <div
+              style={{
+                display:       "flex",
+                flexDirection: "column",
+                alignItems:    "center",
+                gap:           8,
+                marginBottom:  2,
+              }}
+            >
+              <div
+                style={{
+                  color:         C_MAIN,
+                  fontSize:      8,
+                  letterSpacing: 2.5,
+                  opacity:       0.34,
+                  textTransform: "uppercase",
+                }}
+              >
+                Tap each slot to cycle
+              </div>
+              <div style={{ display: "flex", gap: 8, opacity: 0.72 }}>
+                {Array.from({ length: NUM_SHAPES }, (_, i) => (
+                  <svg key={i} width={16} height={16} viewBox="0 0 16 16">
+                    <ShapeElement index={i} cx={8} cy={8} r={6} fill={C_MAIN} />
                   </svg>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+
+            <Board />
 
           </div>
         )}
