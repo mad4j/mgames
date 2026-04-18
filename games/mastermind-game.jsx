@@ -12,8 +12,7 @@ const HUB_ICON_SLOT_SCALE = 0.4;
 const HUB_ICON_GAP_SCALE = 0.06;
 const HUB_ICON_SYMBOL_SCALE = 0.4;
 const HUB_ICON_DIAMOND_SCALE = 1.1;
-const TAP_HINT_BOTTOM_OFFSET = 24;
-const PLAYING_CONTENT_BOTTOM_PADDING = 84;
+const TAP_HINT_BOTTOM_SPACING = 24;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.95)";
@@ -756,33 +755,43 @@ export default function MastermindGame() {
             style={{
               display:       "flex",
               flexDirection: "column",
-              justifyContent: "center",
               alignItems:    "center",
-              gap:           18,
               animation:     "fadeIn 0.4s ease",
               width:         "100%",
               height:        "100%",
               maxWidth:      500,
-              padding:       `0 16px ${PLAYING_CONTENT_BOTTOM_PADDING}px`,
+              padding:       "0 16px",
               boxSizing:     "border-box",
-              position:      "relative",
             }}
           >
-            {/* attempt counter */}
             <div
               style={{
-                color:         C_MAIN,
-                fontSize:      9,
-                letterSpacing: 4,
-                opacity:       0.35,
-                textTransform: "uppercase",
+                display:       "flex",
+                flexDirection: "column",
+                alignItems:    "center",
+                justifyContent: "center",
+                gap:           18,
+                width:         "100%",
+                flex:          1,
               }}
             >
-              attempt {game.guesses.length + 1} / {MAX_ATTEMPTS}
+              {/* attempt counter */}
+              <div
+                style={{
+                  color:         C_MAIN,
+                  fontSize:      9,
+                  letterSpacing: 4,
+                  opacity:       0.35,
+                  textTransform: "uppercase",
+                }}
+              >
+                attempt {game.guesses.length + 1} / {MAX_ATTEMPTS}
+              </div>
+
+              <Board />
             </div>
 
-            <Board />
-            <div style={{ position: "absolute", bottom: TAP_HINT_BOTTOM_OFFSET }}>
+            <div style={{ paddingBottom: TAP_HINT_BOTTOM_SPACING }}>
               <TapSequenceHint />
             </div>
           </div>
