@@ -8,11 +8,8 @@ const MAX_ATTEMPTS = 10;
 const ROW_INDEX_WIDTH = 20;
 const FEEDBACK_COL_WIDTH = 36;
 const SHAPE_DIAMOND_INDEX = 3;
-const HUB_ICON_SLOT_SCALE = 0.4;
-const HUB_ICON_GAP_SCALE = 0.06;
-const HUB_ICON_SYMBOL_SCALE = 0.4;
-const HUB_ICON_DIAMOND_SCALE = 1.1;
 const TAP_HINT_BOTTOM_SPACING = 24;
+const MIN_ICON_STROKE_WIDTH = 1.2;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.95)";
@@ -192,15 +189,8 @@ function useSound() {
 
 /* ═══════════════════════ META ══════════════════════════ */
 function MastermindHubSymbol({ size = 32 }) {
-  const slot = size * HUB_ICON_SLOT_SCALE;
-  const gap = size * HUB_ICON_GAP_SCALE;
-  const start = (size - (slot * 2 + gap)) / 2;
-  const coords = [
-    [start, start],
-    [start + slot + gap, start],
-    [start, start + slot + gap],
-    [start + slot + gap, start + slot + gap],
-  ];
+  const cell = size / 2;
+  const radius = cell / 2 - 1;
 
   return (
     <svg
@@ -212,14 +202,16 @@ function MastermindHubSymbol({ size = 32 }) {
       aria-hidden="true"
       focusable="false"
     >
-      {coords.map(([x, y], i) => (
+      {[0, 1, 2, 3].map((shape, i) => (
         <ShapeElement
           key={i}
-          index={i}
-          cx={x + slot / 2}
-          cy={y + slot / 2}
-          r={slot * HUB_ICON_SYMBOL_SCALE * (i === SHAPE_DIAMOND_INDEX ? HUB_ICON_DIAMOND_SCALE : 1)}
-          fill="currentColor"
+          index={shape}
+          cx={(i % 2) * cell + cell / 2}
+          cy={Math.floor(i / 2) * cell + cell / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={Math.max(MIN_ICON_STROKE_WIDTH, size * 0.05)}
         />
       ))}
     </svg>
