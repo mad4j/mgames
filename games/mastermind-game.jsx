@@ -9,6 +9,7 @@ const ROW_INDEX_WIDTH = 20;
 const FEEDBACK_COL_WIDTH = 36;
 const SHAPE_DIAMOND_INDEX = 3;
 const TAP_HINT_BOTTOM_SPACING = 24;
+const MIN_ICON_STROKE_WIDTH = 1.2;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.95)";
@@ -210,7 +211,7 @@ function MastermindHubSymbol({ size = 32 }) {
           r={radius}
           fill="none"
           stroke="currentColor"
-          strokeWidth={Math.max(1.2, size * 0.05)}
+          strokeWidth={Math.max(MIN_ICON_STROKE_WIDTH, size * 0.05)}
         />
       ))}
     </svg>
