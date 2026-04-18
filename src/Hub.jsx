@@ -86,7 +86,7 @@ export default function Hub({ games }) {
       <label
         style={{
           marginBottom: 22,
-          color: "rgba(255,255,255,0.46)",
+          color: "rgba(255,255,255,0.78)",
           fontSize: 9,
           letterSpacing: 2.2,
           textTransform: "uppercase",
@@ -101,7 +101,12 @@ export default function Hub({ games }) {
           type="checkbox"
           checked={showDrafts}
           onChange={(e) => setShowDrafts(e.target.checked)}
-          style={{ cursor: "pointer" }}
+          style={{
+            cursor: "pointer",
+            filter: "invert(1) hue-rotate(180deg)",
+            accentColor: "#000",
+            backgroundColor: "#fff",
+          }}
         />
         show draft games
       </label>
