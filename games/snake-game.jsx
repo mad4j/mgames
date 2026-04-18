@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import SnakeBodyLogo from "../src/SnakeBodyLogo.jsx";
 
 const CELL          = 20;
 const MAX_SPEED     = 160;
@@ -147,6 +148,7 @@ function useWindowSize() {
 export const meta = {
   path: "/snake",
   symbol: "◈",
+  icon: "snake-body",
   name: "snake",
   description: "eat the diamond, don't hit the walls",
   status: "final",
@@ -499,10 +501,8 @@ export default function SnakeGame() {
           <div style={{ color:"#fff", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase" }}>snake</div>
 
           {/* Snake body logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: 7, margin: "36px 0" }}>
-            <div style={{ width: 18, height: 18, background: "rgba(255,255,255,0.92)" }} />
-            <div style={{ width: 16, height: 16, border: "1.5px solid rgba(255,255,255,0.65)" }} />
-            <div style={{ width: 16, height: 16, border: "1.5px solid rgba(255,255,255,0.42)" }} />
+          <div style={{ margin: "36px 0" }}>
+            <SnakeBodyLogo size={16} headSize={18} gap={7} />
           </div>
 
           {best > 0 && (

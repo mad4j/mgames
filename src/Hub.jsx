@@ -1,15 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-function SnakeBodyLogo() {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 4, opacity: 0.85 }}>
-      <div style={{ width: 14, height: 14, background: "rgba(255,255,255,0.92)" }} />
-      <div style={{ width: 12, height: 12, border: "1.5px solid rgba(255,255,255,0.65)" }} />
-      <div style={{ width: 12, height: 12, border: "1.5px solid rgba(255,255,255,0.42)" }} />
-    </div>
-  );
-}
+import SnakeBodyLogo from "./SnakeBodyLogo.jsx";
 
 export default function Hub({ games }) {
   const navigate = useNavigate();
@@ -127,10 +118,11 @@ export default function Hub({ games }) {
           <button
             key={g.path}
             className="game-card"
+            aria-label={`${g.name} game`}
             style={{ animationDelay: `${i * 0.12 + 0.1}s` }}
             onClick={() => navigate(g.path)}
           >
-            {g.path === "/snake" ? (
+            {g.icon === "snake-body" ? (
               <SnakeBodyLogo />
             ) : (
               <span
