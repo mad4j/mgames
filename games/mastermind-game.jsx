@@ -13,11 +13,6 @@ const HUB_ICON_SLOT_SCALE = 0.4;
 const HUB_ICON_GAP_SCALE = 0.06;
 const HUB_ICON_SYMBOL_SCALE = 0.4;
 const HUB_ICON_DIAMOND_SCALE = 1.1;
-const SHAPE_HINT_DURATION_MS = 900;
-const GAME_AREA_PADDING = 24;
-const GAME_AREA_WIDTH = "min(92vw, 760px)";
-const GAME_AREA_HEIGHT = "min(94dvh, 940px)";
-const GAME_CONTENT_MAX_WIDTH = "min(100%, 640px)";
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.95)";
@@ -183,20 +178,9 @@ export const meta = {
 export default function MastermindGame() {
   const navigate   = useNavigate();
   const doneTimerRef = useRef(null);
-  const shapeHintTimerRef = useRef(null);
 
   const [phase,         setPhase]         = useState("idle");
   const [game,          setGame]          = useState(null);
-  const [showShapeOrderHint, setShowShapeOrderHint] = useState(false);
-
-  const triggerShapeOrderHint = useCallback(() => {
-    if (shapeHintTimerRef.current) clearTimeout(shapeHintTimerRef.current);
-    setShowShapeOrderHint(true);
-    shapeHintTimerRef.current = setTimeout(() => {
-      shapeHintTimerRef.current = null;
-      setShowShapeOrderHint(false);
-    }, SHAPE_HINT_DURATION_MS);
-  }, []);
 
   /* ── start / restart ─────────────────────────────────── */
   const start = useCallback(() => {
@@ -218,9 +202,8 @@ export default function MastermindGame() {
         newGuess[slotIndex] = current === null ? 0 : (current + 1) % NUM_SHAPES;
         return { ...prev, currentGuess: newGuess };
       });
-      triggerShapeOrderHint();
     },
-    [triggerShapeOrderHint]
+    []
   );
 
   /* ── submit current guess ────────────────────────────── */
@@ -266,7 +249,6 @@ export default function MastermindGame() {
   useEffect(() => {
     return () => {
       if (doneTimerRef.current) clearTimeout(doneTimerRef.current);
-      if (shapeHintTimerRef.current) clearTimeout(shapeHintTimerRef.current);
     };
   }, []);
 
@@ -566,14 +548,6 @@ export default function MastermindGame() {
     </button>
   );
 
-  const contentWrapStyle = {
-    width: "100%",
-    maxWidth: GAME_CONTENT_MAX_WIDTH,
-    margin: "0 auto",
-    padding: "0 clamp(12px, 2.4vw, 24px)",
-    boxSizing: "border-box",
-  };
-
   /* ── hub icon button ─────────────────────────────────── */
   const HubBtn = () => (
     <button
@@ -595,7 +569,12 @@ export default function MastermindGame() {
         transition: "color 0.2s",
       }}
     >
-      <MastermindHubSymbol size={18} />
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="2"  y="2"  width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
+        <rect x="10" y="2"  width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
+        <rect x="2"  y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
+        <rect x="10" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
+      </svg>
     </button>
   );
 
@@ -615,10 +594,10 @@ export default function MastermindGame() {
         className="game-area"
         style={{
           position:      "relative",
-          width:         GAME_AREA_WIDTH,
-          height:        GAME_AREA_HEIGHT,
-          maxWidth:      `calc(100vw - ${GAME_AREA_PADDING}px)`,
-          maxHeight:     `calc(100dvh - ${GAME_AREA_PADDING}px)`,
+          width:         560,
+          height:        840,
+          maxWidth:      "calc(100vw - 24px)",
+          maxHeight:     "calc(100dvh - 24px)",
           overflow:      "hidden",
           display:       "flex",
           flexDirection: "column",
@@ -645,7 +624,6 @@ export default function MastermindGame() {
               alignItems:    "center",
               gap:           0,
               animation:     "fadeIn 0.55s ease",
-              ...contentWrapStyle,
             }}
           >
             <div
@@ -748,10 +726,13 @@ export default function MastermindGame() {
               display:       "flex",
               flexDirection: "column",
               alignItems:    "center",
-              gap:           18,
-              animation:     "fadeIn 0.4s ease",
-              ...contentWrapStyle,
-            }}
+               gap:           18,
+               animation:     "fadeIn 0.4s ease",
+               width:         "100%",
+               maxWidth:      500,
+               padding:       "0 16px",
+               boxSizing:     "border-box",
+             }}
           >
             {/* attempt counter */}
             <div
@@ -787,15 +768,7 @@ export default function MastermindGame() {
               >
                 Tap each slot to cycle
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  gap: 8,
-                  opacity: showShapeOrderHint ? 0.72 : 0,
-                  transform: `translateY(${showShapeOrderHint ? 0 : -3}px)`,
-                  transition: "opacity 0.24s ease, transform 0.24s ease",
-                }}
-              >
+              <div style={{ display: "flex", gap: 8, opacity: 0.72 }}>
                 {Array.from({ length: NUM_SHAPES }, (_, i) => (
                   <svg key={i} width={16} height={16} viewBox="0 0 16 16">
                     <ShapeElement index={i} cx={8} cy={8} r={6} fill={C_MAIN} />
@@ -817,7 +790,6 @@ export default function MastermindGame() {
               flexDirection: "column",
               alignItems:    "center",
               animation:     "fadeIn 0.5s ease",
-              ...contentWrapStyle,
             }}
           >
             <div style={{ width: 48, height: 1, background: C_MAIN, opacity: 0.35, marginBottom: 24 }} />
