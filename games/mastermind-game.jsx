@@ -15,8 +15,22 @@ const HUB_ICON_SYMBOL_SCALE = 0.4;
 const HUB_ICON_DIAMOND_SCALE = 1.1;
 
 const C_BG   = "#0a0a0a";
-const C_MAIN = "rgba(255,255,255,0.88)";
+const C_MAIN = "rgba(255,255,255,0.92)";
+const C_STRONG = "rgba(255,255,255,0.96)";
+const C_SOFT = "rgba(255,255,255,0.78)";
+const C_DIM = "rgba(255,255,255,0.36)";
+const C_FAINT = "rgba(255,255,255,0.24)";
+const C_BORDER = "rgba(255,255,255,0.28)";
 const mono   = "'DM Mono', 'Courier New', monospace";
+const IDLE_RULES = [
+  ["SHAPES", "6 to choose"],
+  ["CODE", "4 pegs"],
+  ["TRIES", `${MAX_ATTEMPTS} attempts`],
+];
+const FEEDBACK_LEGEND = [
+  ["●", "right shape & place"],
+  ["○", "right shape, wrong place"],
+];
 
 /* ═══════════════════════ SHAPES ════════════════════════ */
 // Returns SVG child elements for the given shape index.
@@ -258,7 +272,7 @@ export default function MastermindGame() {
               cx={cx}
               cy={cy}
               r={r}
-              fill="rgba(255,255,255,0.88)"
+              fill={C_MAIN}
             />
           ) : (
             <circle
@@ -266,7 +280,7 @@ export default function MastermindGame() {
               cy={cy}
               r={r}
               fill="transparent"
-              stroke="rgba(255,255,255,0.18)"
+              stroke={C_BORDER}
               strokeWidth={1.5}
             />
           )}
@@ -291,8 +305,8 @@ export default function MastermindGame() {
               width:        dotSize,
               height:       dotSize,
               borderRadius: "50%",
-              background:   p === "black" ? "rgba(255,255,255,0.88)" : "transparent",
-              border:       `1px solid ${p === "empty" ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.88)"}`,
+              background:   p === "black" ? C_MAIN : "transparent",
+              border:       `1px solid ${p === "empty" ? C_FAINT : C_MAIN}`,
               boxSizing:    "border-box",
             }}
           />
@@ -313,27 +327,27 @@ export default function MastermindGame() {
         alignItems:   "center",
         justifyContent: "center",
         background:   "transparent",
-        border:       `1px solid ${enabled ? "rgba(255,255,255,0.52)" : "rgba(255,255,255,0.18)"}`,
+        border:       `1px solid ${enabled ? C_SOFT : C_BORDER}`,
         borderRadius: 6,
-        color:        enabled ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.26)",
+        color:        enabled ? C_STRONG : C_DIM,
         cursor:       enabled ? "pointer" : "default",
-        opacity:      enabled ? 1 : 0.7,
+        opacity:      enabled ? 1 : 0.75,
         transition:   "border-color 0.2s, box-shadow 0.2s, color 0.2s, opacity 0.2s",
       }}
       onMouseEnter={(e) => {
         if (enabled) {
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.9)";
-          e.currentTarget.style.boxShadow = "0 0 12px rgba(255,255,255,0.2)";
+          e.currentTarget.style.borderColor = C_STRONG;
+          e.currentTarget.style.boxShadow = "0 0 12px rgba(255,255,255,0.26)";
         }
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = enabled ? "rgba(255,255,255,0.52)" : "rgba(255,255,255,0.18)";
+        e.currentTarget.style.borderColor = enabled ? C_SOFT : C_BORDER;
         e.currentTarget.style.boxShadow = "none";
       }}
     >
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
         <path
-          d="M2 7h8M7 2l5 5-5 5"
+          d="M7 2v9M3 7l4 4 4-4"
           stroke="currentColor"
           strokeWidth="1.4"
           strokeLinecap="round"
@@ -377,9 +391,9 @@ export default function MastermindGame() {
              display:    "flex",
               gap:        9,
               padding:    "6px 12px",
-             border:     isCurrent ? "1px solid rgba(255,255,255,0.22)" : "1px solid transparent",
+             border:     isCurrent ? `1px solid ${C_BORDER}` : "1px solid transparent",
              transition: "border-color 0.2s",
-           }}
+            }}
         >
           {Array(CODE_LENGTH)
             .fill(null)
@@ -475,7 +489,7 @@ export default function MastermindGame() {
       onClick={disabled ? undefined : onClick}
       style={{
         background:    "transparent",
-        border:        "1px solid rgba(255,255,255,0.27)",
+        border:        `1px solid ${C_DIM}`,
         color:         C_MAIN,
         fontFamily:    mono,
         fontSize:      11,
@@ -489,12 +503,12 @@ export default function MastermindGame() {
       }}
       onMouseEnter={(e) => {
         if (!disabled) {
-          e.currentTarget.style.borderColor = C_MAIN;
-          e.currentTarget.style.boxShadow  = "0 0 18px rgba(255,255,255,0.18)";
+          e.currentTarget.style.borderColor = C_STRONG;
+          e.currentTarget.style.boxShadow  = "0 0 18px rgba(255,255,255,0.22)";
         }
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "rgba(255,255,255,0.27)";
+        e.currentTarget.style.borderColor = C_DIM;
         e.currentTarget.style.boxShadow  = "none";
       }}
     >
@@ -507,8 +521,8 @@ export default function MastermindGame() {
     <button
       aria-label="back to hub"
       onClick={() => navigate("/")}
-      onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
-      onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.38)")}
+      onMouseEnter={(e) => (e.currentTarget.style.color = C_SOFT)}
+      onMouseLeave={(e) => (e.currentTarget.style.color = C_DIM)}
       style={{
         position:   "absolute",
         top:        14,
@@ -516,7 +530,7 @@ export default function MastermindGame() {
         zIndex:     20,
         background: "transparent",
         border:     "none",
-        color:      "rgba(255,255,255,0.38)",
+        color:      C_DIM,
         cursor:     "pointer",
         padding:    6,
         lineHeight: 0,
@@ -548,7 +562,7 @@ export default function MastermindGame() {
         className="game-area"
         style={{
           position:      "relative",
-           width:         560,
+          width:         560,
           height:        840,
           maxWidth:      "calc(100vw - 24px)",
           maxHeight:     "calc(100dvh - 24px)",
@@ -556,10 +570,10 @@ export default function MastermindGame() {
           display:       "flex",
           flexDirection: "column",
           alignItems:    "center",
-          justifyContent:"center",
+          justifyContent: "center",
           fontFamily:    mono,
           userSelect:    "none",
-          outline:       "1px dashed rgba(255,255,255,0.12)",
+          outline:       `1px dashed ${C_FAINT}`,
         }}
       >
         <style>{`
@@ -590,25 +604,25 @@ export default function MastermindGame() {
                 textTransform: "uppercase",
               }}
             >
-              — logic game —
+              — mastermind —
             </div>
 
             <div
               style={{
                 color:         C_MAIN,
-                 display:              "grid",
-                 gridTemplateColumns:  "repeat(2, 1fr)",
-                 gridTemplateRows:     "repeat(2, 1fr)",
-                 gap:                  14,
-                 marginBottom:         20,
-               }}
-             >
-               {[0, 1, 2, 3].map((shape) => (
-                 <svg key={shape} width={40} height={40} viewBox="0 0 40 40" style={{ opacity: 0.92 }}>
-                   <ShapeElement index={shape} cx={20} cy={20} r={15} fill="rgba(255,255,255,0.88)" />
-                 </svg>
-               ))}
-             </div>
+                display:              "grid",
+                gridTemplateColumns:  "repeat(2, 1fr)",
+                gridTemplateRows:     "repeat(2, 1fr)",
+                gap:                  14,
+                marginBottom:         20,
+              }}
+            >
+              {[0, 1, 2, 3].map((shape) => (
+                <svg key={shape} width={40} height={40} viewBox="0 0 40 40" style={{ opacity: 0.92 }}>
+                  <ShapeElement index={shape} cx={20} cy={20} r={15} fill={C_MAIN} />
+                </svg>
+              ))}
+            </div>
 
             <div
               style={{
@@ -616,7 +630,7 @@ export default function MastermindGame() {
                 fontSize:      9,
                 letterSpacing: 3,
                 opacity:       0.28,
-                 marginBottom:  30,
+                marginBottom:  30,
               }}
             >
               crack the hidden shape code
@@ -626,18 +640,14 @@ export default function MastermindGame() {
             <div style={{ display: "flex", gap: 7, marginBottom: 36 }}>
               {Array.from({ length: NUM_SHAPES }, (_, i) => (
                 <svg key={i} width={14} height={14} viewBox="0 0 14 14" style={{ opacity: 0.6 }}>
-                  <ShapeElement index={i} cx={7} cy={7} r={5} fill="rgba(255,255,255,0.88)" />
+                  <ShapeElement index={i} cx={7} cy={7} r={5} fill={C_MAIN} />
                 </svg>
               ))}
             </div>
 
             {/* rules */}
             <div style={{ display: "flex", gap: 28, marginBottom: 4 }}>
-              {[
-                ["SHAPES", "6 to choose"],
-                ["CODE",   "4 pegs"],
-                ["TRIES",  `${MAX_ATTEMPTS} attempts`],
-              ].map(([k, v]) => (
+              {IDLE_RULES.map(([k, v]) => (
                 <div key={k} style={{ textAlign: "center" }}>
                   <div style={{ color: C_MAIN, fontSize: 9, letterSpacing: 3, opacity: 0.55 }}>{k}</div>
                   <div style={{ color: C_MAIN, fontSize: 9, letterSpacing: 1, opacity: 0.2, marginTop: 3 }}>{v}</div>
@@ -654,18 +664,15 @@ export default function MastermindGame() {
                 marginBottom:  0,
               }}
             >
-              {[
-                ["●", "right shape & place"],
-                ["○", "right shape, wrong place"],
-              ].map(([sym, label]) => (
+              {FEEDBACK_LEGEND.map(([sym, label]) => (
                 <div key={sym} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <div
                     style={{
                       width:        8,
                       height:       8,
                       borderRadius: "50%",
-                      background:   sym === "●" ? "rgba(255,255,255,0.88)" : "transparent",
-                      border:       "1px solid rgba(255,255,255,0.88)",
+                      background:   sym === "●" ? C_MAIN : "transparent",
+                      border:       `1px solid ${C_MAIN}`,
                       boxSizing:    "border-box",
                     }}
                   />
@@ -722,7 +729,7 @@ export default function MastermindGame() {
                     cursor:     "pointer",
                     opacity:    selectedShape === i ? 1 : 0.45,
                     transition: "opacity 0.15s, filter 0.15s",
-                    filter:     selectedShape === i ? "drop-shadow(0 0 5px rgba(255,255,255,0.55))" : "none",
+                    filter:     selectedShape === i ? "drop-shadow(0 0 5px rgba(255,255,255,0.62))" : "none",
                   }}
                 >
                   <svg width={34} height={34} viewBox="0 0 34 34">
@@ -731,7 +738,7 @@ export default function MastermindGame() {
                       cx={17}
                       cy={17}
                       r={13}
-                      fill={selectedShape === i ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.7)"}
+                      fill={selectedShape === i ? C_STRONG : C_SOFT}
                     />
                   </svg>
                 </div>
@@ -756,8 +763,8 @@ export default function MastermindGame() {
             <div
               style={{
                 color:         C_MAIN,
-                 fontSize:      14,
-                 letterSpacing: 6,
+                fontSize:      14,
+                letterSpacing: 6,
                 textTransform: "uppercase",
                 opacity:       0.5,
                 marginBottom:  20,
@@ -767,17 +774,17 @@ export default function MastermindGame() {
             </div>
 
             {/* revealed secret */}
-             <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
-               {game.secret.map((shapeIdx, i) => (
-                 <svg key={i} width={36} height={36} viewBox="0 0 36 36">
-                   <ShapeElement
-                     index={shapeIdx}
-                     cx={18}
-                     cy={18}
-                     r={14}
-                     fill="rgba(255,255,255,0.88)"
-                   />
-                 </svg>
+            <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+              {game.secret.map((shapeIdx, i) => (
+                <svg key={i} width={36} height={36} viewBox="0 0 36 36">
+                  <ShapeElement
+                    index={shapeIdx}
+                    cx={18}
+                    cy={18}
+                    r={14}
+                    fill={C_MAIN}
+                  />
+                </svg>
               ))}
             </div>
 
@@ -785,8 +792,8 @@ export default function MastermindGame() {
               <div
                 style={{
                   color:         C_MAIN,
-                   fontSize:      11,
-                   letterSpacing: 3,
+                  fontSize:      11,
+                  letterSpacing: 3,
                   opacity:       0.38,
                   marginBottom:  20,
                 }}
@@ -798,8 +805,8 @@ export default function MastermindGame() {
               <div
                 style={{
                   color:         C_MAIN,
-                   fontSize:      11,
-                   letterSpacing: 3,
+                  fontSize:      11,
+                  letterSpacing: 3,
                   opacity:       0.28,
                   marginBottom:  20,
                 }}
@@ -815,45 +822,45 @@ export default function MastermindGame() {
               style={{
                 display:       "flex",
                 flexDirection: "column",
-                 gap:           8,
-                 marginBottom:  20,
-                 maxHeight:     360,
-                 width:         "100%",
-                 maxWidth:      420,
-                 overflowY:     "auto",
-               }}
+                gap:           8,
+                marginBottom:  20,
+                maxHeight:     360,
+                width:         "100%",
+                maxWidth:      420,
+                overflowY:     "auto",
+              }}
             >
               {game.guesses.map((g, i) => (
                 <div
                   key={i}
                   style={{
                     display:    "flex",
-                     gap:        10,
-                     alignItems: "center",
-                     opacity:    game.won && i === game.guesses.length - 1 ? 1 : 0.55,
-                   }}
+                    gap:        10,
+                    alignItems: "center",
+                    opacity:    game.won && i === game.guesses.length - 1 ? 1 : 0.55,
+                  }}
                 >
                   <div
                     style={{
-                       width:     18,
-                       textAlign: "right",
-                       color:     C_MAIN,
-                       fontSize:  9,
-                       opacity:   0.3,
-                     }}
-                   >
-                     {i + 1}
-                   </div>
-                   <div style={{ display: "flex", gap: 6 }}>
-                     {g.colors.map((c, j) => (
-                       <svg key={j} width={20} height={20} viewBox="0 0 20 20">
-                         <ShapeElement index={c} cx={10} cy={10} r={8} fill="rgba(255,255,255,0.82)" />
-                       </svg>
-                     ))}
-                   </div>
-                   <FeedbackGrid blacks={g.blacks} whites={g.whites} dotSize={11} gap={5} />
-                 </div>
-               ))}
+                      width:     18,
+                      textAlign: "right",
+                      color:     C_MAIN,
+                      fontSize:  9,
+                      opacity:   0.3,
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {g.colors.map((c, j) => (
+                      <svg key={j} width={20} height={20} viewBox="0 0 20 20">
+                        <ShapeElement index={c} cx={10} cy={10} r={8} fill={C_MAIN} />
+                      </svg>
+                    ))}
+                  </div>
+                  <FeedbackGrid blacks={g.blacks} whites={g.whites} dotSize={11} gap={5} />
+                </div>
+              ))}
             </div>
 
             <Btn onClick={start}>again</Btn>
