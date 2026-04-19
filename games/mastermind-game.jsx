@@ -248,11 +248,16 @@ export const meta = {
 };
 
 function useWindowSize() {
-  const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight });
+  const getViewportSize = () => (
+    typeof window === "undefined"
+      ? { w: GAME_W + 32, h: GAME_H + 32 }
+      : { w: window.innerWidth, h: window.innerHeight }
+  );
+  const [size, setSize] = useState(getViewportSize);
   useEffect(() => {
-    const h = () => setSize({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener("resize", h);
-    return () => window.removeEventListener("resize", h);
+    const handleResize = () => setSize(getViewportSize());
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
   return size;
 }
