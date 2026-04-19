@@ -6,6 +6,19 @@ const TOTAL_DOTS = 120;
 const START_GRACE_MS = 350;
 const MOTION_THRESHOLD = 1.8;
 const ORIENTATION_THRESHOLD = 9;
+const CELL = 20;
+const GAME_H = 760;
+const MAX_WIDTH = 430;
+
+function useWindowSize() {
+  const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight });
+  useEffect(() => {
+    const onResize = () => setSize({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return size;
+}
 
 function useSound() {
   const ctxRef = useRef(null);
@@ -124,7 +137,12 @@ const iconBtnStyle = {
 };
 
 export default function VoidGame() {
+  const { w, h } = useWindowSize();
   const navigate = useNavigate();
+  const containerW = Math.min(w - 32, MAX_WIDTH);
+  const containerH = Math.min(h - 32, GAME_H);
+  const cols = Math.floor(containerW / CELL);
+  const rows = Math.floor(containerH / CELL);
   const [phase, setPhase] = useState("idle");
   const [timeLeft, setTimeLeft] = useState(GAME_SECONDS);
   const [score, setScore] = useState(0);
@@ -294,10 +312,8 @@ export default function VoidGame() {
         className="game-area"
         style={{
           position: "relative",
-          width: 520,
-          height: 760,
-          maxWidth: "calc(100vw - 32px)",
-          maxHeight: "calc(100dvh - 32px)",
+          width: cols * CELL,
+          height: rows * CELL,
           overflow: "hidden",
           userSelect: "none",
           fontFamily: "'DM Mono', 'Courier New', monospace",
