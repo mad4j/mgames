@@ -32,6 +32,13 @@ const FEEDBACK_LEGEND = [
   ["○", "right shape, wrong place"],
 ];
 
+function getViewportSize() {
+  if (typeof window === "undefined") {
+    return { w: GAME_W + VIEWPORT_PADDING, h: GAME_H + VIEWPORT_PADDING };
+  }
+  return { w: window.innerWidth, h: window.innerHeight };
+}
+
 /* ═══════════════════════ SHAPES ════════════════════════ */
 // Returns SVG child elements for the given shape index.
 // cx/cy = centre, r = radius of bounding circle
@@ -249,12 +256,7 @@ export const meta = {
 };
 
 function useWindowSize() {
-  const getViewportSize = () => (
-    typeof window === "undefined"
-      ? { w: GAME_W + VIEWPORT_PADDING, h: GAME_H + VIEWPORT_PADDING }
-      : { w: window.innerWidth, h: window.innerHeight }
-  );
-  const [size, setSize] = useState(getViewportSize);
+  const [size, setSize] = useState(() => getViewportSize());
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
     const handleResize = () => setSize(getViewportSize());
