@@ -419,7 +419,7 @@ export default function VoidGame() {
               aria-label={`score ${score} seconds`}
               style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
             >
-              score {score}
+              score {score} seconds
             </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
@@ -451,7 +451,7 @@ export default function VoidGame() {
               aria-label={`score ${score} seconds`}
               style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
             >
-              score {score}
+              score {score} seconds
             </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
