@@ -290,14 +290,14 @@ function IconHub() {
 
 /* ═══════════════════════ COMPONENT ═════════════════ */
 export const meta = {
-  path: "/void",
+  path: "/dodge",
   symbol: "△",
-  name: "void",
+  name: "dodge",
   description: "navigate the asteroid field",
   status: "draft",
 };
 
-export default function VoidGame() {
+export default function DodgeGame() {
   const cvs    = useRef(null);
   const raf    = useRef(null);
   const g      = useRef(null);
