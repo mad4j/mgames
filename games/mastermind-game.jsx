@@ -251,7 +251,7 @@ export const meta = {
 function useWindowSize() {
   const getViewportSize = () => (
     typeof window === "undefined"
-      ? { w: GAME_W + 32, h: GAME_H + 32 }
+      ? { w: GAME_W + VIEWPORT_PADDING, h: GAME_H + VIEWPORT_PADDING }
       : { w: window.innerWidth, h: window.innerHeight }
   );
   const [size, setSize] = useState(getViewportSize);
