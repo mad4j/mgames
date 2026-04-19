@@ -243,7 +243,6 @@ export default function VoidGame() {
 
     window.addEventListener("pointerdown", onAnyAction, { passive: true });
     window.addEventListener("keydown", onAnyAction);
-    window.addEventListener("wheel", onAnyAction, { passive: true });
     window.addEventListener("touchstart", onAnyAction, { passive: true });
     window.addEventListener("blur", onAnyAction);
     window.addEventListener("pagehide", onAnyAction);
@@ -255,7 +254,6 @@ export default function VoidGame() {
     return () => {
       window.removeEventListener("pointerdown", onAnyAction);
       window.removeEventListener("keydown", onAnyAction);
-      window.removeEventListener("wheel", onAnyAction);
       window.removeEventListener("touchstart", onAnyAction);
       window.removeEventListener("blur", onAnyAction);
       window.removeEventListener("pagehide", onAnyAction);
@@ -283,7 +281,7 @@ export default function VoidGame() {
         className="game-area"
         style={{
           position: "relative",
-          width: 430,
+          width: 520,
           height: 760,
           maxWidth: "calc(100vw - 32px)",
           maxHeight: "calc(100dvh - 32px)",
@@ -301,32 +299,28 @@ export default function VoidGame() {
           }
         `}</style>
 
-        {phase !== "playing" && (
-          <>
-            <button
-              aria-label={soundOn ? "mute" : "unmute"}
-              onClick={() => setSoundOn(!soundOn)}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = soundOn ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.18)")}
-              style={{
-                ...iconBtnStyle,
-                right: 52,
-                color: `rgba(255,255,255,${soundOn ? 0.38 : 0.18})`,
-              }}
-            >
-              <IconSound on={soundOn} />
-            </button>
-            <button
-              aria-label="back to hub"
-              onClick={() => navigate("/")}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.38)")}
-              style={{ ...iconBtnStyle, right: 12 }}
-            >
-              <IconHub />
-            </button>
-          </>
-        )}
+        <button
+          aria-label={soundOn ? "mute" : "unmute"}
+          onClick={() => setSoundOn(!soundOn)}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = soundOn ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.18)")}
+          style={{
+            ...iconBtnStyle,
+            right: 52,
+            color: `rgba(255,255,255,${soundOn ? 0.38 : 0.18})`,
+          }}
+        >
+          <IconSound on={soundOn} />
+        </button>
+        <button
+          aria-label="back to hub"
+          onClick={() => navigate("/")}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.38)")}
+          style={{ ...iconBtnStyle, right: 12 }}
+        >
+          <IconHub />
+        </button>
 
         {phase === "idle" && (
           <div
