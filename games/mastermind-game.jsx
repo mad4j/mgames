@@ -10,6 +10,9 @@ const FEEDBACK_COL_WIDTH = 36;
 const SHAPE_DIAMOND_INDEX = 3;
 const TAP_HINT_BOTTOM_SPACING = 24;
 const MIN_ICON_STROKE_WIDTH = 1.2;
+const VIEWPORT_PADDING = 32;
+const GAME_W = 560;
+const GAME_H = 840;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.95)";
@@ -28,6 +31,13 @@ const FEEDBACK_LEGEND = [
   ["●", "right shape & place"],
   ["○", "right shape, wrong place"],
 ];
+
+function getViewportSize() {
+  if (typeof window === "undefined") {
+    return { w: GAME_W + VIEWPORT_PADDING, h: GAME_H + VIEWPORT_PADDING };
+  }
+  return { w: window.innerWidth, h: window.innerHeight };
+}
 
 /* ═══════════════════════ SHAPES ════════════════════════ */
 // Returns SVG child elements for the given shape index.
@@ -245,10 +255,24 @@ export const meta = {
   status:      "final",
 };
 
+function useWindowSize() {
+  const [size, setSize] = useState(() => getViewportSize());
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const handleResize = () => setSize(getViewportSize());
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  return size;
+}
+
 /* ═══════════════════════ COMPONENT ════════════════════ */
 export default function MastermindGame() {
+  const { w, h } = useWindowSize();
   const navigate   = useNavigate();
   const doneTimerRef = useRef(null);
+  const containerW = Math.min(w - VIEWPORT_PADDING, GAME_W);
+  const containerH = Math.min(h - VIEWPORT_PADDING, GAME_H);
   const { soundOn, setSoundOn, playPick, playSubmit, playWin, playLose } = useSound();
 
   const [phase,         setPhase]         = useState("idle");
@@ -715,10 +739,8 @@ export default function MastermindGame() {
         className="game-area"
         style={{
           position:      "relative",
-          width:         560,
-          height:        840,
-          maxWidth:      "calc(100vw - 24px)",
-          maxHeight:     "calc(100dvh - 24px)",
+          width:         containerW,
+          height:        containerH,
           overflow:      "hidden",
           display:       "flex",
           flexDirection: "column",
