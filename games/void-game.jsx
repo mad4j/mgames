@@ -277,6 +277,7 @@ export default function VoidGame() {
   }, [phase, endLost]);
 
   const visibleDots = Math.max(0, Math.ceil((timeLeft / GAME_SECONDS) * TOTAL_DOTS));
+  const scoreLabel = `${score} second${score === 1 ? "" : "s"}`;
 
   return (
     <div
@@ -416,10 +417,10 @@ export default function VoidGame() {
             <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>void complete</div>
             <div
               role="status"
-              aria-label={`score ${score} seconds`}
+              aria-label={`score ${scoreLabel}`}
               style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
             >
-              score {score} seconds
+              score {scoreLabel}
             </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
@@ -448,10 +449,10 @@ export default function VoidGame() {
             <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>you did something</div>
             <div
               role="status"
-              aria-label={`score ${score} seconds`}
+              aria-label={`score ${scoreLabel}`}
               style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
             >
-              score {score} seconds
+              score {scoreLabel}
             </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
