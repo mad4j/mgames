@@ -290,14 +290,14 @@ function IconHub() {
 
 /* ═══════════════════════ COMPONENT ═════════════════ */
 export const meta = {
-  path: "/void",
+  path: "/dodge",
   symbol: "△",
-  name: "void",
+  name: "dodge",
   description: "navigate the asteroid field",
   status: "draft",
 };
 
-export default function VoidGame() {
+export default function DodgeGame() {
   const cvs    = useRef(null);
   const raf    = useRef(null);
   const g      = useRef(null);
@@ -803,7 +803,7 @@ export default function VoidGame() {
           <div style={{
             color:C_MAIN, fontSize:40, letterSpacing:12, lineHeight:1,
             textShadow:`0 0 28px ${C_MAIN}`, fontFamily:mono, marginBottom:6,
-          }}>VOID</div>
+          }}>DODGE</div>
           <Label style={{ fontSize:10, marginBottom:40 }}>asteroid belt</Label>
 
           <div style={{ display:"flex", gap:28, marginTop:4 }}>
