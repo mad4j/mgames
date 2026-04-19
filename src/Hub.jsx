@@ -71,6 +71,7 @@ export default function Hub({ games }) {
           background: transparent !important;
           display: grid;
           place-content: center;
+          cursor: pointer;
         }
         .hub-checkbox::before {
           content: "";
@@ -123,7 +124,6 @@ export default function Hub({ games }) {
           className="hub-checkbox"
           checked={showDrafts}
           onChange={(e) => setShowDrafts(e.target.checked)}
-          style={{ cursor: "pointer" }}
         />
         show draft games
       </label>
