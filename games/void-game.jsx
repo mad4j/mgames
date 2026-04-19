@@ -414,7 +414,13 @@ export default function VoidGame() {
           >
             <div style={{ color: "#fff", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 16 }}>victory</div>
             <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>void complete</div>
-            <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}>score {score}</div>
+            <div
+              role="status"
+              aria-label={`score ${score}`}
+              style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
+            >
+              score {score}
+            </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
               onMouseEnter={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.6)")}
@@ -440,7 +446,13 @@ export default function VoidGame() {
           >
             <div style={{ color: "#fff", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 16 }}>game over</div>
             <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>you did something</div>
-            <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}>score {score}</div>
+            <div
+              role="status"
+              aria-label={`score ${score}`}
+              style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
+            >
+              score {score}
+            </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
               onMouseEnter={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.6)")}
