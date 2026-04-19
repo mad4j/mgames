@@ -803,7 +803,7 @@ export default function DodgeGame() {
           <div style={{
             color:C_MAIN, fontSize:40, letterSpacing:12, lineHeight:1,
             textShadow:`0 0 28px ${C_MAIN}`, fontFamily:mono, marginBottom:6,
-          }}>VOID</div>
+          }}>DODGE</div>
           <Label style={{ fontSize:10, marginBottom:40 }}>asteroid belt</Label>
 
           <div style={{ display:"flex", gap:28, marginTop:4 }}>
