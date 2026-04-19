@@ -122,20 +122,29 @@ export default function Hub({ games }) {
             style={{ animationDelay: `${i * 0.12 + 0.1}s` }}
             onClick={() => navigate(g.path)}
           >
-            {g.icon === "snake-body" ? (
-              <SnakeBodyLogo />
-            ) : (
-              <span
-                style={{
-                  fontSize: 32,
-                  fontWeight: 300,
-                  lineHeight: 1,
-                  opacity: 0.85,
-                }}
-              >
-                {g.symbol}
-              </span>
-            )}
+            <span
+              style={{
+                minHeight: 32,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {g.icon === "snake-body" ? (
+                <SnakeBodyLogo />
+              ) : (
+                <span
+                  style={{
+                    fontSize: 32,
+                    fontWeight: 300,
+                    lineHeight: 1,
+                    opacity: 0.85,
+                  }}
+                >
+                  {g.symbol}
+                </span>
+              )}
+            </span>
             <span
               style={{
                 fontSize: 10,
