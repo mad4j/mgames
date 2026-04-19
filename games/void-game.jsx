@@ -165,7 +165,7 @@ export default function VoidGame() {
   }, []);
 
   const requestWakeLock = useCallback(async () => {
-    if (!("wakeLock" in navigator) || phaseRef.current !== "playing" || document.visibilityState !== "visible") return;
+    if (!("wakeLock" in navigator) || document.visibilityState !== "visible") return;
     try {
       const wakeLock = await navigator.wakeLock.request("screen");
       wakeLockRef.current = wakeLock;
@@ -203,8 +203,10 @@ export default function VoidGame() {
 
     requestWakeLock();
     const onVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
+      if (document.visibilityState === "visible" && phaseRef.current === "playing") {
         requestWakeLock();
+      } else {
+        releaseWakeLock();
       }
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
