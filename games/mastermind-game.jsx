@@ -10,6 +10,8 @@ const FEEDBACK_COL_WIDTH = 36;
 const SHAPE_DIAMOND_INDEX = 3;
 const TAP_HINT_BOTTOM_SPACING = 24;
 const MIN_ICON_STROKE_WIDTH = 1.2;
+const GAME_W = 560;
+const GAME_H = 840;
 
 const C_BG   = "#0a0a0a";
 const C_MAIN = "rgba(255,255,255,0.95)";
@@ -245,10 +247,23 @@ export const meta = {
   status:      "final",
 };
 
+function useWindowSize() {
+  const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight });
+  useEffect(() => {
+    const h = () => setSize({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", h);
+    return () => window.removeEventListener("resize", h);
+  }, []);
+  return size;
+}
+
 /* ═══════════════════════ COMPONENT ════════════════════ */
 export default function MastermindGame() {
+  const { w, h } = useWindowSize();
   const navigate   = useNavigate();
   const doneTimerRef = useRef(null);
+  const containerW = Math.min(w - 32, GAME_W);
+  const containerH = Math.min(h - 32, GAME_H);
   const { soundOn, setSoundOn, playPick, playSubmit, playWin, playLose } = useSound();
 
   const [phase,         setPhase]         = useState("idle");
@@ -715,10 +730,8 @@ export default function MastermindGame() {
         className="game-area"
         style={{
           position:      "relative",
-          width:         560,
-          height:        840,
-          maxWidth:      "calc(100vw - 24px)",
-          maxHeight:     "calc(100dvh - 24px)",
+          width:         containerW,
+          height:        containerH,
           overflow:      "hidden",
           display:       "flex",
           flexDirection: "column",
