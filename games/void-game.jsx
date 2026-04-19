@@ -25,7 +25,7 @@ function useSound() {
     return ctxRef.current;
   }, []);
 
-  const playTone = useCallback((freq, duration, type = "sine", gainVal = 0.15, delay = 0) => {
+  const playTone = useCallback((freq, duration, type = "sine", gainValue = 0.15, delay = 0) => {
     if (!enabledRef.current) return;
     try {
       const ctx = getCtx();
@@ -36,7 +36,7 @@ function useSound() {
       gain.connect(ctx.destination);
       osc.frequency.value = freq;
       osc.type = type;
-      gain.gain.setValueAtTime(gainVal, start);
+      gain.gain.setValueAtTime(gainValue, start);
       gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
       osc.start(start);
       osc.stop(start + duration);
@@ -157,7 +157,6 @@ export default function VoidGame() {
     stopTimer();
     motionBaselineRef.current = null;
     orientationBaselineRef.current = null;
-    startAtRef.current = Date.now();
     setTimeLeft(GAME_SECONDS);
     phaseRef.current = "playing";
     setPhase("playing");
@@ -246,7 +245,6 @@ export default function VoidGame() {
     window.addEventListener("keydown", onAnyAction);
     window.addEventListener("wheel", onAnyAction, { passive: true });
     window.addEventListener("touchstart", onAnyAction, { passive: true });
-    window.addEventListener("mousemove", onAnyAction, { passive: true });
     window.addEventListener("blur", onAnyAction);
     window.addEventListener("pagehide", onAnyAction);
     window.addEventListener("orientationchange", onAnyAction);
@@ -259,7 +257,6 @@ export default function VoidGame() {
       window.removeEventListener("keydown", onAnyAction);
       window.removeEventListener("wheel", onAnyAction);
       window.removeEventListener("touchstart", onAnyAction);
-      window.removeEventListener("mousemove", onAnyAction);
       window.removeEventListener("blur", onAnyAction);
       window.removeEventListener("pagehide", onAnyAction);
       window.removeEventListener("orientationchange", onAnyAction);
@@ -345,7 +342,7 @@ export default function VoidGame() {
           >
             <div style={{ color: "#fff", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 20 }}>void</div>
             <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.18, textAlign: "center", lineHeight: 1.8 }}>
-              non fare nulla per 120 secondi
+              do nothing for 120 seconds
             </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
