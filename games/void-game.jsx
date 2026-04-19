@@ -416,7 +416,7 @@ export default function VoidGame() {
             <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>void complete</div>
             <div
               role="status"
-              aria-label={`score ${score}`}
+              aria-label={`score ${score} seconds`}
               style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
             >
               score {score}
@@ -448,7 +448,7 @@ export default function VoidGame() {
             <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>you did something</div>
             <div
               role="status"
-              aria-label={`score ${score}`}
+              aria-label={`score ${score} seconds`}
               style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
             >
               score {score}
