@@ -242,6 +242,7 @@ export default function VoidGame() {
     };
 
     window.addEventListener("pointerdown", onAnyAction, { passive: true });
+    window.addEventListener("mousemove", onAnyAction, { passive: true });
     window.addEventListener("keydown", onAnyAction);
     window.addEventListener("touchstart", onAnyAction, { passive: true });
     window.addEventListener("blur", onAnyAction);
@@ -253,6 +254,7 @@ export default function VoidGame() {
 
     return () => {
       window.removeEventListener("pointerdown", onAnyAction);
+      window.removeEventListener("mousemove", onAnyAction);
       window.removeEventListener("keydown", onAnyAction);
       window.removeEventListener("touchstart", onAnyAction);
       window.removeEventListener("blur", onAnyAction);
