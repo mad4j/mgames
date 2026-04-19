@@ -61,6 +61,28 @@ export default function Hub({ games }) {
         .game-card:active {
           background: rgba(255,255,255,0.06);
         }
+        .hub-checkbox {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 12px;
+          height: 12px;
+          margin: 0;
+          border: 1px solid rgba(255,255,255,0.45);
+          background: transparent !important;
+          display: grid;
+          place-content: center;
+        }
+        .hub-checkbox::before {
+          content: "";
+          width: 6px;
+          height: 6px;
+          transform: scale(0);
+          transition: transform 0.12s ease;
+          background: rgba(255,255,255,0.8);
+        }
+        .hub-checkbox:checked::before {
+          transform: scale(1);
+        }
         @media (max-width: 480px) {
           .game-card {
             padding: 20px 28px;
@@ -98,6 +120,7 @@ export default function Hub({ games }) {
       >
         <input
           type="checkbox"
+          className="hub-checkbox"
           checked={showDrafts}
           onChange={(e) => setShowDrafts(e.target.checked)}
           style={{ cursor: "pointer" }}
