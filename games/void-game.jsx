@@ -127,6 +127,7 @@ export default function VoidGame() {
   const navigate = useNavigate();
   const [phase, setPhase] = useState("idle");
   const [timeLeft, setTimeLeft] = useState(GAME_SECONDS);
+  const [score, setScore] = useState(0);
   const phaseRef = useRef("idle");
   const startAtRef = useRef(0);
   const tickIntervalRef = useRef(null);
@@ -138,6 +139,12 @@ export default function VoidGame() {
     phaseRef.current = phase;
   }, [phase]);
 
+  const getElapsedSeconds = useCallback(() => {
+    if (!startAtRef.current) return 0;
+    const elapsedMs = Date.now() - startAtRef.current;
+    return Math.max(0, Math.min(GAME_SECONDS, Math.floor(elapsedMs / 1000)));
+  }, []);
+
   const stopTimer = useCallback(() => {
     if (tickIntervalRef.current) {
       clearInterval(tickIntervalRef.current);
@@ -148,16 +155,18 @@ export default function VoidGame() {
   const endLost = useCallback(() => {
     if (phaseRef.current !== "playing") return;
     stopTimer();
+    setScore(getElapsedSeconds());
     phaseRef.current = "lost";
     setPhase("lost");
     playLose();
-  }, [playLose, stopTimer]);
+  }, [getElapsedSeconds, playLose, stopTimer]);
 
   const startGame = useCallback(() => {
     stopTimer();
     motionBaselineRef.current = null;
     orientationBaselineRef.current = null;
     setTimeLeft(GAME_SECONDS);
+    setScore(0);
     phaseRef.current = "playing";
     setPhase("playing");
   }, [stopTimer]);
@@ -175,6 +184,7 @@ export default function VoidGame() {
       setTimeLeft(left);
       if (left <= 0) {
         stopTimer();
+        setScore(GAME_SECONDS);
         phaseRef.current = "won";
         setPhase("won");
         playWin();
@@ -404,6 +414,7 @@ export default function VoidGame() {
           >
             <div style={{ color: "#fff", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 16 }}>victory</div>
             <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>void complete</div>
+            <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase", marginTop: 14 }}>score {score}</div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
               onMouseEnter={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.6)")}
@@ -429,6 +440,7 @@ export default function VoidGame() {
           >
             <div style={{ color: "#fff", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 16 }}>game over</div>
             <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>you did something</div>
+            <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase", marginTop: 14 }}>score {score}</div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
               onMouseEnter={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.6)")}
