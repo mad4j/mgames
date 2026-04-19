@@ -348,6 +348,9 @@ export default function VoidGame() {
             }}
           >
             <div style={{ color: "#fff", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 20 }}>void</div>
+            <div aria-hidden="true" style={{ color: "#fff", fontSize: 72, fontWeight: 300, lineHeight: 1, marginBottom: 20 }}>
+              ◌
+            </div>
             <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.18, textAlign: "center", lineHeight: 1.8 }}>
               do nothing for 120 seconds
             </div>
