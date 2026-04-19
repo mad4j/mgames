@@ -134,6 +134,7 @@ export default function VoidGame() {
   const motionBaselineRef = useRef(null);
   const orientationBaselineRef = useRef(null);
   const wakeLockRef = useRef(null);
+  const wakeLockRequestingRef = useRef(false);
   const { soundOn, setSoundOn, playWin, playLose } = useSound();
 
   useEffect(() => {
@@ -165,12 +166,18 @@ export default function VoidGame() {
   }, []);
 
   const requestWakeLock = useCallback(async () => {
-    if (!("wakeLock" in navigator) || document.visibilityState !== "visible") return;
+    if (!("wakeLock" in navigator) || document.visibilityState !== "visible" || wakeLockRef.current || wakeLockRequestingRef.current) return;
+    wakeLockRequestingRef.current = true;
     try {
       const wakeLock = await navigator.wakeLock.request("screen");
       wakeLockRef.current = wakeLock;
+      wakeLock.addEventListener("release", () => {
+        if (wakeLockRef.current === wakeLock) wakeLockRef.current = null;
+      });
     } catch (_) {
       /* ignore Wake Lock request errors */
+    } finally {
+      wakeLockRequestingRef.current = false;
     }
   }, []);
 
@@ -203,7 +210,7 @@ export default function VoidGame() {
 
     requestWakeLock();
     const onVisibilityChange = () => {
-      if (document.visibilityState === "visible" && phaseRef.current === "playing") {
+      if (document.visibilityState === "visible") {
         requestWakeLock();
       } else {
         releaseWakeLock();
