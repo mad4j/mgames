@@ -55,7 +55,7 @@ export default function Hub({ games }) {
           animation: fadeIn 0.6s ease both;
         }
         .game-card:hover {
-          border-color: rgba(255,255,255,0.5);
+          border-color: var(--mg-color-border-soft);
           background: var(--mg-color-surface-hover);
         }
         .game-card:active {
@@ -79,7 +79,7 @@ export default function Hub({ games }) {
           height: 6px;
           transform: scale(0);
           transition: transform 0.12s ease;
-          background: rgba(255,255,255,0.8);
+          background: var(--mg-color-text-high);
         }
         .hub-checkbox:checked::before {
           transform: scale(1);

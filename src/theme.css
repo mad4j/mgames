@@ -1,34 +1,38 @@
 :root {
-  --mg-color-primary: #2c3e50;
-  --mg-color-secondary: #3498db;
-  --mg-color-accent: #1abc9c;
+  --mg-color-primary: #8ea3c7;
+  --mg-color-secondary: #b7c9e6;
+  --mg-color-accent: #a8d2c2;
 
-  --mg-color-background: #1f2124;
-  --mg-color-surface: #2a2d31;
+  --mg-color-background: #232836;
+  --mg-color-surface: #2f3648;
 
-  --mg-color-text-primary: #f2f2f2;
-  --mg-color-text-secondary: #c5c5c5;
-  --mg-color-text-muted: #9aa0a6;
+  --mg-color-text-primary: #f4f0ea;
+  --mg-color-text-secondary: #dbd4cb;
+  --mg-color-text-muted: #b8b2a8;
 
-  --mg-color-border: #3a3d40;
+  --mg-color-border: #5a667f;
 
-  --mg-color-text-strong: rgba(242, 242, 242, 0.95);
-  --mg-color-text-high: rgba(242, 242, 242, 0.9);
-  --mg-color-text-emphasis: rgba(242, 242, 242, 0.88);
-  --mg-color-text-medium: rgba(242, 242, 242, 0.55);
-  --mg-color-text-dim: rgba(242, 242, 242, 0.38);
-  --mg-color-text-faint: rgba(242, 242, 242, 0.32);
-  --mg-color-text-very-faint: rgba(242, 242, 242, 0.28);
-  --mg-color-text-subtle: rgba(242, 242, 242, 0.22);
-  --mg-color-text-minimal: rgba(242, 242, 242, 0.2);
-  --mg-color-text-weak: rgba(242, 242, 242, 0.18);
-  --mg-color-text-ultra-weak: rgba(242, 242, 242, 0.14);
+  --mg-color-text-strong: rgba(244, 240, 234, 0.95);
+  --mg-color-text-high: rgba(244, 240, 234, 0.9);
+  --mg-color-text-emphasis: rgba(244, 240, 234, 0.88);
+  --mg-color-text-medium: rgba(244, 240, 234, 0.56);
+  --mg-color-text-dim: rgba(244, 240, 234, 0.42);
+  --mg-color-text-faint: rgba(244, 240, 234, 0.34);
+  --mg-color-text-very-faint: rgba(244, 240, 234, 0.3);
+  --mg-color-text-subtle: rgba(244, 240, 234, 0.24);
+  --mg-color-text-minimal: rgba(244, 240, 234, 0.22);
+  --mg-color-text-weak: rgba(244, 240, 234, 0.2);
+  --mg-color-text-ultra-weak: rgba(244, 240, 234, 0.16);
 
-  --mg-color-border-soft: rgba(242, 242, 242, 0.45);
-  --mg-color-surface-strong: rgba(242, 242, 242, 0.92);
-  --mg-color-surface-medium: rgba(242, 242, 242, 0.15);
-  --mg-color-surface-soft: rgba(242, 242, 242, 0.06);
-  --mg-color-surface-hover: rgba(242, 242, 242, 0.03);
+  --mg-color-border-soft: rgba(244, 240, 234, 0.45);
+  --mg-color-surface-strong: rgba(244, 240, 234, 0.92);
+  --mg-color-surface-medium: rgba(244, 240, 234, 0.17);
+  --mg-color-surface-soft: rgba(244, 240, 234, 0.08);
+  --mg-color-surface-hover: rgba(244, 240, 234, 0.04);
 
-  --mg-color-overlay: rgba(31, 33, 36, 0.52);
+  --mg-color-overlay: rgba(35, 40, 54, 0.56);
+
+  --mg-color-text-hover: rgba(244, 240, 234, 0.78);
+  --mg-color-warning-soft: rgba(230, 140, 148, 0.72);
+  --mg-color-warning-shadow: rgba(230, 140, 148, 0.46);
 }

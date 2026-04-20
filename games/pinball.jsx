@@ -770,7 +770,7 @@ export default function Pinball() {
         <button
           aria-label="back to hub"
           onClick={() => navigate("/")}
-          onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+          onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-hover)"}
           onMouseLeave={e => e.currentTarget.style.color = "var(--mg-color-text-dim)"}
           style={{ ...iconBtnStyle, right: 12 }}
         >
