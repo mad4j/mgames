@@ -15,7 +15,7 @@
   --mg-color-text-strong: rgba(244, 240, 234, 0.95);
   --mg-color-text-high: rgba(244, 240, 234, 0.9);
   --mg-color-text-emphasis: rgba(244, 240, 234, 0.88);
-  --mg-color-text-medium: rgba(244, 240, 234, 0.58);
+  --mg-color-text-medium: rgba(244, 240, 234, 0.56);
   --mg-color-text-dim: rgba(244, 240, 234, 0.42);
   --mg-color-text-faint: rgba(244, 240, 234, 0.34);
   --mg-color-text-very-faint: rgba(244, 240, 234, 0.3);
@@ -34,4 +34,5 @@
 
   --mg-color-text-hover: rgba(244, 240, 234, 0.78);
   --mg-color-warning-soft: rgba(230, 140, 148, 0.72);
+  --mg-color-warning-shadow: rgba(230, 140, 148, 0.46);
 }

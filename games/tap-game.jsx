@@ -484,7 +484,7 @@ export default function TapGame() {
               width:`${timerFrac * 100}%`,
               background: timerFrac < 0.3 ? "var(--mg-color-warning-soft)" : "var(--mg-color-border-soft)",
               transition:"width 1s linear, background 0.4s",
-              boxShadow: timerFrac < 0.3 ? "0 0 10px rgba(255,65,65,0.4)" : "none",
+              boxShadow: timerFrac < 0.3 ? "0 0 10px var(--mg-color-warning-shadow)" : "none",
             }} />
           </div>
         </>
