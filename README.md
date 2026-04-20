@@ -3,7 +3,7 @@ Minimal games
 
 ## Preview - unified pastel theme
 
-Nuovo schema colori condiviso tra hub e giochi, con palette pastello professionale e contrasto alto.
+New shared color scheme for hub and games, with a professional pastel palette and high readability.
 
 ### Hub
 ![Hub pastel preview](_resources/previews/hub-pastel.png)
