@@ -347,7 +347,7 @@ export default function BlastGame() {
         <button
           aria-label="back to hub"
           onClick={() => navigate("/")}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--mg-color-text-hover)")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "var(--mg-color-text-dim)")}
           style={iconBtnStyle}
         >
@@ -397,7 +397,7 @@ export default function BlastGame() {
                     width: radius * 2 - 4,
                     height: radius * 2 - 4,
                     borderRadius: "50%",
-                    border: "1.5px solid rgba(255,255,255,0.75)",
+                    border: "1.5px solid var(--mg-color-text-hover)",
                     background: "var(--mg-color-surface-soft)",
                     color: "var(--mg-color-text-high)",
                     display: "flex",

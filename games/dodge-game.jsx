@@ -760,12 +760,12 @@ export default function DodgeGame() {
       <button
         aria-label={soundOn ? "mute" : "unmute"}
         onClick={() => setSoundOn(!soundOn)}
-        onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
-        onMouseLeave={e => e.currentTarget.style.color = `rgba(255,255,255,${soundOn ? 0.38 : 0.18})`}
+        onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-hover)"}
+        onMouseLeave={e => e.currentTarget.style.color = soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)"}
         style={{
           position:"absolute", top:14, right:52, zIndex:20,
           background:"transparent", border:"none",
-          color:`rgba(255,255,255,${soundOn ? 0.38 : 0.18})`,
+          color: soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)",
           cursor:"pointer", padding:6, lineHeight:0,
           transition:"color 0.2s",
         }}
@@ -775,7 +775,7 @@ export default function DodgeGame() {
       <button
         aria-label="back to hub"
         onClick={() => navigate("/")}
-        onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+        onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-hover)"}
         onMouseLeave={e => e.currentTarget.style.color = "var(--mg-color-text-dim)"}
         style={{
           position:"absolute", top:14, right:12, zIndex:20,

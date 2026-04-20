@@ -312,12 +312,12 @@ export default function TapGame() {
     <button
       aria-label={soundOn ? "mute" : "unmute"}
       onClick={() => setSoundOn(!soundOn)}
-      onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+      onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-hover)"}
       onMouseLeave={e => e.currentTarget.style.color = soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)"}
       style={{
         ...iconBtnStyle,
         right: 52,
-        color: `rgba(255,255,255,${soundOn ? 0.38 : 0.18})`,
+        color: soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)",
       }}
     >
       <IconSound on={soundOn} />
@@ -328,7 +328,7 @@ export default function TapGame() {
     <button
       aria-label="back to hub"
       onClick={() => navigate("/")}
-      onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+      onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-hover)"}
       onMouseLeave={e => e.currentTarget.style.color = "var(--mg-color-text-dim)"}
       style={{ ...iconBtnStyle, right: 12 }}
     >
@@ -482,7 +482,7 @@ export default function TapGame() {
             <div style={{
               height:"100%",
               width:`${timerFrac * 100}%`,
-              background: timerFrac < 0.3 ? "rgba(255,65,65,0.65)" : "var(--mg-color-border-soft)",
+              background: timerFrac < 0.3 ? "var(--mg-color-warning-soft)" : "var(--mg-color-border-soft)",
               transition:"width 1s linear, background 0.4s",
               boxShadow: timerFrac < 0.3 ? "0 0 10px rgba(255,65,65,0.4)" : "none",
             }} />

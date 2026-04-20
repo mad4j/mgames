@@ -442,12 +442,12 @@ export default function BlitzGame() {
       <button
         aria-label={soundOn ? "mute" : "unmute"}
         onClick={() => setSoundOn(!soundOn)}
-        onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+        onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-hover)"}
         onMouseLeave={e => e.currentTarget.style.color = soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)"}
         style={{
           ...iconBtnStyle,
           right: 52,
-          color: `rgba(255,255,255,${soundOn ? 0.38 : 0.18})`,
+          color: soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)",
         }}
       >
         <IconSound on={soundOn} />
@@ -457,7 +457,7 @@ export default function BlitzGame() {
       <button
         aria-label="back to hub"
         onClick={() => navigate("/")}
-        onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
+        onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-hover)"}
         onMouseLeave={e => e.currentTarget.style.color = "var(--mg-color-text-dim)"}
         style={{ ...iconBtnStyle, right: 12 }}
       >
