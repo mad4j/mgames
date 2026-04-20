@@ -15,7 +15,8 @@ export default function Hub({ games }) {
       style={{
         width: "100vw",
         minHeight: "100dvh",
-        background: "var(--mg-color-background)",
+        background:
+          "radial-gradient(circle at 50% -20%, rgba(52, 152, 219, 0.14), transparent 60%), var(--mg-color-background)",
         overflowX: "hidden",
         display: "flex",
         flexDirection: "column",
@@ -41,7 +42,7 @@ export default function Hub({ games }) {
         }
 
         .game-card {
-          background: transparent;
+          background: var(--mg-color-surface);
           border: 1px solid var(--mg-color-text-subtle);
           color: var(--mg-color-text-primary);
           cursor: pointer;
@@ -55,10 +56,11 @@ export default function Hub({ games }) {
           animation: fadeIn 0.6s ease both;
         }
         .game-card:hover {
-          border-color: rgba(255,255,255,0.5);
+          border-color: var(--mg-color-secondary);
           background: var(--mg-color-surface-hover);
         }
         .game-card:active {
+          border-color: var(--mg-color-accent);
           background: var(--mg-color-surface-soft);
         }
         .hub-checkbox {
@@ -79,7 +81,7 @@ export default function Hub({ games }) {
           height: 6px;
           transform: scale(0);
           transition: transform 0.12s ease;
-          background: rgba(255,255,255,0.8);
+          background: var(--mg-color-secondary);
         }
         .hub-checkbox:checked::before {
           transform: scale(1);
@@ -161,7 +163,7 @@ export default function Hub({ games }) {
                     fontSize: 32,
                     fontWeight: 300,
                     lineHeight: 1,
-                    opacity: 0.85,
+                    color: "var(--mg-color-secondary)",
                   }}
                 >
                   {g.symbol}
