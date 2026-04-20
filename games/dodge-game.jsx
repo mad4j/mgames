@@ -2,10 +2,10 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 /* ═══════════════════════ PALETTE ═══════════════════ */
-const C_BG   = "#0a0a0a";
-const C_MAIN = "rgba(255,255,255,0.88)";
+const C_BG   = "var(--mg-color-background)";
+const C_MAIN = "var(--mg-color-text-emphasis)";
 const C_NEAR = "rgba(255,255,255,1)";
-const C_BOMB = "rgba(255,255,255,0.95)";
+const C_BOMB = "var(--mg-color-text-strong)";
 const C_SCAN = "rgba(255,255,255,0.018)";
 
 /* ═══════════════════════ CONFIG ════════════════════ */
@@ -420,7 +420,7 @@ export default function DodgeGame() {
 
     // shockwave rings from bomb centre
     const RING_DEFS = [
-      { delay: 0,  maxR: BOMB_R * 1.05, dur: 38, col: "#ffffff" },
+      { delay: 0,  maxR: BOMB_R * 1.05, dur: 38, col: "var(--mg-color-text-primary)" },
       { delay: 4,  maxR: BOMB_R * 0.80, dur: 42, col: C_BOMB    },
       { delay: 10, maxR: BOMB_R * 0.55, dur: 46, col: C_MAIN    },
     ];
@@ -542,7 +542,7 @@ export default function DodgeGame() {
 
       s.blast = { px: s.px, py: shipY, t: 0 };
       const RINGS = [
-        { delay: 0,  dur: 40, maxR: 130, col: "#ffffff" },
+        { delay: 0,  dur: 40, maxR: 130, col: "var(--mg-color-text-primary)" },
         { delay: 4,  dur: 44, maxR: 100, col: C_MAIN    },
         { delay: 10, dur: 48, maxR: 70,  col: C_NEAR    },
       ];
@@ -743,7 +743,7 @@ export default function DodgeGame() {
       maxHeight:"calc(100dvh - 32px)",
       overflow:"hidden",
       userSelect:"none", touchAction:"none",
-      outline:"1px dashed rgba(255,255,255,0.12)",
+      outline:"1px dashed var(--mg-color-text-subtle)",
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
@@ -776,11 +776,11 @@ export default function DodgeGame() {
         aria-label="back to hub"
         onClick={() => navigate("/")}
         onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
-        onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.38)"}
+        onMouseLeave={e => e.currentTarget.style.color = "var(--mg-color-text-dim)"}
         style={{
           position:"absolute", top:14, right:12, zIndex:20,
           background:"transparent", border:"none",
-          color:"rgba(255,255,255,0.38)",
+          color:"var(--mg-color-text-dim)",
           cursor:"pointer", padding:6, lineHeight:0,
           transition:"color 0.2s",
         }}
@@ -844,7 +844,7 @@ export default function DodgeGame() {
             textShadow:`0 0 40px ${C_MAIN}88`,
           }}>{score}</div>
           <div style={{
-            color: score >= best ? C_MAIN : "#ffffff",
+            color: score >= best ? C_MAIN : "var(--mg-color-text-primary)",
             fontSize:11, letterSpacing:5, textTransform:"uppercase",
             opacity: score >= best ? 0.9 : 0.35,
             marginTop:14,

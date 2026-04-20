@@ -68,6 +68,12 @@ function pathTriangle(ctx, x, y, r) {
   ctx.closePath();
 }
 
+function readThemeColor(name, fallback) {
+  if (typeof window === "undefined") return fallback;
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value || fallback;
+}
+
 // ── Game state factory ────────────────────────────────────────
 function makeState(W, H) {
   const PW  = W - LANE_W;          // effective play-field width
@@ -431,8 +437,11 @@ export default function Pinball() {
     }
 
     // ── Draw ──────────────────────────────────────────────────
+    const canvasBg = readThemeColor("--mg-color-background", "#1f2124");
+    const canvasLine = readThemeColor("--mg-color-text-ultra-weak", "rgba(242,242,242,0.14)");
+
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = "#0a0a0a";
+    ctx.fillStyle = canvasBg;
     ctx.fillRect(0, 0, W, H);
 
     // Lane background
@@ -440,7 +449,7 @@ export default function Pinball() {
     ctx.fillRect(PW, 0, LANE_W, H);
 
     // Separator wall (main field / lane divider)
-    ctx.strokeStyle = "rgba(255,255,255,0.14)";
+    ctx.strokeStyle = canvasLine;
     ctx.lineWidth   = 1;
     ctx.setLineDash([]);
     ctx.lineCap     = "round";
@@ -451,7 +460,7 @@ export default function Pinball() {
 
     // Gallery arch: horizontal corridor at the top of the lane that
     // guides the ball from the lane exit to the centre of the screen.
-    ctx.strokeStyle = "rgba(255,255,255,0.14)";
+    ctx.strokeStyle = canvasLine;
     ctx.lineWidth   = 1;
     ctx.beginPath();
     ctx.moveTo(W - 3, GALLERY_ARCH_Y);
@@ -698,8 +707,8 @@ export default function Pinball() {
 
   const BtnStyle = {
     background: "transparent",
-    border: "1px solid rgba(255,255,255,0.22)",
-    color: "#fff",
+    border: "1px solid var(--mg-color-text-subtle)",
+    color: "var(--mg-color-text-primary)",
     fontFamily: "'DM Mono', monospace",
     fontSize: 11,
     letterSpacing: 5,
@@ -711,7 +720,7 @@ export default function Pinball() {
   const iconBtnStyle = {
     position: "absolute", top: 14, zIndex: 30,
     background: "transparent", border: "none",
-    color: "rgba(255,255,255,0.38)",
+    color: "var(--mg-color-text-dim)",
     cursor: "pointer", padding: 6,
     lineHeight: 0,
     transition: "color 0.2s",
@@ -720,7 +729,7 @@ export default function Pinball() {
   return (
     <div style={{
       width: "100vw", height: "100dvh",
-      background: "#0a0a0a",
+      background: "var(--mg-color-background)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -735,7 +744,7 @@ export default function Pinball() {
         userSelect: "none",
         fontFamily: "'DM Mono', 'Courier New', monospace",
         touchAction: "none",
-        outline: "1px dashed rgba(255,255,255,0.12)",
+        outline: "1px dashed var(--mg-color-text-subtle)",
       }}>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&display=swap');
@@ -750,9 +759,9 @@ export default function Pinball() {
         <button
           aria-label={soundOn ? "mute" : "unmute"}
           onClick={() => setSoundOn(!soundOn)}
-          onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
-          onMouseLeave={e => e.currentTarget.style.color = soundOn ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.18)"}
-          style={{ ...iconBtnStyle, right: 52, color: `rgba(255,255,255,${soundOn ? 0.38 : 0.18})` }}
+          onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-high)"}
+          onMouseLeave={e => e.currentTarget.style.color = soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)"}
+          style={{ ...iconBtnStyle, right: 52, color: soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)" }}
         >
           <IconSound on={soundOn} />
         </button>
@@ -762,7 +771,7 @@ export default function Pinball() {
           aria-label="back to hub"
           onClick={() => navigate("/")}
           onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
-          onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.38)"}
+          onMouseLeave={e => e.currentTarget.style.color = "var(--mg-color-text-dim)"}
           style={{ ...iconBtnStyle, right: 12 }}
         >
           <IconHub />
@@ -781,14 +790,14 @@ export default function Pinball() {
         {p === "playing" && <>
           <div style={{
             position: "absolute", top: 18, left: 24, zIndex: 10,
-            color: "#fff", fontSize: 32, fontWeight: 300, letterSpacing: -1,
+            color: "var(--mg-color-text-primary)", fontSize: 32, fontWeight: 300, letterSpacing: -1,
             pointerEvents: "none",
           }}>{score}</div>
 
           <div style={{
             position: "absolute", bottom: 18, left: 0, right: LANE_W, zIndex: 10,
             textAlign: "center",
-            color: "#fff", fontSize: 12, letterSpacing: 4, opacity: 0.5,
+            color: "var(--mg-color-text-primary)", fontSize: 12, letterSpacing: 4, opacity: 0.5,
             pointerEvents: "none",
           }}>{"●".repeat(Math.max(0, lives))}</div>
         </>}
@@ -801,14 +810,14 @@ export default function Pinball() {
             alignItems: "center", justifyContent: "center",
             animation: "fadeIn 0.6s ease",
           }}>
-            <div style={{ color:"#fff", fontSize:11, letterSpacing:6, marginBottom:32, opacity:0.28, textTransform:"uppercase" }}>pinball</div>
-            <div style={{ color:"#fff", fontSize:72, fontWeight:300, lineHeight:1 }}>◉</div>
-            <div style={{ color:"#fff", fontSize:10, letterSpacing:4, marginTop:20, opacity:0.18 }}>3 balls</div>
-            {best > 0 && <div style={{ color:"#fff", fontSize:11, letterSpacing:3, marginTop:36, opacity:0.18 }}>best {best}</div>}
+            <div style={{ color:"var(--mg-color-text-primary)", fontSize:11, letterSpacing:6, marginBottom:32, opacity:0.28, textTransform:"uppercase" }}>pinball</div>
+            <div style={{ color:"var(--mg-color-text-primary)", fontSize:72, fontWeight:300, lineHeight:1 }}>◉</div>
+            <div style={{ color:"var(--mg-color-text-primary)", fontSize:10, letterSpacing:4, marginTop:20, opacity:0.18 }}>3 balls</div>
+            {best > 0 && <div style={{ color:"var(--mg-color-text-primary)", fontSize:11, letterSpacing:3, marginTop:36, opacity:0.18 }}>best {best}</div>}
             <button
               style={{ ...BtnStyle, marginTop: 52 }}
               onMouseEnter={e => e.target.style.borderColor="rgba(255,255,255,0.6)"}
-              onMouseLeave={e => e.target.style.borderColor="rgba(255,255,255,0.22)"}
+              onMouseLeave={e => e.target.style.borderColor="var(--mg-color-text-subtle)"}
               onClick={start}
             >start</button>
           </div>
@@ -822,16 +831,16 @@ export default function Pinball() {
             alignItems: "center", justifyContent: "center",
             animation: "fadeIn 0.5s ease",
           }}>
-            <div style={{ color:"#fff", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase", marginBottom:16 }}>score</div>
-            <div style={{ color:"#fff", fontSize:88, fontWeight:300, letterSpacing:-4, lineHeight:1 }}>{score}</div>
+            <div style={{ color:"var(--mg-color-text-primary)", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase", marginBottom:16 }}>score</div>
+            <div style={{ color:"var(--mg-color-text-primary)", fontSize:88, fontWeight:300, letterSpacing:-4, lineHeight:1 }}>{score}</div>
             {newBest && score > 0
-              ? <div style={{ color:"#fff", fontSize:10, letterSpacing:5, opacity:0.32, marginTop:12, textTransform:"uppercase" }}>new best</div>
-              : <div style={{ color:"#fff", fontSize:10, letterSpacing:4, opacity:0.2,  marginTop:12 }}>best {best}</div>
+              ? <div style={{ color:"var(--mg-color-text-primary)", fontSize:10, letterSpacing:5, opacity:0.32, marginTop:12, textTransform:"uppercase" }}>new best</div>
+              : <div style={{ color:"var(--mg-color-text-primary)", fontSize:10, letterSpacing:4, opacity:0.2,  marginTop:12 }}>best {best}</div>
             }
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
               onMouseEnter={e => e.target.style.borderColor="rgba(255,255,255,0.6)"}
-              onMouseLeave={e => e.target.style.borderColor="rgba(255,255,255,0.22)"}
+              onMouseLeave={e => e.target.style.borderColor="var(--mg-color-text-subtle)"}
               onClick={start}
             >again</button>
           </div>

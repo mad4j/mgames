@@ -308,7 +308,7 @@ export default function BlastGame() {
     zIndex: 20,
     background: "transparent",
     border: "none",
-    color: "rgba(255,255,255,0.38)",
+    color: "var(--mg-color-text-dim)",
     cursor: "pointer",
     padding: 6,
     lineHeight: 0,
@@ -320,7 +320,7 @@ export default function BlastGame() {
       style={{
         width: "100vw",
         height: "100dvh",
-        background: "#0a0a0a",
+        background: "var(--mg-color-background)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -340,7 +340,7 @@ export default function BlastGame() {
           width: frameW,
           height: frameH,
           position: "relative",
-          outline: "1px dashed rgba(255,255,255,0.12)",
+          outline: "1px dashed var(--mg-color-text-subtle)",
           overflow: "hidden",
         }}
       >
@@ -348,7 +348,7 @@ export default function BlastGame() {
           aria-label="back to hub"
           onClick={() => navigate("/")}
           onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.38)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--mg-color-text-dim)")}
           style={iconBtnStyle}
         >
           <IconHub />
@@ -356,7 +356,7 @@ export default function BlastGame() {
 
         {(phase === "playing" || phase === "done") && (
           <>
-            <div style={{ position: "absolute", left: 20, top: 16, color: "rgba(255,255,255,0.9)", fontSize: 26 }}>{score}</div>
+            <div style={{ position: "absolute", left: 20, top: 16, color: "var(--mg-color-text-high)", fontSize: 26 }}>{score}</div>
             {lastPop >= 2 && phase === "playing" && (
               <div
                 key={`${lastPop}-${score}`}
@@ -364,7 +364,7 @@ export default function BlastGame() {
                   position: "absolute",
                   top: "48%",
                   left: "50%",
-                  color: "rgba(255,255,255,0.95)",
+                  color: "var(--mg-color-text-strong)",
                   fontSize: 58,
                   pointerEvents: "none",
                   animation: "popMsg 0.65s ease forwards",
@@ -398,8 +398,8 @@ export default function BlastGame() {
                     height: radius * 2 - 4,
                     borderRadius: "50%",
                     border: "1.5px solid rgba(255,255,255,0.75)",
-                    background: "rgba(255,255,255,0.06)",
-                    color: "rgba(255,255,255,0.9)",
+                    background: "var(--mg-color-surface-soft)",
+                    color: "var(--mg-color-text-high)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -425,7 +425,7 @@ export default function BlastGame() {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              color: "rgba(255,255,255,0.88)",
+              color: "var(--mg-color-text-emphasis)",
             }}
           >
             <div aria-hidden="true" style={{ fontSize: 72, lineHeight: 1 }}>◉</div>
@@ -439,7 +439,7 @@ export default function BlastGame() {
                 marginTop: 48,
                 background: "transparent",
                 border: "1px solid rgba(255,255,255,0.25)",
-                color: "rgba(255,255,255,0.95)",
+                color: "var(--mg-color-text-strong)",
                 padding: "14px 34px",
                 fontSize: 11,
                 textTransform: "uppercase",
@@ -461,8 +461,8 @@ export default function BlastGame() {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              color: "rgba(255,255,255,0.9)",
-              background: "rgba(10,10,10,0.52)",
+              color: "var(--mg-color-text-high)",
+              background: "var(--mg-color-overlay)",
             }}
           >
             <div style={{ fontSize: 10, letterSpacing: 5, opacity: 0.3, textTransform: "uppercase" }}>game over</div>
@@ -473,7 +473,7 @@ export default function BlastGame() {
                 marginTop: 30,
                 background: "transparent",
                 border: "1px solid rgba(255,255,255,0.25)",
-                color: "rgba(255,255,255,0.95)",
+                color: "var(--mg-color-text-strong)",
                 padding: "14px 34px",
                 fontSize: 11,
                 textTransform: "uppercase",

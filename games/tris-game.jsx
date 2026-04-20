@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 
 /* ═══════════════════════ PALETTE ═══════════════════ */
-const C_BG   = "#0a0a0a";
-const C_MAIN = "rgba(255,255,255,0.88)";
-const C_GRID = "rgba(255,255,255,0.14)";
+const C_BG   = "var(--mg-color-background)";
+const C_MAIN = "var(--mg-color-text-emphasis)";
+const C_GRID = "var(--mg-color-text-ultra-weak)";
 const C_WIN  = "rgba(255,255,255,1)";
 
 /* ═══════════════════════ CONSTANTS ═════════════════ */
@@ -302,7 +302,7 @@ export default function TrisGame() {
         textShadow: `0 0 8px ${C_MAIN}`,
         transition: "border-color 0.2s, box-shadow 0.2s",
       }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = C_MAIN; e.currentTarget.style.boxShadow = `0 0 18px rgba(255,255,255,0.22)`; }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = C_MAIN; e.currentTarget.style.boxShadow = `0 0 18px var(--mg-color-text-subtle)`; }}
       onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.27)"; e.currentTarget.style.boxShadow = "none"; }}
       onClick={onClick}
     >
@@ -332,7 +332,7 @@ export default function TrisGame() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        outline: "1px dashed rgba(255,255,255,0.12)",
+        outline: "1px dashed var(--mg-color-text-subtle)",
       }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');

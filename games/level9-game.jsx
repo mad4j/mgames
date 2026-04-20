@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 /* ═══════════════════════ PALETTE ════════════════════ */
-const C_BG    = "#0a0a0a";
-const C_MAIN  = "rgba(255,255,255,0.88)";
+const C_BG    = "var(--mg-color-background)";
+const C_MAIN  = "var(--mg-color-text-emphasis)";
 const C_NEAR  = "rgba(255,255,255,1)";
 const C_SCAN  = "rgba(255,255,255,0.018)";
 const C_EBUL   = "rgba(255,140,140,0.9)";
@@ -720,7 +720,7 @@ export default function Level9Game() {
         position: "relative", width: 430, height: 760,
         maxWidth: "calc(100vw - 32px)", maxHeight: "calc(100dvh - 32px)",
         overflow: "hidden", userSelect: "none", touchAction: "none",
-        outline: "1px dashed rgba(255,255,255,0.12)",
+        outline: "1px dashed var(--mg-color-text-subtle)",
       }}>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
