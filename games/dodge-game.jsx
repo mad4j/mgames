@@ -420,7 +420,7 @@ export default function DodgeGame() {
 
     // shockwave rings from bomb centre
     const RING_DEFS = [
-      { delay: 0,  maxR: BOMB_R * 1.05, dur: 38, col: "var(--mg-color-text-primary)fff" },
+      { delay: 0,  maxR: BOMB_R * 1.05, dur: 38, col: "var(--mg-color-text-primary)" },
       { delay: 4,  maxR: BOMB_R * 0.80, dur: 42, col: C_BOMB    },
       { delay: 10, maxR: BOMB_R * 0.55, dur: 46, col: C_MAIN    },
     ];
@@ -542,7 +542,7 @@ export default function DodgeGame() {
 
       s.blast = { px: s.px, py: shipY, t: 0 };
       const RINGS = [
-        { delay: 0,  dur: 40, maxR: 130, col: "var(--mg-color-text-primary)fff" },
+        { delay: 0,  dur: 40, maxR: 130, col: "var(--mg-color-text-primary)" },
         { delay: 4,  dur: 44, maxR: 100, col: C_MAIN    },
         { delay: 10, dur: 48, maxR: 70,  col: C_NEAR    },
       ];
@@ -844,7 +844,7 @@ export default function DodgeGame() {
             textShadow:`0 0 40px ${C_MAIN}88`,
           }}>{score}</div>
           <div style={{
-            color: score >= best ? C_MAIN : "var(--mg-color-text-primary)fff",
+            color: score >= best ? C_MAIN : "var(--mg-color-text-primary)",
             fontSize:11, letterSpacing:5, textTransform:"uppercase",
             opacity: score >= best ? 0.9 : 0.35,
             marginTop:14,
