@@ -68,6 +68,12 @@ function pathTriangle(ctx, x, y, r) {
   ctx.closePath();
 }
 
+function readThemeColor(name, fallback) {
+  if (typeof window === "undefined") return fallback;
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value || fallback;
+}
+
 // ── Game state factory ────────────────────────────────────────
 function makeState(W, H) {
   const PW  = W - LANE_W;          // effective play-field width
@@ -431,8 +437,11 @@ export default function Pinball() {
     }
 
     // ── Draw ──────────────────────────────────────────────────
+    const canvasBg = readThemeColor("--mg-color-background", "#1f2124");
+    const canvasLine = readThemeColor("--mg-color-text-ultra-weak", "rgba(242,242,242,0.14)");
+
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = "var(--mg-color-background)";
+    ctx.fillStyle = canvasBg;
     ctx.fillRect(0, 0, W, H);
 
     // Lane background
@@ -440,7 +449,7 @@ export default function Pinball() {
     ctx.fillRect(PW, 0, LANE_W, H);
 
     // Separator wall (main field / lane divider)
-    ctx.strokeStyle = "var(--mg-color-text-ultra-weak)";
+    ctx.strokeStyle = canvasLine;
     ctx.lineWidth   = 1;
     ctx.setLineDash([]);
     ctx.lineCap     = "round";
@@ -451,7 +460,7 @@ export default function Pinball() {
 
     // Gallery arch: horizontal corridor at the top of the lane that
     // guides the ball from the lane exit to the centre of the screen.
-    ctx.strokeStyle = "var(--mg-color-text-ultra-weak)";
+    ctx.strokeStyle = canvasLine;
     ctx.lineWidth   = 1;
     ctx.beginPath();
     ctx.moveTo(W - 3, GALLERY_ARCH_Y);
