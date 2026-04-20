@@ -1,38 +1,38 @@
 :root {
-  --mg-color-primary: #8ea3c7;
-  --mg-color-secondary: #b7c9e6;
-  --mg-color-accent: #a8d2c2;
+  --mg-color-primary: #5b8fff;
+  --mg-color-secondary: #a78bfa;
+  --mg-color-accent: #34d399;
 
-  --mg-color-background: #232836;
-  --mg-color-surface: #2f3648;
+  --mg-color-background: #1a1d2e;
+  --mg-color-surface: #252840;
 
-  --mg-color-text-primary: #f4f0ea;
-  --mg-color-text-secondary: #dbd4cb;
-  --mg-color-text-muted: #b8b2a8;
+  --mg-color-text-primary: #f0f4ff;
+  --mg-color-text-secondary: #c4cdf7;
+  --mg-color-text-muted: #8b96cc;
 
-  --mg-color-border: #5a667f;
+  --mg-color-border: #3d4db0;
 
-  --mg-color-text-strong: rgba(244, 240, 234, 0.95);
-  --mg-color-text-high: rgba(244, 240, 234, 0.9);
-  --mg-color-text-emphasis: rgba(244, 240, 234, 0.88);
-  --mg-color-text-medium: rgba(244, 240, 234, 0.56);
-  --mg-color-text-dim: rgba(244, 240, 234, 0.42);
-  --mg-color-text-faint: rgba(244, 240, 234, 0.34);
-  --mg-color-text-very-faint: rgba(244, 240, 234, 0.3);
-  --mg-color-text-subtle: rgba(244, 240, 234, 0.24);
-  --mg-color-text-minimal: rgba(244, 240, 234, 0.22);
-  --mg-color-text-weak: rgba(244, 240, 234, 0.2);
-  --mg-color-text-ultra-weak: rgba(244, 240, 234, 0.16);
+  --mg-color-text-strong: rgba(200, 210, 255, 0.95);
+  --mg-color-text-high: rgba(200, 210, 255, 0.9);
+  --mg-color-text-emphasis: rgba(200, 210, 255, 0.88);
+  --mg-color-text-medium: rgba(200, 210, 255, 0.56);
+  --mg-color-text-dim: rgba(200, 210, 255, 0.42);
+  --mg-color-text-faint: rgba(200, 210, 255, 0.34);
+  --mg-color-text-very-faint: rgba(200, 210, 255, 0.3);
+  --mg-color-text-subtle: rgba(200, 210, 255, 0.24);
+  --mg-color-text-minimal: rgba(200, 210, 255, 0.22);
+  --mg-color-text-weak: rgba(200, 210, 255, 0.2);
+  --mg-color-text-ultra-weak: rgba(200, 210, 255, 0.16);
 
-  --mg-color-border-soft: rgba(244, 240, 234, 0.45);
-  --mg-color-surface-strong: rgba(244, 240, 234, 0.92);
-  --mg-color-surface-medium: rgba(244, 240, 234, 0.17);
-  --mg-color-surface-soft: rgba(244, 240, 234, 0.08);
-  --mg-color-surface-hover: rgba(244, 240, 234, 0.04);
+  --mg-color-border-soft: rgba(200, 210, 255, 0.45);
+  --mg-color-surface-strong: rgba(200, 210, 255, 0.92);
+  --mg-color-surface-medium: rgba(200, 210, 255, 0.17);
+  --mg-color-surface-soft: rgba(200, 210, 255, 0.08);
+  --mg-color-surface-hover: rgba(200, 210, 255, 0.04);
 
-  --mg-color-overlay: rgba(35, 40, 54, 0.56);
+  --mg-color-overlay: rgba(26, 29, 46, 0.56);
 
-  --mg-color-text-hover: rgba(244, 240, 234, 0.78);
-  --mg-color-warning-soft: rgba(230, 140, 148, 0.72);
-  --mg-color-warning-shadow: rgba(230, 140, 148, 0.46);
+  --mg-color-text-hover: rgba(200, 210, 255, 0.78);
+  --mg-color-warning-soft: rgba(255, 100, 130, 0.80);
+  --mg-color-warning-shadow: rgba(255, 100, 130, 0.46);
 }
