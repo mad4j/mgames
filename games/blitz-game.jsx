@@ -79,7 +79,7 @@ function useSound() {
 
 // ── game sprites ─────────────────────────────────────────────────────────────
 function Biplane() {
-  const c = "rgba(255,255,255,0.95)";
+  const c = "var(--mg-color-text-strong)";
   return (
     <svg width="32" height="16" viewBox="0 0 32 16" fill="none" role="img" aria-label="Player aircraft">
       {/* Upper wing – flat rectangle, no rounding */}
@@ -111,7 +111,7 @@ function Biplane() {
 // card symbol (large). The viewBox is "0 0 18 22" – shorter and squatter than
 // the classic design. Two small tail fins, a compact body, rounded nose.
 function BombSVG({ width = 12, height = 15 }) {
-  const c = "rgba(255,255,255,0.92)";
+  const c = "var(--mg-color-surface-strong)";
   return (
     <svg width={width} height={height} viewBox="0 0 18 22" fill="none" role="img" aria-label="bomb">
       {/* Single path: small tail fins (with V-notch) → short body → rounded nose */}
@@ -373,8 +373,8 @@ export default function BlitzGame() {
   // ── shared styles ─────────────────────────────────────────────────────────
   const BtnStyle = {
     background: "transparent",
-    border: "1px solid rgba(255,255,255,0.22)",
-    color: "#fff",
+    border: "1px solid var(--mg-color-text-subtle)",
+    color: "var(--mg-color-text-primary)",
     fontFamily: "'DM Mono', monospace",
     fontSize: 11,
     letterSpacing: 5,
@@ -386,7 +386,7 @@ export default function BlitzGame() {
   const iconBtnStyle = {
     position: "absolute", top: 14, zIndex: 20,
     background: "transparent", border: "none",
-    color: "rgba(255,255,255,0.38)",
+    color: "var(--mg-color-text-dim)",
     cursor: "pointer", padding: 6,
     lineHeight: 0,
     transition: "color 0.2s",
@@ -396,7 +396,7 @@ export default function BlitzGame() {
   return (
     <div style={{
       width: "100vw", height: "100dvh",
-      background: "#0a0a0a",
+      background: "var(--mg-color-background)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -411,7 +411,7 @@ export default function BlitzGame() {
       userSelect: "none",
       fontFamily: "'DM Mono', 'Courier New', monospace",
       touchAction: "none",
-      outline: "1px dashed rgba(255,255,255,0.12)",
+      outline: "1px dashed var(--mg-color-text-subtle)",
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&display=swap');
@@ -443,7 +443,7 @@ export default function BlitzGame() {
         aria-label={soundOn ? "mute" : "unmute"}
         onClick={() => setSoundOn(!soundOn)}
         onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
-        onMouseLeave={e => e.currentTarget.style.color = soundOn ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.18)"}
+        onMouseLeave={e => e.currentTarget.style.color = soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)"}
         style={{
           ...iconBtnStyle,
           right: 52,
@@ -458,7 +458,7 @@ export default function BlitzGame() {
         aria-label="back to hub"
         onClick={() => navigate("/")}
         onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
-        onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.38)"}
+        onMouseLeave={e => e.currentTarget.style.color = "var(--mg-color-text-dim)"}
         style={{ ...iconBtnStyle, right: 12 }}
       >
         <IconHub />
@@ -472,20 +472,20 @@ export default function BlitzGame() {
           alignItems: "center", justifyContent: "center",
           animation: "fadeIn 0.6s ease",
         }}>
-          <div style={{ color:"#fff", fontSize:11, letterSpacing:6, marginBottom:32, opacity:0.28, textTransform:"uppercase" }}>blitz</div>
+          <div style={{ color:"var(--mg-color-text-primary)", fontSize:11, letterSpacing:6, marginBottom:32, opacity:0.28, textTransform:"uppercase" }}>blitz</div>
           <div style={{ lineHeight:0, marginBottom:8, opacity:0.85 }}>
             <BombSVG width={50} height={61} />
           </div>
-          <div style={{ color:"#fff", fontSize:9, letterSpacing:3, marginTop:32, opacity:0.28, textAlign:"center", lineHeight:2.2, textTransform:"uppercase" }}>
+          <div style={{ color:"var(--mg-color-text-primary)", fontSize:9, letterSpacing:3, marginTop:32, opacity:0.28, textAlign:"center", lineHeight:2.2, textTransform:"uppercase" }}>
             drop bombs<br/>clear the runway
           </div>
           {best > 0 && (
-            <div style={{ color:"#fff", fontSize:11, letterSpacing:3, marginTop:48, opacity:0.18 }}>best {best}</div>
+            <div style={{ color:"var(--mg-color-text-primary)", fontSize:11, letterSpacing:3, marginTop:48, opacity:0.18 }}>best {best}</div>
           )}
           <button
             style={{ ...BtnStyle, marginTop: best > 0 ? 32 : 56 }}
             onMouseEnter={e => e.target.style.borderColor = "rgba(255,255,255,0.6)"}
-            onMouseLeave={e => e.target.style.borderColor = "rgba(255,255,255,0.22)"}
+            onMouseLeave={e => e.target.style.borderColor = "var(--mg-color-text-subtle)"}
             onClick={startGame}
           >start</button>
         </div>
@@ -497,7 +497,7 @@ export default function BlitzGame() {
           {/* Score */}
           <div style={{
             position: "absolute", top: 18, left: 24, zIndex: 10,
-            color: "#fff", fontSize: 32, fontWeight: 300, letterSpacing: -1,
+            color: "var(--mg-color-text-primary)", fontSize: 32, fontWeight: 300, letterSpacing: -1,
           }}>{score}</div>
 
           {/* Game grid */}
@@ -517,7 +517,7 @@ export default function BlitzGame() {
               position: "absolute",
               bottom: 0, left: 0, right: 0,
               height: 1,
-              background: "rgba(255,255,255,0.15)",
+              background: "var(--mg-color-surface-medium)",
             }} />
 
             {/* Buildings – each floor drawn as an individual square (Snake body-style) */}
@@ -607,7 +607,7 @@ export default function BlitzGame() {
                     position: "absolute",
                     left: -2.5, top: -2.5,
                     width: 5, height: 5,
-                    background: "rgba(255,255,255,0.92)",
+                    background: "var(--mg-color-surface-strong)",
                     animation: `expPart${i} 0.45s ease-out forwards`,
                     animationDelay: `${i * 12}ms`,
                   }} />
@@ -622,7 +622,7 @@ export default function BlitzGame() {
             bottom: 14,
             width: "100%",
             textAlign: "center",
-            color: "#fff",
+            color: "var(--mg-color-text-primary)",
             fontSize: 9,
             letterSpacing: 3,
             opacity: 0.18,
@@ -639,16 +639,16 @@ export default function BlitzGame() {
           alignItems: "center", justifyContent: "center",
           animation: "fadeIn 0.5s ease",
         }}>
-          <div style={{ color:"#fff", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase", marginBottom:16 }}>score</div>
-          <div style={{ color:"#fff", fontSize:88, fontWeight:300, letterSpacing:-4, lineHeight:1 }}>{score}</div>
+          <div style={{ color:"var(--mg-color-text-primary)", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase", marginBottom:16 }}>score</div>
+          <div style={{ color:"var(--mg-color-text-primary)", fontSize:88, fontWeight:300, letterSpacing:-4, lineHeight:1 }}>{score}</div>
           {score > 0 && score >= best
-            ? <div style={{ color:"#fff", fontSize:10, letterSpacing:5, opacity:0.32, marginTop:12, textTransform:"uppercase" }}>new best</div>
-            : <div style={{ color:"#fff", fontSize:10, letterSpacing:4, opacity:0.2,  marginTop:12 }}>best {best}</div>
+            ? <div style={{ color:"var(--mg-color-text-primary)", fontSize:10, letterSpacing:5, opacity:0.32, marginTop:12, textTransform:"uppercase" }}>new best</div>
+            : <div style={{ color:"var(--mg-color-text-primary)", fontSize:10, letterSpacing:4, opacity:0.2,  marginTop:12 }}>best {best}</div>
           }
           <button
             style={{ ...BtnStyle, marginTop: 56 }}
             onMouseEnter={e => e.target.style.borderColor = "rgba(255,255,255,0.6)"}
-            onMouseLeave={e => e.target.style.borderColor = "rgba(255,255,255,0.22)"}
+            onMouseLeave={e => e.target.style.borderColor = "var(--mg-color-text-subtle)"}
             onClick={startGame}
           >again</button>
         </div>

@@ -15,7 +15,7 @@ export default function Hub({ games }) {
       style={{
         width: "100vw",
         minHeight: "100dvh",
-        background: "#0a0a0a",
+        background: "var(--mg-color-background)",
         overflowX: "hidden",
         display: "flex",
         flexDirection: "column",
@@ -42,8 +42,8 @@ export default function Hub({ games }) {
 
         .game-card {
           background: transparent;
-          border: 1px solid rgba(255,255,255,0.12);
-          color: #fff;
+          border: 1px solid var(--mg-color-text-subtle);
+          color: var(--mg-color-text-primary);
           cursor: pointer;
           display: flex;
           flex-direction: column;
@@ -56,10 +56,10 @@ export default function Hub({ games }) {
         }
         .game-card:hover {
           border-color: rgba(255,255,255,0.5);
-          background: rgba(255,255,255,0.03);
+          background: var(--mg-color-surface-hover);
         }
         .game-card:active {
-          background: rgba(255,255,255,0.06);
+          background: var(--mg-color-surface-soft);
         }
         .hub-checkbox {
           -webkit-appearance: none;
@@ -67,7 +67,7 @@ export default function Hub({ games }) {
           width: 12px;
           height: 12px;
           margin: 0;
-          border: 1px solid rgba(255,255,255,0.45);
+          border: 1px solid var(--mg-color-border-soft);
           background: transparent !important;
           display: grid;
           place-content: center;
@@ -108,7 +108,7 @@ export default function Hub({ games }) {
       <label
         style={{
           marginBottom: 22,
-          color: "rgba(255,255,255,0.46)",
+          color: "var(--mg-color-text-medium)",
           fontSize: 9,
           letterSpacing: 2.2,
           textTransform: "uppercase",
@@ -198,7 +198,7 @@ export default function Hub({ games }) {
         href="mailto:daniele.olmisani@gmail.com"
         style={{
           marginTop: 40,
-          color: "#fff",
+          color: "var(--mg-color-text-primary)",
           fontSize: 9,
           letterSpacing: 2,
           opacity: 0.22,

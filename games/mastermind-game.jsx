@@ -14,13 +14,13 @@ const VIEWPORT_PADDING = 32;
 const GAME_W = 560;
 const GAME_H = 840;
 
-const C_BG   = "#0a0a0a";
-const C_MAIN = "rgba(255,255,255,0.95)";
+const C_BG   = "var(--mg-color-background)";
+const C_MAIN = "var(--mg-color-text-strong)";
 const C_STRONG = "rgba(255,255,255,0.96)";
 const C_SOFT = "rgba(255,255,255,0.78)";
 const C_DIM = "rgba(255,255,255,0.42)";
-const C_FAINT = "rgba(255,255,255,0.28)";
-const C_BORDER = "rgba(255,255,255,0.28)";
+const C_FAINT = "var(--mg-color-text-very-faint)";
+const C_BORDER = "var(--mg-color-text-very-faint)";
 const mono   = "'DM Mono', 'Courier New', monospace";
 const IDLE_RULES = [
   ["SHAPES", "6 to choose"],
@@ -647,7 +647,7 @@ export default function MastermindGame() {
       onMouseEnter={(e) => {
         if (!disabled) {
           e.currentTarget.style.borderColor = C_STRONG;
-          e.currentTarget.style.boxShadow  = "0 0 18px rgba(255,255,255,0.22)";
+          e.currentTarget.style.boxShadow  = "0 0 18px var(--mg-color-text-subtle)";
         }
       }}
       onMouseLeave={(e) => {

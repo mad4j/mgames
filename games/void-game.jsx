@@ -100,8 +100,8 @@ export const meta = {
 
 const BtnStyle = {
   background: "transparent",
-  border: "1px solid rgba(255,255,255,0.22)",
-  color: "#fff",
+  border: "1px solid var(--mg-color-text-subtle)",
+  color: "var(--mg-color-text-primary)",
   fontFamily: "'DM Mono', monospace",
   fontSize: 11,
   letterSpacing: 5,
@@ -116,7 +116,7 @@ const iconBtnStyle = {
   zIndex: 20,
   background: "transparent",
   border: "none",
-  color: "rgba(255,255,255,0.38)",
+  color: "var(--mg-color-text-dim)",
   cursor: "pointer",
   padding: 6,
   lineHeight: 0,
@@ -335,7 +335,7 @@ export default function VoidGame() {
       style={{
         width: "100vw",
         height: "100dvh",
-        background: "#0a0a0a",
+        background: "var(--mg-color-background)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -352,7 +352,7 @@ export default function VoidGame() {
           overflow: "hidden",
           userSelect: "none",
           fontFamily: "'DM Mono', 'Courier New', monospace",
-          outline: "1px dashed rgba(255,255,255,0.12)",
+          outline: "1px dashed var(--mg-color-text-subtle)",
         }}
       >
         <style>{`
@@ -367,7 +367,7 @@ export default function VoidGame() {
           aria-label={soundOn ? "mute" : "unmute"}
           onClick={() => setSoundOn(!soundOn)}
           onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = soundOn ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.18)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)")}
           style={{
             ...iconBtnStyle,
             right: 52,
@@ -380,7 +380,7 @@ export default function VoidGame() {
           aria-label="back to hub"
           onClick={() => navigate("/")}
           onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.38)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--mg-color-text-dim)")}
           style={{ ...iconBtnStyle, right: 12 }}
         >
           <IconHub />
@@ -398,17 +398,17 @@ export default function VoidGame() {
               animation: "fadeIn 0.6s ease",
             }}
           >
-            <div style={{ color: "#fff", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 20 }}>void</div>
-            <div aria-hidden="true" style={{ color: "#fff", fontSize: 72, fontWeight: 300, lineHeight: 1, marginBottom: 20 }}>
+            <div style={{ color: "var(--mg-color-text-primary)", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 20 }}>void</div>
+            <div aria-hidden="true" style={{ color: "var(--mg-color-text-primary)", fontSize: 72, fontWeight: 300, lineHeight: 1, marginBottom: 20 }}>
               ◌
             </div>
-            <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.18, textAlign: "center", lineHeight: 1.8 }}>
+            <div style={{ color: "var(--mg-color-text-primary)", fontSize: 10, letterSpacing: 3, opacity: 0.18, textAlign: "center", lineHeight: 1.8 }}>
               do nothing for 120 seconds
             </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
               onMouseEnter={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.6)")}
-              onMouseLeave={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.22)")}
+              onMouseLeave={(e) => (e.target.style.borderColor = "var(--mg-color-text-subtle)")}
               onClick={startGame}
             >
               start
@@ -444,7 +444,7 @@ export default function VoidGame() {
                       width: 4,
                       height: 4,
                       borderRadius: "50%",
-                      background: "#fff",
+                      background: "var(--mg-color-text-primary)",
                       opacity: visible ? 0.92 : 0.06,
                       transition: "opacity 0.28s linear",
                     }}
@@ -467,19 +467,19 @@ export default function VoidGame() {
               animation: "fadeIn 0.6s ease",
             }}
           >
-            <div style={{ color: "#fff", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 16 }}>victory</div>
-            <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>void complete</div>
+            <div style={{ color: "var(--mg-color-text-primary)", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 16 }}>victory</div>
+            <div style={{ color: "var(--mg-color-text-primary)", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>void complete</div>
             <div
               role="status"
               aria-label={`score ${scoreLabel}`}
-              style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
+              style={{ color: "var(--mg-color-text-primary)", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
             >
               score {scoreLabel}
             </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
               onMouseEnter={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.6)")}
-              onMouseLeave={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.22)")}
+              onMouseLeave={(e) => (e.target.style.borderColor = "var(--mg-color-text-subtle)")}
               onClick={startGame}
             >
               again
@@ -499,19 +499,19 @@ export default function VoidGame() {
               animation: "fadeIn 0.6s ease",
             }}
           >
-            <div style={{ color: "#fff", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 16 }}>game over</div>
-            <div style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>you did something</div>
+            <div style={{ color: "var(--mg-color-text-primary)", fontSize: 11, letterSpacing: 6, opacity: 0.28, textTransform: "uppercase", marginBottom: 16 }}>game over</div>
+            <div style={{ color: "var(--mg-color-text-primary)", fontSize: 10, letterSpacing: 3, opacity: 0.2, textTransform: "uppercase" }}>you did something</div>
             <div
               role="status"
               aria-label={`score ${scoreLabel}`}
-              style={{ color: "#fff", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
+              style={{ color: "var(--mg-color-text-primary)", fontSize: 10, letterSpacing: 3, opacity: 0.55, textTransform: "uppercase", marginTop: 14 }}
             >
               score {scoreLabel}
             </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
               onMouseEnter={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.6)")}
-              onMouseLeave={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.22)")}
+              onMouseLeave={(e) => (e.target.style.borderColor = "var(--mg-color-text-subtle)")}
               onClick={startGame}
             >
               retry

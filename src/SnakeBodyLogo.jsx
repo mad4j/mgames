@@ -1,4 +1,4 @@
-const HEAD_FILL = "rgba(255,255,255,0.92)";
+const HEAD_FILL = "var(--mg-color-surface-strong)";
 const BODY_BORDERS = ["rgba(255,255,255,0.65)", "rgba(255,255,255,0.42)"];
 const BORDER_WIDTH = "1.5px";
 const [FIRST_BODY_BORDER, SECOND_BODY_BORDER] = BODY_BORDERS;

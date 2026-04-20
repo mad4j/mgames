@@ -397,8 +397,8 @@ export default function SnakeGame() {
   // ── derived visual values ──────────────────────────────────────────────────
   const BtnStyle = {
     background:    "transparent",
-    border:        "1px solid rgba(255,255,255,0.22)",
-    color:         "#fff",
+    border:        "1px solid var(--mg-color-text-subtle)",
+    color:         "var(--mg-color-text-primary)",
     fontFamily:    "'DM Mono', monospace",
     fontSize:      11,
     letterSpacing: 5,
@@ -410,7 +410,7 @@ export default function SnakeGame() {
   const iconBtnStyle = {
     position: "absolute", top: 14, zIndex: 20,
     background: "transparent", border: "none",
-    color: "rgba(255,255,255,0.38)",
+    color: "var(--mg-color-text-dim)",
     cursor: "pointer", padding: 6,
     lineHeight: 0,
     transition: "color 0.2s",
@@ -427,7 +427,7 @@ export default function SnakeGame() {
     <div style={{
       width:           "100vw",
       height:          "100dvh",
-      background:      "#0a0a0a",
+      background:      "var(--mg-color-background)",
       display:         "flex",
       alignItems:      "center",
       justifyContent:  "center",
@@ -444,7 +444,7 @@ export default function SnakeGame() {
         userSelect: "none",
         fontFamily: "'DM Mono', 'Courier New', monospace",
         touchAction:"none",
-        outline:    "1px dashed rgba(255,255,255,0.12)",
+        outline:    "1px dashed var(--mg-color-text-subtle)",
       }}
     >
       <style>{`
@@ -471,7 +471,7 @@ export default function SnakeGame() {
         aria-label={soundOn ? "mute" : "unmute"}
         onClick={() => setSoundOn(!soundOn)}
         onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
-        onMouseLeave={e => e.currentTarget.style.color = soundOn ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.18)"}
+        onMouseLeave={e => e.currentTarget.style.color = soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)"}
         style={{
           ...iconBtnStyle,
           right: 52,
@@ -484,7 +484,7 @@ export default function SnakeGame() {
         aria-label="back to hub"
         onClick={() => navigate("/")}
         onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.75)"}
-        onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.38)"}
+        onMouseLeave={e => e.currentTarget.style.color = "var(--mg-color-text-dim)"}
         style={{ ...iconBtnStyle, right: 12 }}
       >
         <IconHub />
@@ -495,7 +495,7 @@ export default function SnakeGame() {
         <div style={{
           position:   "absolute",
           inset:      0,
-          background: "#fff",
+          background: "var(--mg-color-text-primary)",
           animation:  "flashAnim 0.4s ease forwards",
           pointerEvents: "none",
           zIndex:     30,
@@ -510,7 +510,7 @@ export default function SnakeGame() {
           alignItems:     "center",   justifyContent: "center",
           animation:      "fadeIn 0.6s ease",
         }}>
-          <div style={{ color:"#fff", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase" }}>snake</div>
+          <div style={{ color:"var(--mg-color-text-primary)", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase" }}>snake</div>
 
           {/* Snake body logo */}
           <div style={{ margin: "36px 0" }}>
@@ -518,7 +518,7 @@ export default function SnakeGame() {
           </div>
 
           {best > 0 && (
-            <div style={{ color:"#fff", fontSize:11, letterSpacing:3, opacity:0.18, marginBottom: 8 }}>
+            <div style={{ color:"var(--mg-color-text-primary)", fontSize:11, letterSpacing:3, opacity:0.18, marginBottom: 8 }}>
               best {best}
             </div>
           )}
@@ -526,11 +526,11 @@ export default function SnakeGame() {
           <button
             style={{ ...BtnStyle, marginTop: 48 }}
             onMouseEnter={e => e.target.style.borderColor = "rgba(255,255,255,0.6)"}
-            onMouseLeave={e => e.target.style.borderColor = "rgba(255,255,255,0.22)"}
+            onMouseLeave={e => e.target.style.borderColor = "var(--mg-color-text-subtle)"}
             onClick={startGame}
           >start</button>
 
-          <div style={{ color:"#fff", fontSize:10, letterSpacing:3, opacity:0.14, textTransform:"uppercase", marginTop:48 }}>
+          <div style={{ color:"var(--mg-color-text-primary)", fontSize:10, letterSpacing:3, opacity:0.14, textTransform:"uppercase", marginTop:48 }}>
             tap · swipe · arrows
           </div>
         </div>
@@ -543,12 +543,12 @@ export default function SnakeGame() {
           <div style={{
             position:      "absolute",
             top:           18, left: 24,
-            color:         "rgba(255,255,255,0.88)",
+            color:         "var(--mg-color-text-emphasis)",
             fontFamily:    "'Share Tech Mono', monospace",
             fontSize:      16,
             zIndex:        10,
             pointerEvents: "none",
-            textShadow:    "0 0 6px rgba(255,255,255,0.55)",
+            textShadow:    "0 0 6px var(--mg-color-text-medium)",
             display:       "flex",
             alignItems:    "baseline",
             gap:           6,
@@ -615,16 +615,16 @@ export default function SnakeGame() {
           alignItems:     "center",   justifyContent: "center",
           animation:      "fadeIn 0.5s ease",
         }}>
-          <div style={{ color:"#fff", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase", marginBottom:16 }}>score</div>
-          <div style={{ color:"#fff", fontSize:88, fontWeight:300, letterSpacing:-4, lineHeight:1 }}>{score}</div>
+          <div style={{ color:"var(--mg-color-text-primary)", fontSize:11, letterSpacing:6, opacity:0.28, textTransform:"uppercase", marginBottom:16 }}>score</div>
+          <div style={{ color:"var(--mg-color-text-primary)", fontSize:88, fontWeight:300, letterSpacing:-4, lineHeight:1 }}>{score}</div>
           {score > 0 && score >= best
-            ? <div style={{ color:"#fff", fontSize:10, letterSpacing:5, opacity:0.32, marginTop:12, textTransform:"uppercase" }}>new best</div>
-            : <div style={{ color:"#fff", fontSize:10, letterSpacing:4, opacity:0.20, marginTop:12 }}>best {best}</div>
+            ? <div style={{ color:"var(--mg-color-text-primary)", fontSize:10, letterSpacing:5, opacity:0.32, marginTop:12, textTransform:"uppercase" }}>new best</div>
+            : <div style={{ color:"var(--mg-color-text-primary)", fontSize:10, letterSpacing:4, opacity:0.20, marginTop:12 }}>best {best}</div>
           }
           <button
             style={{ ...BtnStyle, marginTop: 56 }}
             onMouseEnter={e => e.target.style.borderColor = "rgba(255,255,255,0.6)"}
-            onMouseLeave={e => e.target.style.borderColor = "rgba(255,255,255,0.22)"}
+            onMouseLeave={e => e.target.style.borderColor = "var(--mg-color-text-subtle)"}
             onClick={startGame}
           >again</button>
         </div>
