@@ -17,7 +17,7 @@ const SPEED_GAIN = 12;
 
 const OBSTACLE_MIN_GAP = 0.9;
 const OBSTACLE_MAX_GAP = 1.8;
-const INITIAL_SPAWN_DELAY = OBSTACLE_MIN_GAP;
+const FIRST_OBSTACLE_DELAY = OBSTACLE_MIN_GAP;
 
 const randomGap = () => OBSTACLE_MIN_GAP + Math.random() * (OBSTACLE_MAX_GAP - OBSTACLE_MIN_GAP);
 
@@ -56,7 +56,7 @@ export default function RunGame() {
     y: 0,
     speed: BASE_SPEED,
     distance: 0,
-    spawnIn: INITIAL_SPAWN_DELAY,
+    spawnIn: FIRST_OBSTACLE_DELAY,
     id: 0,
     obstacles: [],
   });
@@ -90,7 +90,7 @@ export default function RunGame() {
     g.y = 0;
     g.speed = BASE_SPEED;
     g.distance = 0;
-    g.spawnIn = INITIAL_SPAWN_DELAY;
+    g.spawnIn = FIRST_OBSTACLE_DELAY;
     g.obstacles = [];
 
     setPlayerY(0);
@@ -128,7 +128,7 @@ export default function RunGame() {
         w,
         h,
       });
-      g.spawnIn = randomGap() * (BASE_SPEED / g.speed);
+      g.spawnIn = randomGap();
     }
 
     g.obstacles = g.obstacles
