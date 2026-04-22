@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { HubButton, SoundToggleButton } from "../src/game-controls.jsx";
 
 const COLS              = 20;
 const ROWS              = 32;
@@ -143,37 +144,6 @@ function BuildingCap({ width }) {
       style={{ position: "absolute", top: -h, left: 0, display: "block" }}
     >
       <path d={d} fill="rgba(255,255,255,0.70)" />
-    </svg>
-  );
-}
-
-// ── icon components ───────────────────────────────────────────────────────────
-function IconSound({ on }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="2,6 6,6 10,2 10,16 6,12 2,12" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" fill="none"/>
-      {on ? (
-        <>
-          <path d="M12.5 6.5 C13.8 7.3 13.8 10.7 12.5 11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-          <path d="M14.5 4.5 C17 6 17 12 14.5 13.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-        </>
-      ) : (
-        <>
-          <line x1="12" y1="6" x2="17" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-          <line x1="17" y1="6" x2="12" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-        </>
-      )}
-    </svg>
-  );
-}
-
-function IconHub() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2"  y="2"  width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
-      <rect x="10" y="2"  width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
-      <rect x="2"  y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
-      <rect x="10" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
     </svg>
   );
 }
@@ -383,15 +353,6 @@ export default function BlitzGame() {
     textTransform: "uppercase",
   };
 
-  const iconBtnStyle = {
-    position: "absolute", top: 14, zIndex: 20,
-    background: "transparent", border: "none",
-    color: "var(--mg-color-text-dim)",
-    cursor: "pointer", padding: 6,
-    lineHeight: 0,
-    transition: "color 0.2s",
-  };
-
   // ── render ────────────────────────────────────────────────────────────────
   return (
     <div style={{
@@ -438,31 +399,8 @@ export default function BlitzGame() {
         @keyframes expPart7 { from{opacity:1} to{transform:translate(-16px,-16px) scale(0); opacity:0} }
       `}</style>
 
-      {/* ── SOUND TOGGLE ── */}
-      <button
-        aria-label={soundOn ? "mute" : "unmute"}
-        onClick={() => setSoundOn(!soundOn)}
-        onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-hover)"}
-        onMouseLeave={e => e.currentTarget.style.color = soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)"}
-        style={{
-          ...iconBtnStyle,
-          right: 52,
-          color: soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)",
-        }}
-      >
-        <IconSound on={soundOn} />
-      </button>
-
-      {/* ── HUB ── */}
-      <button
-        aria-label="back to hub"
-        onClick={() => navigate("/")}
-        onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-hover)"}
-        onMouseLeave={e => e.currentTarget.style.color = "var(--mg-color-text-dim)"}
-        style={{ ...iconBtnStyle, right: 12 }}
-      >
-        <IconHub />
-      </button>
+      <SoundToggleButton soundOn={soundOn} setSoundOn={setSoundOn} />
+      <HubButton onClick={() => navigate("/")} />
 
       {/* ── IDLE ── */}
       {phase === "idle" && (

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { HubButton } from "../src/game-controls.jsx";
 
 const FRAME_W = 430;
 const FRAME_H = 760;
@@ -41,17 +42,6 @@ function Shape({ type, size = 18 }) {
       strokeWidth="1.6"
       fill="none"
     />
-  );
-}
-
-function IconHub() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="2" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
-      <rect x="10" y="2" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
-      <rect x="2" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
-      <rect x="10" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
-    </svg>
   );
 }
 
@@ -301,20 +291,6 @@ export default function BlastGame() {
 
   const sortedTokens = useMemo(() => [...tokens].sort((a, b) => a.y - b.y), [tokens]);
 
-  const iconBtnStyle = {
-    position: "absolute",
-    top: 14,
-    right: 12,
-    zIndex: 20,
-    background: "transparent",
-    border: "none",
-    color: "var(--mg-color-text-dim)",
-    cursor: "pointer",
-    padding: 6,
-    lineHeight: 0,
-    transition: "color 0.2s",
-  };
-
   return (
     <div
       style={{
@@ -344,15 +320,7 @@ export default function BlastGame() {
           overflow: "hidden",
         }}
       >
-        <button
-          aria-label="back to hub"
-          onClick={() => navigate("/")}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--mg-color-text-hover)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--mg-color-text-dim)")}
-          style={iconBtnStyle}
-        >
-          <IconHub />
-        </button>
+        <HubButton onClick={() => navigate("/")} />
 
         {(phase === "playing" || phase === "done") && (
           <>

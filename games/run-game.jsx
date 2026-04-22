@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { HubButton } from "../src/game-controls.jsx";
 
 const WORLD_W = 430;
 const WORLD_H = 760;
@@ -24,17 +25,6 @@ const OBSTACLE_MAX_GAP = 1.8;
 const FIRST_OBSTACLE_DELAY = OBSTACLE_MIN_GAP;
 
 const randomGap = () => OBSTACLE_MIN_GAP + Math.random() * (OBSTACLE_MAX_GAP - OBSTACLE_MIN_GAP);
-
-function IconHub() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="2" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
-      <rect x="10" y="2" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
-      <rect x="2" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
-      <rect x="10" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
-    </svg>
-  );
-}
 
 export const meta = {
   path: "/run",
@@ -277,25 +267,7 @@ export default function RunGame() {
             transformOrigin: "top left",
           }}
         >
-          <button
-            aria-label="back to hub"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={() => navigate("/")}
-            style={{
-              position: "absolute",
-              right: 12,
-              top: 14,
-              zIndex: 20,
-              background: "transparent",
-              border: "none",
-              color: "var(--mg-color-text-dim)",
-              cursor: "pointer",
-              padding: 6,
-              lineHeight: 0,
-            }}
-          >
-            <IconHub />
-          </button>
+          <HubButton onClick={() => navigate("/")} stopPropagation />
 
           <div
             style={{
