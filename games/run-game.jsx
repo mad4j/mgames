@@ -17,6 +17,9 @@ const SPEED_GAIN = 12;
 
 const OBSTACLE_MIN_GAP = 0.9;
 const OBSTACLE_MAX_GAP = 1.8;
+const INITIAL_SPAWN_DELAY = OBSTACLE_MIN_GAP;
+
+const randomGap = () => OBSTACLE_MIN_GAP + Math.random() * (OBSTACLE_MAX_GAP - OBSTACLE_MIN_GAP);
 
 function IconHub() {
   return (
@@ -59,8 +62,6 @@ export default function RunGame() {
   });
   const rafRef = useRef(null);
 
-  const randomGap = () => OBSTACLE_MIN_GAP + Math.random() * (OBSTACLE_MAX_GAP - OBSTACLE_MIN_GAP);
-
   const stopLoop = useCallback(() => {
     gameRef.current.running = false;
     if (rafRef.current) {
@@ -89,7 +90,7 @@ export default function RunGame() {
     g.y = 0;
     g.speed = BASE_SPEED;
     g.distance = 0;
-    g.spawnIn = 0.9;
+    g.spawnIn = INITIAL_SPAWN_DELAY;
     g.obstacles = [];
 
     setPlayerY(0);
