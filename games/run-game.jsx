@@ -224,14 +224,15 @@ export default function RunGame() {
     () => ({ scaleX: viewport.w / WORLD_W, scaleY: viewport.h / WORLD_H }),
     [viewport.w, viewport.h],
   );
-  const squashRatio = Math.min(1, squash / SQUASH_DURATION);
   const { playerScaleX, playerScaleY, playerTransition } = useMemo(
     () => ({
-      playerScaleX: phase === "done" ? DEATH_SCALE_X : 1 + SQUASH_SCALE_X * squashRatio,
-      playerScaleY: phase === "done" ? DEATH_SCALE_Y : 1 - SQUASH_SCALE_Y * squashRatio,
+      playerScaleX:
+        phase === "done" ? DEATH_SCALE_X : 1 + SQUASH_SCALE_X * Math.min(1, squash / SQUASH_DURATION),
+      playerScaleY:
+        phase === "done" ? DEATH_SCALE_Y : 1 - SQUASH_SCALE_Y * Math.min(1, squash / SQUASH_DURATION),
       playerTransition: phase === "playing" ? "transform 0.06s linear" : "transform 0.2s ease",
     }),
-    [phase, squashRatio],
+    [phase, squash],
   );
 
   return (
