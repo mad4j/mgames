@@ -220,18 +220,19 @@ export default function RunGame() {
     cursor: "pointer",
     textTransform: "uppercase",
   };
-  const { scaleX, scaleY } = useMemo(
-    () => ({ scaleX: viewport.w / WORLD_W, scaleY: viewport.h / WORLD_H }),
+  const { viewportScaleX, viewportScaleY } = useMemo(
+    () => ({ viewportScaleX: viewport.w / WORLD_W, viewportScaleY: viewport.h / WORLD_H }),
     [viewport.w, viewport.h],
   );
   const { playerScaleX, playerScaleY, playerTransition } = useMemo(
-    () => ({
-      playerScaleX:
-        phase === "done" ? DEATH_SCALE_X : 1 + SQUASH_SCALE_X * Math.min(1, squash / SQUASH_DURATION),
-      playerScaleY:
-        phase === "done" ? DEATH_SCALE_Y : 1 - SQUASH_SCALE_Y * Math.min(1, squash / SQUASH_DURATION),
-      playerTransition: phase === "playing" ? "transform 0.06s linear" : "transform 0.2s ease",
-    }),
+    () => {
+      const squashAmount = Math.min(1, squash / SQUASH_DURATION);
+      return {
+        playerScaleX: phase === "done" ? DEATH_SCALE_X : 1 + SQUASH_SCALE_X * squashAmount,
+        playerScaleY: phase === "done" ? DEATH_SCALE_Y : 1 - SQUASH_SCALE_Y * squashAmount,
+        playerTransition: phase === "playing" ? "transform 0.06s linear" : "transform 0.2s ease",
+      };
+    },
     [phase, squash],
   );
 
@@ -269,7 +270,7 @@ export default function RunGame() {
             top: 0,
             width: WORLD_W,
             height: WORLD_H,
-            transform: `scale(${scaleX}, ${scaleY})`,
+            transform: `scale(${viewportScaleX}, ${viewportScaleY})`,
             transformOrigin: "top left",
           }}
         >
