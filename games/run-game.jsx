@@ -36,7 +36,7 @@ export const meta = {
   path: "/run",
   symbol: "▭",
   name: "Run!!",
-  description: "jump over cacti and survive",
+  description: "jump over obstacles and survive",
   status: "final",
 };
 
