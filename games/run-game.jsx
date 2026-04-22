@@ -204,6 +204,7 @@ export default function RunGame() {
   }, [stopLoop]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return undefined;
     const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight });
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
@@ -227,9 +228,11 @@ export default function RunGame() {
   const { playerScaleX, playerScaleY, playerTransition } = useMemo(
     () => {
       const squashAmount = Math.min(1, squash / SQUASH_DURATION);
+      const baseScaleX = 1 + SQUASH_SCALE_X * squashAmount;
+      const baseScaleY = 1 - SQUASH_SCALE_Y * squashAmount;
       return {
-        playerScaleX: phase === "done" ? DEATH_SCALE_X : 1 + SQUASH_SCALE_X * squashAmount,
-        playerScaleY: phase === "done" ? DEATH_SCALE_Y : 1 - SQUASH_SCALE_Y * squashAmount,
+        playerScaleX: phase === "done" ? baseScaleX * DEATH_SCALE_X : baseScaleX,
+        playerScaleY: phase === "done" ? baseScaleY * DEATH_SCALE_Y : baseScaleY,
         playerTransition: phase === "playing" ? "transform 0.06s linear" : "transform 0.2s ease",
       };
     },
