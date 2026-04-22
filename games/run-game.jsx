@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 const WORLD_W = 430;
@@ -220,11 +220,19 @@ export default function RunGame() {
     cursor: "pointer",
     textTransform: "uppercase",
   };
-  const scaleX = viewport.w / WORLD_W;
-  const scaleY = viewport.h / WORLD_H;
+  const { scaleX, scaleY } = useMemo(
+    () => ({ scaleX: viewport.w / WORLD_W, scaleY: viewport.h / WORLD_H }),
+    [viewport.w, viewport.h],
+  );
   const squashRatio = Math.min(1, squash / SQUASH_DURATION);
-  const playerScaleX = phase === "done" ? DEATH_SCALE_X : 1 + SQUASH_SCALE_X * squashRatio;
-  const playerScaleY = phase === "done" ? DEATH_SCALE_Y : 1 - SQUASH_SCALE_Y * squashRatio;
+  const { playerScaleX, playerScaleY, playerTransition } = useMemo(
+    () => ({
+      playerScaleX: phase === "done" ? DEATH_SCALE_X : 1 + SQUASH_SCALE_X * squashRatio,
+      playerScaleY: phase === "done" ? DEATH_SCALE_Y : 1 - SQUASH_SCALE_Y * squashRatio,
+      playerTransition: phase === "playing" ? "transform 0.06s linear" : "transform 0.2s ease",
+    }),
+    [phase, squashRatio],
+  );
 
   return (
     <div
@@ -357,7 +365,7 @@ export default function RunGame() {
               border: "1.5px solid var(--mg-color-text-high)",
               background: "var(--mg-color-surface-soft)",
               transformOrigin: "50% 100%",
-              transition: phase === "playing" ? "transform 0.06s linear" : "transform 0.2s ease",
+              transition: playerTransition,
               transform: `scaleX(${playerScaleX}) scaleY(${playerScaleY})`,
             }}
           />
