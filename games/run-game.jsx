@@ -6,8 +6,7 @@ const WORLD_H = 760;
 const GROUND_Y = 620;
 
 const PLAYER_X = 88;
-const PLAYER_W = 34;
-const PLAYER_H = 44;
+const PLAYER_SIZE = 36;
 const JUMP_V = 880;
 const GRAVITY = 2300;
 
@@ -48,6 +47,11 @@ export default function RunGame() {
   const [obstacles, setObstacles] = useState([]);
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
+  const [squash, setSquash] = useState(0);
+  const [viewport, setViewport] = useState(() => ({
+    w: typeof window !== "undefined" ? window.innerWidth : WORLD_W,
+    h: typeof window !== "undefined" ? window.innerHeight : WORLD_H,
+  }));
 
   const gameRef = useRef({
     running: false,
@@ -59,6 +63,7 @@ export default function RunGame() {
     spawnIn: FIRST_OBSTACLE_DELAY,
     id: 0,
     obstacles: [],
+    squashT: 0,
   });
   const rafRef = useRef(null);
 
@@ -92,10 +97,12 @@ export default function RunGame() {
     g.distance = 0;
     g.spawnIn = FIRST_OBSTACLE_DELAY;
     g.obstacles = [];
+    g.squashT = 0;
 
     setPlayerY(0);
     setObstacles([]);
     setScore(0);
+    setSquash(0);
     setPhase("playing");
   }, []);
 
@@ -108,12 +115,19 @@ export default function RunGame() {
 
     g.speed = Math.min(MAX_SPEED, g.speed + SPEED_GAIN * dt);
 
+    if (g.squashT > 0) {
+      g.squashT = Math.max(0, g.squashT - dt);
+      setSquash(g.squashT);
+    }
+
     if (g.y > 0 || g.vy > 0) {
       g.vy -= GRAVITY * dt;
       g.y += g.vy * dt;
       if (g.y < 0) {
         g.y = 0;
         g.vy = 0;
+        g.squashT = 0.14;
+        setSquash(0.14);
       }
       setPlayerY(g.y);
     }
@@ -136,9 +150,9 @@ export default function RunGame() {
       .filter((o) => o.x + o.w > -20);
 
     const pLeft = PLAYER_X + 6;
-    const pRight = PLAYER_X + PLAYER_W - 6;
+    const pRight = PLAYER_X + PLAYER_SIZE - 6;
     const pBottom = GROUND_Y - g.y - 4;
-    const pTop = pBottom - PLAYER_H + 8;
+    const pTop = pBottom - PLAYER_SIZE + 8;
 
     const hit = g.obstacles.some((o) => {
       const oLeft = o.x;
@@ -184,6 +198,12 @@ export default function RunGame() {
     return stopLoop;
   }, [stopLoop]);
 
+  useEffect(() => {
+    const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   const buttonStyle = {
     background: "transparent",
     border: "1px solid var(--mg-color-text-subtle)",
@@ -195,6 +215,11 @@ export default function RunGame() {
     cursor: "pointer",
     textTransform: "uppercase",
   };
+  const scaleX = viewport.w / WORLD_W;
+  const scaleY = viewport.h / WORLD_H;
+  const squashRatio = Math.min(1, squash / 0.14);
+  const playerScaleX = phase === "done" ? 1.22 : 1 + 0.15 * squashRatio;
+  const playerScaleY = phase === "done" ? 0.78 : 1 - 0.12 * squashRatio;
 
   return (
     <div
@@ -214,10 +239,8 @@ export default function RunGame() {
         }}
         style={{
           position: "relative",
-          width: WORLD_W,
-          height: WORLD_H,
-          maxWidth: "calc(100vw - 32px)",
-          maxHeight: "calc(100dvh - 32px)",
+          width: "100%",
+          height: "100%",
           overflow: "hidden",
           userSelect: "none",
           touchAction: "none",
@@ -225,137 +248,130 @@ export default function RunGame() {
           fontFamily: "'DM Mono', 'Courier New', monospace",
         }}
       >
-        <button
-          aria-label="back to hub"
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => navigate("/")}
-          style={{
-            position: "absolute",
-            right: 12,
-            top: 14,
-            zIndex: 20,
-            background: "transparent",
-            border: "none",
-            color: "var(--mg-color-text-dim)",
-            cursor: "pointer",
-            padding: 6,
-            lineHeight: 0,
-          }}
-        >
-          <IconHub />
-        </button>
-
-        <div
-          style={{
-            position: "absolute",
-            left: 18,
-            top: 20,
-            color: "var(--mg-color-text-primary)",
-            fontSize: 32,
-            fontWeight: 300,
-            letterSpacing: -1,
-            opacity: phase === "idle" ? 0.25 : 1,
-          }}
-        >
-          {score}
-        </div>
-
-        {phase !== "playing" && (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "var(--mg-color-text-primary)",
-              pointerEvents: "none",
-            }}
-          >
-            <div style={{ fontSize: 12, letterSpacing: 6, opacity: 0.35, textTransform: "uppercase" }}>run!!</div>
-            <div style={{ marginTop: 18, fontSize: 10, letterSpacing: 2.5, opacity: 0.3 }}>tap / space to jump</div>
-            {phase === "done" && (
-              <div style={{ marginTop: 24, fontSize: 11, letterSpacing: 4, opacity: 0.32, textTransform: "uppercase" }}>
-                game over
-              </div>
-            )}
-            {best > 0 && (
-              <div style={{ marginTop: 12, fontSize: 10, letterSpacing: 3, opacity: 0.2 }}>
-                best {best}
-              </div>
-            )}
-            <button
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={startGame}
-              style={{ ...buttonStyle, marginTop: 44, pointerEvents: "auto" }}
-            >
-              {phase === "done" ? "again" : "start"}
-            </button>
-          </div>
-        )}
-
         <div
           style={{
             position: "absolute",
             left: 0,
-            right: 0,
-            top: GROUND_Y,
-            height: 2,
-            background: "var(--mg-color-border-soft)",
-            opacity: 0.9,
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            left: PLAYER_X,
-            width: PLAYER_W,
-            height: PLAYER_H,
-            bottom: WORLD_H - (GROUND_Y - playerY),
-            border: "1.5px solid var(--mg-color-text-high)",
-            background: "var(--mg-color-surface-soft)",
-            transition: phase === "playing" ? "none" : "transform 0.2s ease",
-            transform: phase === "done" ? "scaleX(1.2) scaleY(0.8)" : "none",
+            top: 0,
+            width: WORLD_W,
+            height: WORLD_H,
+            transform: `scale(${scaleX}, ${scaleY})`,
+            transformOrigin: "top left",
           }}
         >
-          <div
+          <button
+            aria-label="back to hub"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => navigate("/")}
             style={{
               position: "absolute",
-              left: 5,
-              top: 8,
-              width: 5,
-              height: 5,
-              background: "var(--mg-color-text-high)",
+              right: 12,
+              top: 14,
+              zIndex: 20,
+              background: "transparent",
+              border: "none",
+              color: "var(--mg-color-text-dim)",
+              cursor: "pointer",
+              padding: 6,
+              lineHeight: 0,
             }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              right: 5,
-              bottom: -6,
-              width: 8,
-              height: 6,
-              borderTop: "1.5px solid var(--mg-color-text-high)",
-            }}
-          />
-        </div>
+          >
+            <IconHub />
+          </button>
 
-        {obstacles.map((o) => (
           <div
-            key={o.id}
             style={{
               position: "absolute",
-              left: o.x,
-              width: o.w,
-              height: o.h,
-              top: GROUND_Y - o.h,
-              border: "1.5px solid var(--mg-color-text-emphasis)",
-              background: "var(--mg-color-surface-soft)",
+              left: 18,
+              top: 20,
+              color: "var(--mg-color-text-primary)",
+              fontSize: 32,
+              fontWeight: 300,
+              letterSpacing: -1,
+              opacity: phase === "idle" ? 0.25 : 1,
+            }}
+          >
+            {score}
+          </div>
+
+          {phase !== "playing" && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--mg-color-text-primary)",
+                pointerEvents: "none",
+              }}
+            >
+              <div style={{ fontSize: 12, letterSpacing: 6, opacity: 0.35, textTransform: "uppercase" }}>run!!</div>
+              <div style={{ marginTop: 18, fontSize: 10, letterSpacing: 2.5, opacity: 0.3 }}>tap / space to jump</div>
+              {phase === "done" && (
+                <div style={{ marginTop: 24, fontSize: 11, letterSpacing: 4, opacity: 0.32, textTransform: "uppercase" }}>
+                  game over
+                </div>
+              )}
+              {best > 0 && (
+                <div style={{ marginTop: 12, fontSize: 10, letterSpacing: 3, opacity: 0.2 }}>
+                  best {best}
+                </div>
+              )}
+              <button
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={startGame}
+                style={{ ...buttonStyle, marginTop: 44, pointerEvents: "auto" }}
+              >
+                {phase === "done" ? "again" : "start"}
+              </button>
+            </div>
+          )}
+
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: GROUND_Y,
+              height: 2,
+              background: "var(--mg-color-border-soft)",
+              opacity: 0.9,
             }}
           />
-        ))}
+
+          <div
+            style={{
+              position: "absolute",
+              left: PLAYER_X,
+              width: PLAYER_SIZE,
+              height: PLAYER_SIZE,
+              bottom: WORLD_H - (GROUND_Y - playerY),
+              borderRadius: "50%",
+              border: "1.5px solid var(--mg-color-text-high)",
+              background: "var(--mg-color-surface-soft)",
+              transformOrigin: "50% 100%",
+              transition: phase === "playing" ? "transform 0.06s linear" : "transform 0.2s ease",
+              transform: `scaleX(${playerScaleX}) scaleY(${playerScaleY})`,
+            }}
+          />
+
+          {obstacles.map((o) => (
+            <div
+              key={o.id}
+              style={{
+                position: "absolute",
+                left: o.x,
+                width: o.w,
+                height: o.h,
+                top: GROUND_Y - o.h,
+                border: "1.5px solid var(--mg-color-text-emphasis)",
+                background: "var(--mg-color-surface-soft)",
+              }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
