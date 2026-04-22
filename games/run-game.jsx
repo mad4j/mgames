@@ -56,7 +56,7 @@ export default function RunGame() {
     y: 0,
     speed: BASE_SPEED,
     distance: 0,
-    spawnIn: 1.1,
+    spawnIn: INITIAL_SPAWN_DELAY,
     id: 0,
     obstacles: [],
   });
