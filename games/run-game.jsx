@@ -9,6 +9,11 @@ const PLAYER_X = 88;
 const PLAYER_SIZE = 36;
 const JUMP_V = 880;
 const GRAVITY = 2300;
+const SQUASH_DURATION = 0.14;
+const SQUASH_SCALE_X = 0.15;
+const SQUASH_SCALE_Y = 0.12;
+const DEATH_SCALE_X = 1.22;
+const DEATH_SCALE_Y = 0.78;
 
 const BASE_SPEED = 250;
 const MAX_SPEED = 520;
@@ -126,8 +131,8 @@ export default function RunGame() {
       if (g.y < 0) {
         g.y = 0;
         g.vy = 0;
-        g.squashT = 0.14;
-        setSquash(0.14);
+        g.squashT = SQUASH_DURATION;
+        setSquash(SQUASH_DURATION);
       }
       setPlayerY(g.y);
     }
@@ -217,9 +222,9 @@ export default function RunGame() {
   };
   const scaleX = viewport.w / WORLD_W;
   const scaleY = viewport.h / WORLD_H;
-  const squashRatio = Math.min(1, squash / 0.14);
-  const playerScaleX = phase === "done" ? 1.22 : 1 + 0.15 * squashRatio;
-  const playerScaleY = phase === "done" ? 0.78 : 1 - 0.12 * squashRatio;
+  const squashRatio = Math.min(1, squash / SQUASH_DURATION);
+  const playerScaleX = phase === "done" ? DEATH_SCALE_X : 1 + SQUASH_SCALE_X * squashRatio;
+  const playerScaleY = phase === "done" ? DEATH_SCALE_Y : 1 - SQUASH_SCALE_Y * squashRatio;
 
   return (
     <div
