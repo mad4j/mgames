@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { HubButton, SoundToggleButton } from "../src/game-controls.jsx";
 
 // ── Constants ─────────────────────────────────────────────────
 const GRAV               = 0.30;
@@ -170,41 +171,6 @@ function useSound() {
   const playRollover = useCallback(() => playTone(528, 0.06, "sine",     0.10), [playTone]);
 
   return { soundOn, setSoundOn, playBumper, playDiamond, playTriangle, playKicker, playStar, playDrain, playRollover };
-}
-
-// ── Icon components ───────────────────────────────────────────
-function IconSound({ on }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* speaker body */}
-      <polygon points="2,6 6,6 10,2 10,16 6,12 2,12" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" fill="none"/>
-      {on ? (
-        <>
-          {/* wave 1 */}
-          <path d="M12.5 6.5 C13.8 7.3 13.8 10.7 12.5 11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-          {/* wave 2 */}
-          <path d="M14.5 4.5 C17 6 17 12 14.5 13.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-        </>
-      ) : (
-        <>
-          {/* mute X */}
-          <line x1="12" y1="6" x2="17" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-          <line x1="17" y1="6" x2="12" y2="12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-        </>
-      )}
-    </svg>
-  );
-}
-
-function IconHub() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2"  y="2"  width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
-      <rect x="10" y="2"  width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
-      <rect x="2"  y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
-      <rect x="10" y="10" width="6" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
-    </svg>
-  );
 }
 
 export const meta = {
@@ -717,15 +683,6 @@ export default function Pinball() {
     textTransform: "uppercase",
   };
 
-  const iconBtnStyle = {
-    position: "absolute", top: 14, zIndex: 30,
-    background: "transparent", border: "none",
-    color: "var(--mg-color-text-dim)",
-    cursor: "pointer", padding: 6,
-    lineHeight: 0,
-    transition: "color 0.2s",
-  };
-
   return (
     <div style={{
       width: "100vw", height: "100dvh",
@@ -756,26 +713,15 @@ export default function Pinball() {
         `}</style>
 
         {/* ── Sound toggle ── */}
-        <button
-          aria-label={soundOn ? "mute" : "unmute"}
-          onClick={() => setSoundOn(!soundOn)}
-          onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-high)"}
-          onMouseLeave={e => e.currentTarget.style.color = soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)"}
-          style={{ ...iconBtnStyle, right: 52, color: soundOn ? "var(--mg-color-text-dim)" : "var(--mg-color-text-weak)" }}
-        >
-          <IconSound on={soundOn} />
-        </button>
+        <SoundToggleButton
+          soundOn={soundOn}
+          setSoundOn={setSoundOn}
+          hoverColor="var(--mg-color-text-high)"
+          style={{ zIndex: 30 }}
+        />
 
         {/* ── Hub button ── */}
-        <button
-          aria-label="back to hub"
-          onClick={() => navigate("/")}
-          onMouseEnter={e => e.currentTarget.style.color = "var(--mg-color-text-hover)"}
-          onMouseLeave={e => e.currentTarget.style.color = "var(--mg-color-text-dim)"}
-          style={{ ...iconBtnStyle, right: 12 }}
-        >
-          <IconHub />
-        </button>
+        <HubButton onClick={() => navigate("/")} style={{ zIndex: 30 }} />
 
         {/* ── Canvas ── */}
         <canvas
