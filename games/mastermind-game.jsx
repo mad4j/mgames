@@ -10,19 +10,33 @@ const ROW_INDEX_WIDTH = 20;
 const FEEDBACK_COL_WIDTH = 36;
 const SHAPE_DIAMOND_INDEX = 3;
 const TAP_HINT_BOTTOM_SPACING = 24;
-const MIN_ICON_STROKE_WIDTH = 1.2;
+const MIN_ICON_STROKE_WIDTH = 1.4;
 const VIEWPORT_PADDING = 32;
 const GAME_W = 560;
 const GAME_H = 840;
 
-const C_BG   = "var(--mg-color-background)";
-const C_MAIN = "var(--mg-color-text-strong)";
-const C_STRONG = "rgba(15,20,25,0.96)";
-const C_SOFT = "rgba(15,20,25,0.78)";
-const C_DIM = "rgba(15,20,25,0.42)";
-const C_FAINT = "var(--mg-color-text-very-faint)";
-const C_BORDER = "var(--mg-color-text-very-faint)";
-const mono   = "'DM Mono', 'Courier New', monospace";
+const C_BG    = "var(--mg-color-background)";
+const C_MAIN  = "var(--mg-text, #dde1f0)";
+const C_STRONG = "rgba(221,225,240,0.96)";
+const C_SOFT   = "rgba(221,225,240,0.78)";
+const C_DIM    = "rgba(221,225,240,0.44)";
+const C_FAINT  = "rgba(221,225,240,0.22)";
+const C_BORDER = "rgba(221,225,240,0.16)";
+const mono     = "'DM Mono', 'Courier New', monospace";
+
+/* Per-shape accent colours */
+const SHAPE_COLORS = [
+  "#00d4ff", // 0 circle    — cyan
+  "#9b59f5", // 1 square    — purple
+  "#00e676", // 2 triangle  — green
+  "#ffe066", // 3 diamond   — yellow
+  "#ff9e44", // 4 pentagon  — orange
+  "#ff6b9e", // 5 hexagon   — pink
+];
+
+/* Feedback dot colours */
+const FB_BLACK_COLOR = "#00e676"; // correct position — green
+const FB_WHITE_COLOR = "#ffe066"; // wrong position   — yellow
 const IDLE_RULES = [
   ["SHAPES", "6 to choose"],
   ["CODE", "4 pegs"],
@@ -202,6 +216,7 @@ function useSound() {
 function MastermindHubSymbol({ size = 32 }) {
   const cell = size / 2;
   const radius = cell / 2 - 1;
+  const iconColors = ["#00d4ff", "#9b59f5", "#00e676", "#ffe066"];
 
   return (
     <svg
@@ -221,7 +236,7 @@ function MastermindHubSymbol({ size = 32 }) {
           cy={Math.floor(i / 2) * cell + cell / 2}
           r={radius}
           fill="none"
-          stroke="currentColor"
+          stroke={iconColors[i]}
           strokeWidth={Math.max(MIN_ICON_STROKE_WIDTH, size * 0.05)}
         />
       ))}
@@ -378,16 +393,18 @@ export default function MastermindGame() {
     const cx = size / 2;
     const cy = size / 2;
     const r  = size / 2 - 2;
+    const shapeColor = shapeIndex !== null ? SHAPE_COLORS[shapeIndex] : null;
     return (
       <div
         onClick={clickable ? onClick : undefined}
         style={{
           width:      size,
           height:     size,
-          opacity:    faded ? 0.22 : 1,
+          opacity:    faded ? 0.18 : 1,
           cursor:     clickable ? "pointer" : "default",
           flexShrink: 0,
-          transition: "opacity 0.15s",
+          transition: "opacity 0.15s, filter 0.15s",
+          filter:     clickable && shapeIndex !== null ? `drop-shadow(0 0 4px ${shapeColor}88)` : "none",
         }}
       >
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
@@ -397,7 +414,7 @@ export default function MastermindGame() {
               cx={cx}
               cy={cy}
               r={r}
-              fill={C_MAIN}
+              fill={shapeColor}
             />
           ) : (
             <circle
@@ -430,9 +447,10 @@ export default function MastermindGame() {
               width:        dotSize,
               height:       dotSize,
               borderRadius: "50%",
-              background:   p === "black" ? C_MAIN : "transparent",
-              border:       `1px solid ${p === "empty" ? C_FAINT : C_MAIN}`,
+              background:   p === "black" ? FB_BLACK_COLOR : p === "white" ? FB_WHITE_COLOR : "transparent",
+              border:       `1px solid ${p === "empty" ? C_BORDER : p === "black" ? FB_BLACK_COLOR : FB_WHITE_COLOR}`,
               boxSizing:    "border-box",
+              boxShadow:    p !== "empty" ? `0 0 5px ${p === "black" ? FB_BLACK_COLOR : FB_WHITE_COLOR}88` : "none",
             }}
           />
         ))}
@@ -446,35 +464,37 @@ export default function MastermindGame() {
       aria-label="submit guess"
       onClick={enabled ? onClick : undefined}
       style={{
-        width:        28,
-        height:       28,
+        width:        32,
+        height:       32,
         display:      "flex",
         alignItems:   "center",
         justifyContent: "center",
-        background:   "transparent",
-        border:       `1px solid ${enabled ? C_SOFT : C_BORDER}`,
+        background:   enabled ? "rgba(0, 212, 255, 0.08)" : "transparent",
+        border:       `1px solid ${enabled ? "#00d4ff" : C_BORDER}`,
         borderRadius: 6,
-        color:        enabled ? C_STRONG : C_DIM,
+        color:        enabled ? "#00d4ff" : C_DIM,
         cursor:       enabled ? "pointer" : "default",
-        opacity:      enabled ? 1 : 0.75,
-        transition:   "border-color 0.2s, box-shadow 0.2s, color 0.2s, opacity 0.2s",
+        opacity:      enabled ? 1 : 0.5,
+        transition:   "border-color 0.2s, box-shadow 0.2s, color 0.2s, opacity 0.2s, background 0.2s",
       }}
       onMouseEnter={(e) => {
         if (enabled) {
-          e.currentTarget.style.borderColor = C_STRONG;
-          e.currentTarget.style.boxShadow = "0 0 12px rgba(15,20,25,0.26)";
+          e.currentTarget.style.borderColor = "#00d4ff";
+          e.currentTarget.style.boxShadow = "0 0 14px rgba(0,212,255,0.35)";
+          e.currentTarget.style.background = "rgba(0, 212, 255, 0.16)";
         }
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = enabled ? C_SOFT : C_BORDER;
+        e.currentTarget.style.borderColor = enabled ? "#00d4ff" : C_BORDER;
         e.currentTarget.style.boxShadow = "none";
+        e.currentTarget.style.background = enabled ? "rgba(0, 212, 255, 0.08)" : "transparent";
       }}
     >
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
         <path
           d="M7 2v9M3 7l4 4 4-4"
           stroke="currentColor"
-          strokeWidth="1.4"
+          strokeWidth="1.6"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -613,28 +633,30 @@ export default function MastermindGame() {
     <button
       onClick={disabled ? undefined : onClick}
       style={{
-        background:    "transparent",
-        border:        `1px solid ${C_DIM}`,
-        color:         C_MAIN,
+        background:    disabled ? "transparent" : "rgba(0, 212, 255, 0.08)",
+        border:        `1px solid ${disabled ? C_BORDER : "#00d4ff"}`,
+        color:         disabled ? C_DIM : "#00d4ff",
         fontFamily:    mono,
         fontSize:      11,
         letterSpacing: 5,
-        padding:       "12px 32px",
+        padding:       "12px 36px",
         cursor:        disabled ? "default" : "pointer",
         textTransform: "uppercase",
-        opacity:       disabled ? 0.28 : 1,
-        transition:    "border-color 0.2s, box-shadow 0.2s, opacity 0.2s",
+        opacity:       disabled ? 0.3 : 1,
+        transition:    "border-color 0.2s, box-shadow 0.2s, opacity 0.2s, background 0.2s",
         ...style,
       }}
       onMouseEnter={(e) => {
         if (!disabled) {
-          e.currentTarget.style.borderColor = C_STRONG;
-          e.currentTarget.style.boxShadow  = "0 0 18px var(--mg-color-text-subtle)";
+          e.currentTarget.style.borderColor = "#00d4ff";
+          e.currentTarget.style.boxShadow  = "0 0 22px rgba(0,212,255,0.30)";
+          e.currentTarget.style.background  = "rgba(0, 212, 255, 0.16)";
         }
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = C_DIM;
+        e.currentTarget.style.borderColor = disabled ? C_BORDER : "#00d4ff";
         e.currentTarget.style.boxShadow  = "none";
+        e.currentTarget.style.background  = disabled ? "transparent" : "rgba(0, 212, 255, 0.08)";
       }}
     >
       {children}
@@ -653,18 +675,18 @@ export default function MastermindGame() {
       <div
         style={{
           color:         C_MAIN,
-          fontSize:      8,
+          fontSize:      9,
           letterSpacing: 2.5,
-          opacity:       0.34,
+          opacity:       0.48,
           textTransform: "uppercase",
         }}
       >
         Tap each slot to cycle
       </div>
-      <div style={{ display: "flex", gap: 8, opacity: 0.72 }}>
+      <div style={{ display: "flex", gap: 8 }}>
         {Array.from({ length: NUM_SHAPES }, (_, i) => (
           <svg key={i} width={16} height={16} viewBox="0 0 16 16">
-            <ShapeElement index={i} cx={8} cy={8} r={6} fill={C_MAIN} />
+            <ShapeElement index={i} cx={8} cy={8} r={6} fill={SHAPE_COLORS[i]} />
           </svg>
         ))}
       </div>
@@ -696,7 +718,8 @@ export default function MastermindGame() {
           justifyContent: "center",
           fontFamily:    mono,
           userSelect:    "none",
-          outline:       `1px dashed ${C_FAINT}`,
+          outline:       `1px solid rgba(0, 212, 255, 0.18)`,
+          boxShadow:     "0 0 60px rgba(0, 212, 255, 0.06)",
         }}
       >
         <style>{`
@@ -707,11 +730,11 @@ export default function MastermindGame() {
         <SoundToggleButton
           soundOn={soundOn}
           setSoundOn={setSoundOn}
-          onColor={C_DIM}
+          onColor="#00d4ff"
           offColor={C_FAINT}
           hoverColor={C_SOFT}
         />
-        <HubButton onClick={() => navigate("/")} color={C_DIM} hoverColor={C_SOFT} />
+        <HubButton onClick={() => navigate("/")} color={C_DIM} hoverColor="#00d4ff" />
 
         {/* ── IDLE ──────────────────────────────────────── */}
         {phase === "idle" && (
@@ -726,11 +749,11 @@ export default function MastermindGame() {
           >
             <div
               style={{
-                color:         C_MAIN,
-                fontSize:      10,
+                color:         "#00d4ff",
+                fontSize:      11,
                 letterSpacing: 8,
                 marginBottom:  20,
-                opacity:       0.38,
+                opacity:       0.72,
                 textTransform: "uppercase",
               }}
             >
@@ -739,17 +762,16 @@ export default function MastermindGame() {
 
             <div
               style={{
-                color:         C_MAIN,
                 display:              "grid",
                 gridTemplateColumns:  "repeat(2, 1fr)",
                 gridTemplateRows:     "repeat(2, 1fr)",
-                gap:                  0,
+                gap:                  4,
                 marginBottom:         20,
               }}
             >
               {[0, 1, 2, 3].map((shape) => (
-                <svg key={shape} width={40} height={40} viewBox="0 0 40 40" style={{ opacity: 0.92 }}>
-                  <ShapeElement index={shape} cx={20} cy={20} r={19} fill="none" stroke={C_MAIN} strokeWidth={2} />
+                <svg key={shape} width={40} height={40} viewBox="0 0 40 40">
+                  <ShapeElement index={shape} cx={20} cy={20} r={17} fill="none" stroke={SHAPE_COLORS[shape]} strokeWidth={2} />
                 </svg>
               ))}
             </div>
@@ -759,7 +781,7 @@ export default function MastermindGame() {
                 color:         C_MAIN,
                 fontSize:      9,
                 letterSpacing: 3,
-                opacity:       0.28,
+                opacity:       0.52,
                 marginBottom:  30,
               }}
             >
@@ -769,8 +791,8 @@ export default function MastermindGame() {
             {/* shape preview */}
             <div style={{ display: "flex", gap: 7, marginBottom: 36 }}>
               {Array.from({ length: NUM_SHAPES }, (_, i) => (
-                <svg key={i} width={14} height={14} viewBox="0 0 14 14" style={{ opacity: 0.6 }}>
-                  <ShapeElement index={i} cx={7} cy={7} r={5} fill={C_MAIN} />
+                <svg key={i} width={16} height={16} viewBox="0 0 16 16">
+                  <ShapeElement index={i} cx={8} cy={8} r={6} fill={SHAPE_COLORS[i]} />
                 </svg>
               ))}
             </div>
@@ -779,8 +801,8 @@ export default function MastermindGame() {
             <div style={{ display: "flex", gap: 28, marginBottom: 4 }}>
               {IDLE_RULES.map(([k, v]) => (
                 <div key={k} style={{ textAlign: "center" }}>
-                  <div style={{ color: C_MAIN, fontSize: 9, letterSpacing: 3, opacity: 0.55 }}>{k}</div>
-                  <div style={{ color: C_MAIN, fontSize: 9, letterSpacing: 1, opacity: 0.2, marginTop: 3 }}>{v}</div>
+                  <div style={{ color: C_MAIN, fontSize: 10, letterSpacing: 3, opacity: 0.72 }}>{k}</div>
+                  <div style={{ color: C_MAIN, fontSize: 9, letterSpacing: 1, opacity: 0.44, marginTop: 3 }}>{v}</div>
                 </div>
               ))}
             </div>
@@ -798,15 +820,16 @@ export default function MastermindGame() {
                 <div key={sym} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <div
                     style={{
-                      width:        8,
-                      height:       8,
+                      width:        9,
+                      height:       9,
                       borderRadius: "50%",
-                      background:   sym === "●" ? C_MAIN : "transparent",
-                      border:       `1px solid ${C_MAIN}`,
+                      background:   sym === "●" ? FB_BLACK_COLOR : FB_WHITE_COLOR,
+                      border:       `1px solid ${sym === "●" ? FB_BLACK_COLOR : FB_WHITE_COLOR}`,
                       boxSizing:    "border-box",
+                      boxShadow:    `0 0 5px ${sym === "●" ? FB_BLACK_COLOR : FB_WHITE_COLOR}88`,
                     }}
                   />
-                  <div style={{ color: C_MAIN, fontSize: 8, letterSpacing: 1, opacity: 0.25 }}>{label}</div>
+                  <div style={{ color: C_MAIN, fontSize: 9, letterSpacing: 1, opacity: 0.55 }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -846,10 +869,10 @@ export default function MastermindGame() {
               {/* attempt counter */}
               <div
                 style={{
-                  color:         C_MAIN,
-                  fontSize:      9,
+                  color:         "#00d4ff",
+                  fontSize:      10,
                   letterSpacing: 4,
-                  opacity:       0.35,
+                  opacity:       0.72,
                   textTransform: "uppercase",
                 }}
               >
@@ -875,16 +898,17 @@ export default function MastermindGame() {
               animation:     "fadeIn 0.5s ease",
             }}
           >
-            <div style={{ width: 48, height: 1, background: C_MAIN, opacity: 0.35, marginBottom: 24 }} />
+            <div style={{ width: 56, height: 1, background: game.won ? FB_BLACK_COLOR : "#ff6b9e", opacity: 0.6, marginBottom: 24 }} />
 
             <div
               style={{
-                color:         C_MAIN,
-                fontSize:      14,
+                color:         game.won ? FB_BLACK_COLOR : "#ff6b9e",
+                fontSize:      15,
                 letterSpacing: 6,
                 textTransform: "uppercase",
-                opacity:       0.5,
+                opacity:       0.92,
                 marginBottom:  20,
+                textShadow:    `0 0 18px ${game.won ? FB_BLACK_COLOR : "#ff6b9e"}66`,
               }}
             >
               {game.won ? "cracked it" : "out of attempts"}
@@ -899,7 +923,7 @@ export default function MastermindGame() {
                     cx={18}
                     cy={18}
                     r={14}
-                    fill={C_MAIN}
+                    fill={SHAPE_COLORS[shapeIdx]}
                   />
                 </svg>
               ))}
@@ -911,7 +935,7 @@ export default function MastermindGame() {
                   color:         C_MAIN,
                   fontSize:      11,
                   letterSpacing: 3,
-                  opacity:       0.38,
+                  opacity:       0.62,
                   marginBottom:  20,
                 }}
               >
@@ -924,7 +948,7 @@ export default function MastermindGame() {
                   color:         C_MAIN,
                   fontSize:      11,
                   letterSpacing: 3,
-                  opacity:       0.28,
+                  opacity:       0.44,
                   marginBottom:  20,
                 }}
               >
@@ -932,7 +956,7 @@ export default function MastermindGame() {
               </div>
             )}
 
-            <div style={{ width: 48, height: 1, background: C_MAIN, opacity: 0.35, marginBottom: 16 }} />
+            <div style={{ width: 56, height: 1, background: C_MAIN, opacity: 0.18, marginBottom: 16 }} />
 
             {/* compact game history */}
             <div
@@ -963,7 +987,7 @@ export default function MastermindGame() {
                       textAlign: "right",
                       color:     C_MAIN,
                       fontSize:  10,
-                      opacity:   0.38,
+                      opacity:   0.44,
                     }}
                   >
                     {i + 1}
@@ -971,7 +995,7 @@ export default function MastermindGame() {
                   <div style={{ display: "flex", gap: 6 }}>
                     {g.colors.map((c, j) => (
                       <svg key={j} width={20} height={20} viewBox="0 0 20 20">
-                        <ShapeElement index={c} cx={10} cy={10} r={8} fill={C_MAIN} />
+                        <ShapeElement index={c} cx={10} cy={10} r={8} fill={SHAPE_COLORS[c]} />
                       </svg>
                     ))}
                   </div>

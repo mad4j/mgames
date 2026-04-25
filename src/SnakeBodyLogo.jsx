@@ -1,5 +1,5 @@
-const HEAD_FILL = "var(--mg-color-surface-strong)";
-const BODY_BORDERS = ["rgba(15,20,25,0.65)", "rgba(15,20,25,0.42)"];
+const HEAD_FILL = "var(--mg-accent-cyan, #00d4ff)";
+const BODY_BORDERS = ["rgba(0, 212, 255, 0.65)", "rgba(155, 89, 245, 0.45)"];
 const BORDER_WIDTH = "1.5px";
 const [FIRST_BODY_BORDER, SECOND_BODY_BORDER] = BODY_BORDERS;
 
