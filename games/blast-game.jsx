@@ -350,7 +350,7 @@ export default function BlastGame() {
                 width: boardW,
                 height: boardH,
                 transform: "translateX(-50%)",
-                border: "1px solid rgba(255,255,255,0.16)",
+                border: "1px solid rgba(15,20,25,0.16)",
                 boxSizing: "border-box",
               }}
             >
@@ -406,7 +406,7 @@ export default function BlastGame() {
               style={{
                 marginTop: 48,
                 background: "transparent",
-                border: "1px solid rgba(255,255,255,0.25)",
+                border: "1px solid rgba(15,20,25,0.25)",
                 color: "var(--mg-color-text-strong)",
                 padding: "14px 34px",
                 fontSize: 11,
@@ -440,7 +440,7 @@ export default function BlastGame() {
               style={{
                 marginTop: 30,
                 background: "transparent",
-                border: "1px solid rgba(255,255,255,0.25)",
+                border: "1px solid rgba(15,20,25,0.25)",
                 color: "var(--mg-color-text-strong)",
                 padding: "14px 34px",
                 fontSize: 11,

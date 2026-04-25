@@ -411,7 +411,7 @@ export default function Pinball() {
     ctx.fillRect(0, 0, W, H);
 
     // Lane background
-    ctx.fillStyle = "rgba(255,255,255,0.018)";
+    ctx.fillStyle = "rgba(15,20,25,0.018)";
     ctx.fillRect(PW, 0, LANE_W, H);
 
     // Separator wall (main field / lane divider)
@@ -438,7 +438,7 @@ export default function Pinball() {
     ctx.stroke();
 
     // Guide rails
-    ctx.strokeStyle = "rgba(255,255,255,0.11)";
+    ctx.strokeStyle = "rgba(15,20,25,0.11)";
     ctx.lineWidth   = 1;
     guides.forEach(([x1, y1, x2, y2]) => {
       ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
@@ -447,7 +447,7 @@ export default function Pinball() {
     // Drain gap hint (dashed)
     const tipLx = fL.px + Math.cos(fL.dn) * fL.len;
     const tipRx = fR.px + Math.cos(fR.dn) * fR.len;
-    ctx.strokeStyle = "rgba(255,255,255,0.04)";
+    ctx.strokeStyle = "rgba(15,20,25,0.04)";
     ctx.lineWidth   = 1;
     ctx.setLineDash([3, 8]);
     ctx.beginPath();
@@ -462,52 +462,52 @@ export default function Pinball() {
 
       if (t.type === 'bumper') {
         ctx.shadowBlur  = fa > 0 ? 14 * fa : 0;
-        ctx.shadowColor = "rgba(255,255,255,0.8)";
+        ctx.shadowColor = "rgba(15,20,25,0.8)";
         ctx.beginPath();
         ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(255,255,255,${0.26 + fa * 0.60})`;
+        ctx.strokeStyle = `rgba(15,20,25,${0.26 + fa * 0.60})`;
         ctx.lineWidth   = 1.5;
         ctx.stroke();
-        if (fa > 0) { ctx.fillStyle = `rgba(255,255,255,${fa * 0.10})`; ctx.fill(); }
+        if (fa > 0) { ctx.fillStyle = `rgba(15,20,25,${fa * 0.10})`; ctx.fill(); }
         ctx.shadowBlur = 0;
         ctx.beginPath();
         ctx.arc(t.x, t.y, 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${0.28 + fa * 0.52})`;
+        ctx.fillStyle = `rgba(15,20,25,${0.28 + fa * 0.52})`;
         ctx.fill();
       }
 
       if (t.type === 'diamond') {
         ctx.shadowBlur  = fa > 0 ? 12 * fa : 0;
-        ctx.shadowColor = "rgba(255,255,255,0.8)";
+        ctx.shadowColor = "rgba(15,20,25,0.8)";
         pathDiamond(ctx, t.x, t.y, t.r);
-        ctx.strokeStyle = `rgba(255,255,255,${0.30 + fa * 0.58})`;
+        ctx.strokeStyle = `rgba(15,20,25,${0.30 + fa * 0.58})`;
         ctx.lineWidth   = 1.5;
         ctx.stroke();
-        if (fa > 0) { ctx.fillStyle = `rgba(255,255,255,${fa * 0.13})`; ctx.fill(); }
+        if (fa > 0) { ctx.fillStyle = `rgba(15,20,25,${fa * 0.13})`; ctx.fill(); }
         ctx.shadowBlur = 0;
         ctx.beginPath();
         ctx.moveTo(t.x, t.y - 4); ctx.lineTo(t.x, t.y + 4);
         ctx.moveTo(t.x - 4, t.y); ctx.lineTo(t.x + 4, t.y);
-        ctx.strokeStyle = `rgba(255,255,255,${0.15 + fa * 0.35})`;
+        ctx.strokeStyle = `rgba(15,20,25,${0.15 + fa * 0.35})`;
         ctx.lineWidth = 1;
         ctx.stroke();
       }
 
       if (t.type === 'triangle') {
         ctx.shadowBlur  = fa > 0 ? 12 * fa : 0;
-        ctx.shadowColor = "rgba(255,255,255,0.8)";
+        ctx.shadowColor = "rgba(15,20,25,0.8)";
         pathTriangle(ctx, t.x, t.y, t.r);
-        ctx.strokeStyle = `rgba(255,255,255,${0.32 + fa * 0.56})`;
+        ctx.strokeStyle = `rgba(15,20,25,${0.32 + fa * 0.56})`;
         ctx.lineWidth   = 1.5;
         ctx.stroke();
-        if (fa > 0) { ctx.fillStyle = `rgba(255,255,255,${fa * 0.12})`; ctx.fill(); }
+        if (fa > 0) { ctx.fillStyle = `rgba(15,20,25,${fa * 0.12})`; ctx.fill(); }
         ctx.shadowBlur = 0;
       }
 
       if (t.type === 'kicker') {
         ctx.shadowBlur  = fa > 0 ? 10 * fa : 0;
-        ctx.shadowColor = "rgba(255,255,255,0.8)";
-        ctx.strokeStyle = `rgba(255,255,255,${0.42 + fa * 0.52})`;
+        ctx.shadowColor = "rgba(15,20,25,0.8)";
+        ctx.strokeStyle = `rgba(15,20,25,${0.42 + fa * 0.52})`;
         ctx.lineWidth   = fa > 0 ? 3.5 : 2.5;
         ctx.lineCap     = "round";
         ctx.beginPath();
@@ -519,7 +519,7 @@ export default function Pinball() {
         const ux = dx / len, uy = dy / len;
         const nx = -uy, ny = ux;
         ctx.shadowBlur  = 0;
-        ctx.strokeStyle = `rgba(255,255,255,${0.18 + fa * 0.28})`;
+        ctx.strokeStyle = `rgba(15,20,25,${0.18 + fa * 0.28})`;
         ctx.lineWidth   = 1;
         [-0.35, 0, 0.35].forEach(off => {
           const bx = t.x1 + ux * len * (0.5 + off * 0.5);
@@ -533,12 +533,12 @@ export default function Pinball() {
       if (t.type === 'star') {
         if (!t.hidden) {
           ctx.shadowBlur  = fa > 0 ? 20 * fa : 5;
-          ctx.shadowColor = "rgba(255,255,255,0.8)";
+          ctx.shadowColor = "rgba(15,20,25,0.8)";
           pathStar(ctx, t.x, t.y, t.r);
-          ctx.strokeStyle = `rgba(255,255,255,${0.55 + fa * 0.40})`;
+          ctx.strokeStyle = `rgba(15,20,25,${0.55 + fa * 0.40})`;
           ctx.lineWidth   = 1.5;
           ctx.stroke();
-          if (fa > 0) { ctx.fillStyle = `rgba(255,255,255,${fa * 0.18})`; ctx.fill(); }
+          if (fa > 0) { ctx.fillStyle = `rgba(15,20,25,${fa * 0.18})`; ctx.fill(); }
           ctx.shadowBlur = 0;
         } else {
           // Ghost countdown
@@ -546,7 +546,7 @@ export default function Pinball() {
           const wait    = t.respawnAt - t.fl;
           const prog    = Math.min(1, elapsed / wait);
           ctx.shadowBlur  = 0;
-          ctx.strokeStyle = `rgba(255,255,255,${0.03 + prog * 0.09})`;
+          ctx.strokeStyle = `rgba(15,20,25,${0.03 + prog * 0.09})`;;
           ctx.lineWidth   = 1;
           ctx.setLineDash([2, 6]);
           pathStar(ctx, t.x, t.y, t.r);
@@ -558,8 +558,8 @@ export default function Pinball() {
       // ── Rollover ─────────────────────────────────────────────
       if (t.type === 'rollover') {
         ctx.shadowBlur  = fa > 0 ? 8 * fa : 0;
-        ctx.shadowColor = "rgba(255,255,255,0.7)";
-        ctx.strokeStyle = `rgba(255,255,255,${0.30 + fa * 0.55})`;
+        ctx.shadowColor = "rgba(15,20,25,0.7)";
+        ctx.strokeStyle = `rgba(15,20,25,${0.30 + fa * 0.55})`;
         ctx.lineWidth   = fa > 0 ? 3 : 1.5;
         ctx.lineCap     = "round";
         ctx.beginPath();
@@ -567,7 +567,7 @@ export default function Pinball() {
         ctx.lineTo(t.x + t.w / 2, t.y);
         ctx.stroke();
         ctx.shadowBlur  = 0;
-        ctx.strokeStyle = `rgba(255,255,255,${0.15 + fa * 0.25})`;
+        ctx.strokeStyle = `rgba(15,20,25,${0.15 + fa * 0.25})`;
         ctx.lineWidth   = 1;
         [-1, 1].forEach(sign => {
           const ex = t.x + sign * t.w / 2;
@@ -586,7 +586,7 @@ export default function Pinball() {
       ctx.beginPath();
       ctx.moveTo(f.px, f.py);
       ctx.lineTo(f.px + Math.cos(f.a) * f.len, f.py + Math.sin(f.a) * f.len);
-      ctx.strokeStyle = "rgba(255,255,255,0.84)";
+      ctx.strokeStyle = "rgba(15,20,25,0.84)";
       ctx.lineWidth   = FLIP_R * 2;
       ctx.stroke();
     });
@@ -594,8 +594,8 @@ export default function Pinball() {
     // Ball
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, BALL_R, 0, Math.PI * 2);
-    ctx.fillStyle   = "rgba(255,255,255,0.09)";
-    ctx.strokeStyle = "rgba(255,255,255,0.90)";
+    ctx.fillStyle   = "rgba(15,20,25,0.09)";
+    ctx.strokeStyle = "rgba(15,20,25,0.90)";
     ctx.lineWidth   = 1.5;
     ctx.fill();
     ctx.stroke();
@@ -605,7 +605,7 @@ export default function Pinball() {
       const prog  = 1 - Math.max(0, g.launchAt - now) / 900;
       const laneX = W - LANE_W * 0.4;
       const aY    = ball.y - 35;
-      ctx.strokeStyle = `rgba(255,255,255,${0.10 + prog * 0.28})`;
+      ctx.strokeStyle = `rgba(15,20,25,${0.10 + prog * 0.28})`;
       ctx.lineWidth   = 1.5;
       ctx.lineCap     = "round";
       ctx.beginPath();
@@ -762,7 +762,7 @@ export default function Pinball() {
             {best > 0 && <div style={{ color:"var(--mg-color-text-primary)", fontSize:11, letterSpacing:3, marginTop:36, opacity:0.18 }}>best {best}</div>}
             <button
               style={{ ...BtnStyle, marginTop: 52 }}
-              onMouseEnter={e => e.target.style.borderColor="rgba(255,255,255,0.6)"}
+              onMouseEnter={e => e.target.style.borderColor="rgba(15,20,25,0.6)"}
               onMouseLeave={e => e.target.style.borderColor="var(--mg-color-text-subtle)"}
               onClick={start}
             >start</button>
@@ -785,7 +785,7 @@ export default function Pinball() {
             }
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
-              onMouseEnter={e => e.target.style.borderColor="rgba(255,255,255,0.6)"}
+              onMouseEnter={e => e.target.style.borderColor="rgba(15,20,25,0.6)"}
               onMouseLeave={e => e.target.style.borderColor="var(--mg-color-text-subtle)"}
               onClick={start}
             >again</button>

@@ -466,7 +466,7 @@ export default function SnakeGame() {
 
           <button
             style={{ ...BtnStyle, marginTop: 48 }}
-            onMouseEnter={e => e.target.style.borderColor = "rgba(255,255,255,0.6)"}
+            onMouseEnter={e => e.target.style.borderColor = "rgba(15,20,25,0.6)"}
             onMouseLeave={e => e.target.style.borderColor = "var(--mg-color-text-subtle)"}
             onClick={startGame}
           >start</button>
@@ -510,8 +510,8 @@ export default function SnakeGame() {
                 top:        renderFood.y * CELL + CELL / 2,
                 width:      CELL * 0.6,
                 height:     CELL * 0.6,
-                border:     `1.5px solid rgba(255,255,255,${0.88 * foodOpacity})`,
-                background: `rgba(255,255,255,${0.05 * foodOpacity})`,
+                border:     `1.5px solid rgba(15,20,25,${0.88 * foodOpacity})`,
+                background: `rgba(15,20,25,${0.05 * foodOpacity})`,
                 transform:  "translate(-50%,-50%) rotate(45deg)",
                 animation:  "foodAppear 0.2s cubic-bezier(0.34,1.56,0.64,1) forwards",
                 pointerEvents: "none",
@@ -535,11 +535,11 @@ export default function SnakeGame() {
                   width:      size,
                   height:     size,
                   background: i === 0
-                    ? `rgba(255,255,255,${alpha})`
-                    : `rgba(255,255,255,${alpha * 0.05})`,
+                    ? `rgba(15,20,25,${alpha})`
+                    : `rgba(15,20,25,${alpha * 0.05})`,
                   border: i === 0
                     ? "none"
-                    : `1.5px solid rgba(255,255,255,${alpha})`,
+                    : `1.5px solid rgba(15,20,25,${alpha})`,
                   pointerEvents: "none",
                 }}
               />
@@ -564,7 +564,7 @@ export default function SnakeGame() {
           }
           <button
             style={{ ...BtnStyle, marginTop: 56 }}
-            onMouseEnter={e => e.target.style.borderColor = "rgba(255,255,255,0.6)"}
+            onMouseEnter={e => e.target.style.borderColor = "rgba(15,20,25,0.6)"}
             onMouseLeave={e => e.target.style.borderColor = "var(--mg-color-text-subtle)"}
             onClick={startGame}
           >again</button>

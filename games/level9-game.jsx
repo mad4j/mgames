@@ -3,8 +3,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 /* ═══════════════════════ PALETTE ════════════════════ */
 const C_BG    = "var(--mg-color-background)";
 const C_MAIN  = "var(--mg-color-text-emphasis)";
-const C_NEAR  = "rgba(255,255,255,1)";
-const C_SCAN  = "rgba(255,255,255,0.018)";
+const C_NEAR  = "rgba(15,20,25,1)";
+const C_SCAN  = "rgba(15,20,25,0.018)";
 const C_EBUL   = "rgba(255,140,140,0.9)";
 const C_PHAZOR = "rgba(180,120,255,0.95)";
 
@@ -699,14 +699,14 @@ export default function Level9Game() {
     <button
       style={{
         marginTop: 52, background: "transparent",
-        border: `1px solid rgba(255,255,255,0.27)`, color: C_MAIN,
+        border: `1px solid rgba(15,20,25,0.27)`, color: C_MAIN,
         fontFamily: mono, fontSize: 11, letterSpacing: 5,
         padding: "14px 36px", cursor: "pointer",
         textTransform: "uppercase", textShadow: `0 0 8px ${C_MAIN}`,
         transition: "border-color 0.2s, box-shadow 0.2s",
       }}
       onMouseEnter={e => { e.currentTarget.style.borderColor = C_MAIN; e.currentTarget.style.boxShadow = `0 0 18px ${C_MAIN}44`; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.27)"; e.currentTarget.style.boxShadow = "none"; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(15,20,25,0.27)"; e.currentTarget.style.boxShadow = "none"; }}
       onClick={onClick}
     >{children}</button>
   );

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 const C_BG   = "var(--mg-color-background)";
 const C_MAIN = "var(--mg-color-text-emphasis)";
 const C_GRID = "var(--mg-color-text-ultra-weak)";
-const C_WIN  = "rgba(255,255,255,1)";
+const C_WIN  = "rgba(15,20,25,1)";
 
 /* ═══════════════════════ CONSTANTS ═════════════════ */
 const MAX_SYMBOLS = 3;
@@ -291,7 +291,7 @@ export default function TrisGame() {
       style={{
         marginTop: 44,
         background: "transparent",
-        border: `1px solid rgba(255,255,255,0.27)`,
+        border: `1px solid rgba(15,20,25,0.27)`,
         color: C_MAIN,
         fontFamily: mono,
         fontSize: 11,
@@ -303,7 +303,7 @@ export default function TrisGame() {
         transition: "border-color 0.2s, box-shadow 0.2s",
       }}
       onMouseEnter={e => { e.currentTarget.style.borderColor = C_MAIN; e.currentTarget.style.boxShadow = `0 0 18px var(--mg-color-text-subtle)`; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.27)"; e.currentTarget.style.boxShadow = "none"; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(15,20,25,0.27)"; e.currentTarget.style.boxShadow = "none"; }}
       onClick={onClick}
     >
       {children}
@@ -422,7 +422,7 @@ export default function TrisGame() {
             fontSize: 72,
             letterSpacing: 4,
             lineHeight: 1,
-            textShadow: `0 0 40px rgba(255,255,255,0.5)`,
+            textShadow: `0 0 40px rgba(15,20,25,0.5)`,
             marginBottom: 6,
           }}>
             {game.result?.player === "X" ? "✕" : "○"}

@@ -338,7 +338,7 @@ export default function TapGame() {
           {best > 0 && <div style={{ color:"var(--mg-color-text-primary)", fontSize:11, letterSpacing:3, marginTop:48, opacity:0.18 }}>best {best}</div>}
           <button
             style={{ ...BtnStyle, marginTop:56 }}
-            onMouseEnter={e => e.target.style.borderColor="rgba(255,255,255,0.6)"}
+            onMouseEnter={e => e.target.style.borderColor="rgba(15,20,25,0.6)"}
             onMouseLeave={e => e.target.style.borderColor="var(--mg-color-text-subtle)"}
             onClick={startGame}
           >start</button>
@@ -385,8 +385,8 @@ export default function TapGame() {
                   left: `${dot.x}%`, top: `${dot.y}%`,
                   width: dot.size, height: dot.size,
                   borderRadius: "50%",
-                  border: `1.5px solid rgba(255,255,255,${opacity * 0.88})`,
-                  background: `rgba(255,255,255,${opacity * 0.05})`,
+                  border: `1.5px solid rgba(15,20,25,${opacity * 0.88})`,
+                  background: `rgba(15,20,25,${opacity * 0.05})`,
                   transform: "translate(-50%,-50%)",
                   cursor: "pointer",
                   animation: dot.popped
@@ -435,7 +435,7 @@ export default function TapGame() {
           }
           <button
             style={{ ...BtnStyle, marginTop:56 }}
-            onMouseEnter={e => e.target.style.borderColor="rgba(255,255,255,0.6)"}
+            onMouseEnter={e => e.target.style.borderColor="rgba(15,20,25,0.6)"}
             onMouseLeave={e => e.target.style.borderColor="var(--mg-color-text-subtle)"}
             onClick={startGame}
           >again</button>

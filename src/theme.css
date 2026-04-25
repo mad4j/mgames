@@ -1,38 +1,73 @@
 :root {
-  --mg-color-primary: #4f8cff;
-  --mg-color-secondary: #7c6cf2;
-  --mg-color-accent: #2fbf8f;
+  /* ═══════════════════════════════════════════════════════════ */
+  /* SFONDO E SUPERFICI */
+  /* ═══════════════════════════════════════════════════════════ */
+  --mg-bg: #f5f7fa;
+  --mg-surface: #ffffff;
 
-  --mg-color-background: #0f3333;
-  --mg-color-surface: #1e293b;
+  /* ═══════════════════════════════════════════════════════════ */
+  /* TESTI - Scala di grigio scuro con opacità */
+  /* ═══════════════════════════════════════════════════════════ */
+  --mg-text: #0f1419;
+  --mg-text-strong: rgba(15, 20, 25, 0.96);
+  --mg-text-high: rgba(15, 20, 25, 0.88);
+  --mg-text-emphasis: rgba(15, 20, 25, 0.82);
+  --mg-text-medium: rgba(15, 20, 25, 0.68);
+  --mg-text-dim: rgba(15, 20, 25, 0.54);
+  --mg-text-faint: rgba(15, 20, 25, 0.42);
+  --mg-text-very-faint: rgba(15, 20, 25, 0.34);
+  --mg-text-subtle: rgba(15, 20, 25, 0.28);
 
-  --mg-color-text-primary: #f8fafc;
-  --mg-color-text-secondary: #cbd5e1;
-  --mg-color-text-muted: #94a3b8;
+  /* ═══════════════════════════════════════════════════════════ */
+  /* ACCENTI VIBRANTI */
+  /* ═══════════════════════════════════════════════════════════ */
+  --mg-accent-blue: #0066ff;
+  --mg-accent-purple: #bb00ff;
+  --mg-accent-lime: #00dd66;
+  --mg-accent-warning: #d97706;
 
-  --mg-color-border: #334155;
+  /* ═══════════════════════════════════════════════════════════ */
+  /* VARIAZIONI DI SUPERFICIE - Accent colors con opacità */
+  /* ═══════════════════════════════════════════════════════════ */
+  --mg-surface-strong: rgba(187, 0, 255, 0.08);
+  --mg-surface-soft: rgba(0, 221, 102, 0.02);
+  --mg-surface-hover: rgba(0, 102, 255, 0.12);
+  --mg-border-soft: rgba(0, 102, 255, 0.25);
+  --mg-warning-shadow: rgba(217, 119, 6, 0.2);
 
-  --mg-color-text-strong: rgba(248, 250, 252, 0.96);
-  --mg-color-text-high: rgba(248, 250, 252, 0.9);
-  --mg-color-text-emphasis: rgba(248, 250, 252, 0.86);
-  --mg-color-text-medium: rgba(248, 250, 252, 0.64);
-  --mg-color-text-dim: rgba(248, 250, 252, 0.48);
-  --mg-color-text-faint: rgba(248, 250, 252, 0.38);
-  --mg-color-text-very-faint: rgba(248, 250, 252, 0.32);
-  --mg-color-text-subtle: rgba(248, 250, 252, 0.26);
-  --mg-color-text-minimal: rgba(248, 250, 252, 0.22);
-  --mg-color-text-weak: rgba(248, 250, 252, 0.18);
-  --mg-color-text-ultra-weak: rgba(248, 250, 252, 0.14);
+  /* ═══════════════════════════════════════════════════════════ */
+  /* LEGACY ALIASES per compatibilità */
+  /* ═══════════════════════════════════════════════════════════ */
+  --mg-color-background: var(--mg-bg);
+  --mg-color-surface: var(--mg-surface);
+  --mg-color-text-primary: var(--mg-text);
+  --mg-color-text-strong: var(--mg-text-strong);
+  --mg-color-text-high: var(--mg-text-high);
+  --mg-color-text-emphasis: var(--mg-text-emphasis);
+  --mg-color-text-medium: var(--mg-text-medium);
+  --mg-color-text-dim: var(--mg-text-dim);
+  --mg-color-text-faint: var(--mg-text-faint);
+  --mg-color-text-very-faint: var(--mg-text-very-faint);
+  --mg-color-text-subtle: var(--mg-text-subtle);
+  --mg-color-border-soft: var(--mg-border-soft);
+  --mg-color-surface-strong: var(--mg-surface-strong);
+  --mg-color-surface-soft: var(--mg-surface-soft);
+  --mg-color-surface-hover: var(--mg-surface-hover);
+  --mg-color-warning-soft: var(--mg-accent-warning);
+  --mg-color-warning-shadow: var(--mg-warning-shadow);
+}
 
-  --mg-color-border-soft: rgba(148, 163, 184, 0.5);
-  --mg-color-surface-strong: rgba(248, 250, 252, 0.94);
-  --mg-color-surface-medium: rgba(148, 163, 184, 0.2);
-  --mg-color-surface-soft: rgba(148, 163, 184, 0.12);
-  --mg-color-surface-hover: rgba(148, 163, 184, 0.08);
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
-  --mg-color-overlay: rgba(15, 23, 42, 0.62);
-
-  --mg-color-text-hover: rgba(248, 250, 252, 0.82);
-  --mg-color-warning-soft: rgba(251, 146, 60, 0.86);
-  --mg-color-warning-shadow: rgba(251, 146, 60, 0.44);
+input,
+textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }

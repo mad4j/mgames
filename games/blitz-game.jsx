@@ -143,7 +143,7 @@ function BuildingCap({ width }) {
       viewBox={`0 0 ${w} ${h}`}
       style={{ position: "absolute", top: -h, left: 0, display: "block" }}
     >
-      <path d={d} fill="rgba(255,255,255,0.70)" />
+      <path d={d} fill="rgba(15,20,25,0.70)" />
     </svg>
   );
 }
@@ -422,7 +422,7 @@ export default function BlitzGame() {
           )}
           <button
             style={{ ...BtnStyle, marginTop: best > 0 ? 32 : 56 }}
-            onMouseEnter={e => e.target.style.borderColor = "rgba(255,255,255,0.6)"}
+            onMouseEnter={e => e.target.style.borderColor = "rgba(15,20,25,0.6)"}
             onMouseLeave={e => e.target.style.borderColor = "var(--mg-color-text-subtle)"}
             onClick={startGame}
           >start</button>
@@ -485,11 +485,11 @@ export default function BlitzGame() {
                           width: CELL_W - 3,
                           height: CELL_H - 3,
                           background: isTop
-                            ? `rgba(255,255,255,${alpha})`
-                            : `rgba(255,255,255,0.04)`,
+                            ? `rgba(15,20,25,${alpha})`
+                            : `rgba(15,20,25,0.04)`,
                           border: isTop
                             ? "none"
-                            : `1.5px solid rgba(255,255,255,${alpha})`,
+                            : `1.5px solid rgba(15,20,25,${alpha})`,
                           boxSizing: "border-box",
                         }}
                       />
@@ -585,7 +585,7 @@ export default function BlitzGame() {
           }
           <button
             style={{ ...BtnStyle, marginTop: 56 }}
-            onMouseEnter={e => e.target.style.borderColor = "rgba(255,255,255,0.6)"}
+            onMouseEnter={e => e.target.style.borderColor = "rgba(15,20,25,0.6)"}
             onMouseLeave={e => e.target.style.borderColor = "var(--mg-color-text-subtle)"}
             onClick={startGame}
           >again</button>

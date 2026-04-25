@@ -345,7 +345,7 @@ export default function VoidGame() {
             </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
-              onMouseEnter={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.6)")}
+              onMouseEnter={(e) => (e.target.style.borderColor = "rgba(15,20,25,0.6)")}
               onMouseLeave={(e) => (e.target.style.borderColor = "var(--mg-color-text-subtle)")}
               onClick={startGame}
             >
@@ -416,7 +416,7 @@ export default function VoidGame() {
             </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
-              onMouseEnter={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.6)")}
+              onMouseEnter={(e) => (e.target.style.borderColor = "rgba(15,20,25,0.6)")}
               onMouseLeave={(e) => (e.target.style.borderColor = "var(--mg-color-text-subtle)")}
               onClick={startGame}
             >
@@ -448,7 +448,7 @@ export default function VoidGame() {
             </div>
             <button
               style={{ ...BtnStyle, marginTop: 56 }}
-              onMouseEnter={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.6)")}
+              onMouseEnter={(e) => (e.target.style.borderColor = "rgba(15,20,25,0.6)")}
               onMouseLeave={(e) => (e.target.style.borderColor = "var(--mg-color-text-subtle)")}
               onClick={startGame}
             >
