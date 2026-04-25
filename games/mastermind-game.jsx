@@ -765,7 +765,7 @@ export default function MastermindGame() {
                 display:              "grid",
                 gridTemplateColumns:  "repeat(2, 1fr)",
                 gridTemplateRows:     "repeat(2, 1fr)",
-                gap:                  4,
+                gap:                  "4px",
                 marginBottom:         20,
               }}
             >
