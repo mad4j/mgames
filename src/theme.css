@@ -1,39 +1,50 @@
 :root {
   /* ═══════════════════════════════════════════════════════════ */
-  /* SFONDO E SUPERFICI */
+  /* SFONDO E SUPERFICI — dark professional */
   /* ═══════════════════════════════════════════════════════════ */
-  --mg-bg: #f5f7fa;
-  --mg-surface: #ffffff;
+  --mg-bg: #0b0e1a;
+  --mg-surface: #141928;
+  --mg-surface-raised: #1c2338;
 
   /* ═══════════════════════════════════════════════════════════ */
-  /* TESTI - Scala di grigio scuro con opacità */
+  /* TESTI — bianco-blu soft su dark */
   /* ═══════════════════════════════════════════════════════════ */
-  --mg-text: #0f1419;
-  --mg-text-strong: rgba(15, 20, 25, 0.96);
-  --mg-text-high: rgba(15, 20, 25, 0.88);
-  --mg-text-emphasis: rgba(15, 20, 25, 0.82);
-  --mg-text-medium: rgba(15, 20, 25, 0.68);
-  --mg-text-dim: rgba(15, 20, 25, 0.54);
-  --mg-text-faint: rgba(15, 20, 25, 0.42);
-  --mg-text-very-faint: rgba(15, 20, 25, 0.34);
-  --mg-text-subtle: rgba(15, 20, 25, 0.28);
+  --mg-text: #dde1f0;
+  --mg-text-strong: rgba(221, 225, 240, 0.96);
+  --mg-text-high: rgba(221, 225, 240, 0.88);
+  --mg-text-emphasis: rgba(221, 225, 240, 0.78);
+  --mg-text-medium: rgba(221, 225, 240, 0.62);
+  --mg-text-dim: rgba(221, 225, 240, 0.44);
+  --mg-text-faint: rgba(221, 225, 240, 0.28);
+  --mg-text-very-faint: rgba(221, 225, 240, 0.16);
+  --mg-text-subtle: rgba(221, 225, 240, 0.09);
 
   /* ═══════════════════════════════════════════════════════════ */
   /* ACCENTI VIBRANTI */
   /* ═══════════════════════════════════════════════════════════ */
-  --mg-accent-blue: #0066ff;
-  --mg-accent-purple: #bb00ff;
-  --mg-accent-lime: #00dd66;
-  --mg-accent-warning: #d97706;
+  --mg-accent-cyan:   #00d4ff;
+  --mg-accent-purple: #9b59f5;
+  --mg-accent-green:  #00e676;
+  --mg-accent-yellow: #ffe066;
+  --mg-accent-orange: #ff9e44;
+  --mg-accent-pink:   #ff6b9e;
+
+  /* Colori per forme Mastermind */
+  --mg-shape-0: #00d4ff;   /* cerchio    — cyan        */
+  --mg-shape-1: #9b59f5;   /* quadrato   — purple      */
+  --mg-shape-2: #00e676;   /* triangolo  — green       */
+  --mg-shape-3: #ffe066;   /* rombo      — yellow      */
+  --mg-shape-4: #ff9e44;   /* pentagono  — orange      */
+  --mg-shape-5: #ff6b9e;   /* esagono    — pink        */
 
   /* ═══════════════════════════════════════════════════════════ */
-  /* VARIAZIONI DI SUPERFICIE - Accent colors con opacità */
+  /* VARIAZIONI DI SUPERFICIE */
   /* ═══════════════════════════════════════════════════════════ */
-  --mg-surface-strong: rgba(187, 0, 255, 0.08);
-  --mg-surface-soft: rgba(0, 221, 102, 0.02);
-  --mg-surface-hover: rgba(0, 102, 255, 0.12);
-  --mg-border-soft: rgba(0, 102, 255, 0.25);
-  --mg-warning-shadow: rgba(217, 119, 6, 0.2);
+  --mg-surface-strong: rgba(155, 89, 245, 0.15);
+  --mg-surface-soft:   rgba(0, 212, 255, 0.06);
+  --mg-surface-hover:  rgba(0, 212, 255, 0.10);
+  --mg-border-soft:    rgba(0, 212, 255, 0.45);
+  --mg-warning-shadow: rgba(255, 158, 68, 0.25);
 
   /* ═══════════════════════════════════════════════════════════ */
   /* LEGACY ALIASES per compatibilità */
@@ -53,7 +64,7 @@
   --mg-color-surface-strong: var(--mg-surface-strong);
   --mg-color-surface-soft: var(--mg-surface-soft);
   --mg-color-surface-hover: var(--mg-surface-hover);
-  --mg-color-warning-soft: var(--mg-accent-warning);
+  --mg-color-warning-soft: var(--mg-accent-orange);
   --mg-color-warning-shadow: var(--mg-warning-shadow);
 }
 
